@@ -64,7 +64,6 @@ BONUS_CIDADE = {
     "Brecilien": ["CAPE", "BAG"]
 }
 
-# (O ITENS_DB permanece o mesmo da sua versão anterior por ser a base de dados correta)
 ITENS_DB = {
     "TOMO DE FEITIÇOS": ["OFF_BOOK", "Tecido Fino", 4, "Couro Trabalhado", 4, None, 0],
     "OLHO DOS SEGREDOS": ["OFF_ORB_HELL", "Tecido Fino", 4, "Couro Trabalhado", 4, "ARTEFACT_OFF_ORB_HELL", 1],
@@ -332,7 +331,6 @@ if btn:
         detalhes = []
         skip = False
 
-        # Cálculo de Recursos Normais
         for recurso, qtd_base in [(d[1], d[2]), (d[3], d[4])]:
             if not recurso: continue
             for rid in ids_recurso_variantes(tier, recurso, encanto):
@@ -346,7 +344,6 @@ if btn:
         
         if skip: continue
 
-        # Cálculo de Artefato (se houver)
         if d[5]:
             art = f"T{tier}_{d[5]}"
             if art in precos_recursos:
@@ -355,10 +352,9 @@ if btn:
                 detalhes.append(f"💎 {qtd_art_total}x Artefato: {precos_recursos[art]['price']:,} silver ({precos_recursos[art]['city']})")
             else: continue
 
-        # Taxas e Cálculos Finais
-        custo_final = int(custo_bruto * 0.752) # Estimativa de 24.8% de retorno
+        custo_final = int(custo_bruto * 0.752)
         venda_total = precos_itens[item_id]["price"] * quantidade
-        lucro_liquido = int((venda_total * 0.935) - custo_final) # 6.5% Taxa BM
+        lucro_liquido = int((venda_total * 0.935) - custo_final)
         lucro_pct = round((lucro_liquido / custo_final) * 100, 1) if custo_final > 0 else 0
 
         if lucro_liquido > 0:
@@ -378,10 +374,11 @@ if btn:
         for r in resultados[:15]:
             recursos_html = "".join([f"<div style='margin-bottom:4px;'>{d}</div>" for d in r['detalhes']])
             
-            st.markdown(f"""
+            # Gerando o HTML final sem as aspas extras de Markdown
+            card_html = f"""
                 <div class="item-card">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                        <h2 style="margin:0; font-size: 1.4em;">⚔️ {r['nome']}</h2>
+                        <h2 style="margin:0; font-size: 1.4em; color: white;">⚔️ {r['nome']}</h2>
                         <div style="text-align: right;">
                             <span class="lucro-valor">+{r['lucro']:,} silver</span><br>
                             <span style="color: #2ecc71; font-weight: bold;">📈 {r['pct']}% Lucro</span>
@@ -391,7 +388,6 @@ if btn:
                     <hr style="opacity: 0.1; margin: 10px 0;">
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                        
                         <div>
                             <p style="margin: 4px 0;">🏗️ <b>Onde Craftar:</b> <span style="color: #f1c40f;">{r['bonus']}</span></p>
                             <p style="margin: 4px 0;">💰 <b>Investimento:</b> <span class="custo-valor">{r['investimento']:,} silver</span></p>
@@ -399,15 +395,15 @@ if btn:
                         </div>
 
                         <div style="background: #0d1117; padding: 12px; border-radius: 8px;">
-                            <b style="font-size: 0.8em; color: #8b949e; text-transform: uppercase;">Onde Comprar Recursos (Melhor Preço):</b>
+                            <b style="font-size: 0.8em; color: #8b949e; text-transform: uppercase;">Onde Comprar Recursos:</b>
                             <div class="recurso-texto" style="margin-top: 8px;">
                                 {recursos_html}
                             </div>
                         </div>
-
                     </div>
                 </div>
-            """, unsafe_allow_html=True)
+            """
+            st.markdown(card_html, unsafe_allow_html=True)
 
 st.divider()
 st.caption("Desenvolvido para Albion Online. Dados via API Albion Data Project.")
