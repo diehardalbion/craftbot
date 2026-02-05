@@ -1,5 +1,48 @@
 import streamlit as st
 import requests
+import streamlit as st
+
+st.set_page_config(
+    page_title="CraftBot",
+    layout="centered"
+)
+
+st.markdown(
+    """
+    <style>
+    /* fundo geral */
+    .stApp {
+        background-color: #0b0f1a;
+        color: #e5e7eb;
+    }
+
+    /* container principal */
+    .block-container {
+        background-color: #111827;
+        padding: 2.5rem;
+        border-radius: 18px;
+        box-shadow: 0 0 40px rgba(0,0,0,0.7);
+    }
+
+    /* sidebar */
+    section[data-testid="stSidebar"] {
+        background-color: #020617;
+    }
+
+    /* títulos */
+    h1, h2, h3 {
+        color: #f9fafb;
+    }
+
+    /* inputs */
+    .stSelectbox, .stButton, .stTextInput {
+        color: #f9fafb;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 from datetime import datetime, timezone
 
 # ================= CONFIG =================
