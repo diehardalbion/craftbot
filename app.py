@@ -3,7 +3,7 @@ import requests
 import json
 from datetime import datetime, timezone
 
-# --- 1. CONFIGURAÇÃO DA PÁGINA (Sempre o primeiro comando) ---
+# --- 1. CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(page_title="Radar Craft Albion", layout="wide")
 
 # --- 2. SISTEMA DE ACESSO ---
@@ -23,6 +23,7 @@ def verificar_acesso():
 
     if submitted:
         try:
+            # Tenta carregar o arquivo, se não existir cria um erro amigável
             with open("keys.json", "r") as f:
                 chaves = json.load(f)
             chave = chave.strip()
@@ -32,58 +33,25 @@ def verificar_acesso():
                 st.rerun()
             else:
                 st.error("❌ Chave inválida ou desativada")
+        except FileNotFoundError:
+            st.error("Arquivo de chaves não encontrado.")
         except Exception as e:
             st.error(f"Erro ao validar a chave: {e}")
     st.stop()
 
 verificar_acesso()
 
-# --- 3. CSS CUSTOMIZADO (Design e Correção de Cores) ---
+# --- 3. CSS CUSTOMIZADO ---
 st.markdown("""
 <style>
-/* Reset e Fundo */
 header { background: transparent !important; }
 .stApp > header { display: none; }
 .stApp { background: radial-gradient(circle at top, #0f172a, #020617); color: #e5e7eb; }
 .block-container { background-color: rgba(15, 23, 42, 0.94); padding: 2.5rem; border-radius: 22px; }
-
-/* Correção de Inputs (Number Input e Selectbox) */
-input, div[data-baseweb="select"] > div, div[data-baseweb="input"] {
-    background-color: #1e293b !important;
-    color: #ffffff !important;
-    border: 1px solid #334155 !important;
-}
+input, div[data-baseweb="select"] > div, div[data-baseweb="input"] { background-color: #1e293b !important; color: #ffffff !important; border: 1px solid #334155 !important; }
 input { -webkit-text-fill-color: #ffffff !important; opacity: 1 !important; }
 div[data-testid="stNumberInput"] button { background-color: #334155 !important; color: white !important; }
-
-/* Dropdown Menu */
-div[data-baseweb="popover"] ul { background-color: #1e293b !important; border: 1px solid #334155 !important; }
-div[data-baseweb="popover"] li { color: #ffffff !important; }
-div[data-baseweb="popover"] li:hover { background-color: #2563eb !important; }
-
-/* Cards de Resultado Final */
-.craft-card {
-    background-color: rgba(30, 41, 59, 0.5);
-    border-left: 5px solid #8b5cf6;
-    padding: 20px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-}
-.item-name { color: #ffffff; font-size: 1.3rem; font-weight: bold; margin-bottom: 10px; }
-.stat-line { margin: 5px 0; display: flex; align-items: center; gap: 8px; font-size: 1rem; }
-.perc-lucro { 
-    background-color: #065f46; color: #34d399; padding: 2px 8px; 
-    border-radius: 6px; font-weight: bold; font-size: 0.85rem; margin-left: 10px;
-}
-.cost-list { list-style: none; padding-left: 15px; margin-top: 8px; color: #cbd5e1; }
-.cost-list li { margin-bottom: 4px; font-size: 0.95rem; }
-.cost-list li::before { content: "■ "; color: #8b5cf6; }
-
-/* Botão Escanear */
-.stButton > button { 
-    background: linear-gradient(135deg, #2563eb, #1d4ed8); 
-    color: white !important; border-radius: 12px; width: 100%; font-weight: bold; height: 3.5rem; border: none;
-}
+.stButton > button { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white !important; border-radius: 12px; width: 100%; font-weight: bold; height: 3.5rem; border: none; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -101,7 +69,6 @@ BONUS_CIDADE = {
     "Brecilien": ["CAPE", "BAG"]
 }
 
-# (O ITENS_DB continua igual ao que você já tem, omitido aqui para o código não ficar gigante, mas deve estar aqui)
 ITENS_DB = {
     # --- OFF-HANDS E TOCHAS ---
     "TOMO DE FEITIÇOS": ["OFF_BOOK", "Tecido Fino", 4, "Couro Trabalhado", 4, None, 0],
@@ -350,6 +317,8 @@ with st.sidebar:
     tier = st.number_input("Tier", 4, 8, 4)
     encanto = st.number_input("Encanto", 0, 4, 0)
     quantidade = st.number_input("Quantidade", 1, 999, 1)
+    # Adicionado opção de foco para o cálculo de retorno ser mais real
+    foco = st.checkbox("Usar Foco (43.5% RRR)", value=False)
     btn = st.button("🚀 ESCANEAR")
 
 # --- 7. EXECUÇÃO DO SCAN ---
@@ -369,8 +338,12 @@ if btn:
             for r in ids_recurso_variantes(tier, d[3], encanto): ids.add(r)
         if d[5]: ids.add(f"T{tier}_{d[5]}")
 
-    response = requests.get(f"{API_URL}{','.join(ids)}?locations={','.join(CIDADES)}", timeout=20)
-    data = response.json()
+    try:
+        response = requests.get(f"{API_URL}{','.join(ids)}?locations={','.join(CIDADES)}", timeout=20)
+        data = response.json()
+    except:
+        st.error("Falha ao conectar com a API de dados. Tente novamente.")
+        st.stop()
 
     precos_itens = {}
     precos_recursos = {}
@@ -391,6 +364,8 @@ if btn:
                     precos_recursos[pid] = {"price": price, "city": p["city"], "horas": horas}
 
     resultados = []
+    rrr = 0.565 if foco else 0.752 # 43.5% vs 24.8%
+
     for nome, d in itens.items():
         item_id = id_item(tier, d[0], encanto)
         if item_id not in precos_itens: continue
@@ -400,14 +375,17 @@ if btn:
         falta_dado = False
 
         for recurso, qtd in [(d[1], d[2]), (d[3], d[4])]:
-            if not recurso: continue
-            for rid in ids_recurso_variantes(tier, recurso, encanto):
+            if not recurso or qtd == 0: continue
+            variantes = ids_recurso_variantes(tier, recurso, encanto)
+            encontrou = False
+            for rid in variantes:
                 if rid in precos_recursos:
                     info = precos_recursos[rid]
                     custo += info["price"] * (qtd * quantidade)
                     detalhes.append(f"{qtd * quantidade}x {recurso} — {info['price']:,} ({info['city']} {info['horas']})")
+                    encontrou = True
                     break
-            else:
+            if not encontrou:
                 falta_dado = True; break
         
         if falta_dado: continue
@@ -421,9 +399,9 @@ if btn:
             else: continue
 
         # Cálculo final
-        custo_final = custo * 0.752 # Bônus de retorno de recurso (ex: 24.8%)
+        custo_final = custo * rrr
         venda_total = precos_itens[item_id]["price"] * quantidade
-        lucro_liquido = (venda_total * 0.935) - custo_final # Taxa BM
+        lucro_liquido = (venda_total * 0.935) - custo_final 
 
         if lucro_liquido > 0:
             resultados.append((nome, int(lucro_liquido), int(venda_total), int(custo_final), detalhes))
@@ -432,7 +410,7 @@ if btn:
 
     # --- 8. EXIBIÇÃO DOS CARDS ---
     if not resultados:
-        st.error("❌ Nenhum lucro encontrado.")
+        st.error("❌ Nenhum lucro encontrado para estes filtros.")
     else:
         for nome, lucro, venda, custo, detalhes in resultados[:20]:
             porcentagem = (lucro / custo) * 100 if custo > 0 else 0
