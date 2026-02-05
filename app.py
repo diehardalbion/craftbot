@@ -242,15 +242,24 @@ def calcular_horas(data_iso):
 
 def horas_pelo_historico(item_id, cidade):
     try:
-        url = f"{API_HISTORY}{item_id}?locations={cidade}&time-scale=24"
+        url = (
+            f"https://west.albion-online-data.com/api/v2/stats/history/"
+            f"{item_id}?locations={cidade}&time-scale=24"
+        )
         r = requests.get(url, timeout=10)
         hist = r.json()
 
-        if not hist or "data" not in hist or not hist["data"]:
+        # A API retorna LISTA
+        if not isinstance(hist, list) or len(hist) == 0:
             return 999
 
-        for ponto in reversed(hist["data"]):
-            if ponto["avg_price"] > 0:
+        bloco = hist[0]  # cidade solicitada
+
+        if "data" not in bloco or not bloco["data"]:
+            return 999
+
+        for ponto in reversed(bloco["data"]):
+            if ponto.get("avg_price", 0) > 0:
                 data_api = datetime.fromisoformat(
                     ponto["timestamp"].replace("Z", "+00:00")
                 )
@@ -260,6 +269,7 @@ def horas_pelo_historico(item_id, cidade):
         return 999
     except:
         return 999
+
 
 def id_item(tier, base, enc):
     return f"T{tier}_{base}@{enc}" if enc > 0 else f"T{tier}_{base}"
