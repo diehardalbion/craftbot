@@ -431,10 +431,10 @@ if btn:
 Aqui está o bloco corrigido e ajustado para o formato exato que você pediu:
 
 Python
-    # Corrigindo a indentação e aplicando o formato solicitado
-    if not resultados:
+
+if not resultados:
         st.error("❌ Nenhum lucro encontrado.")
-    else:
+else:
         st.subheader(f"📊 Resultados para {categoria} T{tier}.{encanto}")
         
         for nome, lucro, venda, custo, detalhes, h_venda in resultados[:20]:
