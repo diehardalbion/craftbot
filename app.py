@@ -1,6 +1,39 @@
 import streamlit as st
 import requests
 import streamlit as st
+import json
+import streamlit as st
+
+def verificar_acesso():
+    if "logado" not in st.session_state:
+        st.session_state["logado"] = False
+
+    if st.session_state["logado"]:
+        return
+
+    st.title("🔐 Acesso Restrito")
+    st.write("Digite sua chave para acessar o Radar Craft")
+
+    chave = st.text_input("Chave de acesso", type="password")
+
+    if st.button("Entrar"):
+        try:
+            with open("keys.json", "r") as f:
+                chaves = json.load(f)
+
+            if chave in chaves and chaves[chave]["ativa"]:
+                st.session_state["logado"] = True
+                st.rerun()
+            else:
+                st.error("❌ Chave inválida ou desativada")
+
+        except:
+            st.error("Erro ao validar a chave")
+
+    st.stop()
+
+verificar_acesso()
+
 
 st.set_page_config(
     page_title="Radar Craft",
