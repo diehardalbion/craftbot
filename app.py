@@ -36,8 +36,6 @@ BONUS_CIDADE = {
 
 # ================= ITENS_DB =================
 # 👉 COLE AQUI O MESMO ITENS_DB DO DISCORD
-# (exatamente como você já tem — não muda nada)
-
 ITENS_DB = {
     # --- OFF-HANDS E TOCHAS ---
     "TOMO DE FEITIÇOS": ["OFF_BOOK", "Tecido Fino", 4, "Couro Trabalhado", 4, None, 0],
@@ -239,7 +237,6 @@ ITENS_DB = {
     "ALVORADA": ["MAIN_SPEAR_AVALON", "Tábuas de Pinho", 16, "Barra de Aço", 8, "ARTEFACT_MAIN_SPEAR_AVALON", 1],
     "ARCHA FRATURADA": ["2H_SPEAR_CRYSTAL", "Tábuas de Pinho", 12, "Barra de Aço", 20, "QUESTITEM_TOKEN_CRYSTAL_SPEAR", 1]
 }
-
 # ================= FILTROS =================
 
 FILTROS = {
@@ -259,10 +256,12 @@ FILTROS = {
 # ================= FUNÇÕES =================
 
 def calcular_horas(data_iso):
+    if not data_iso:
+        return 999
     try:
         data_api = datetime.fromisoformat(data_iso.replace("Z", "+00:00"))
-        diff = datetime.now(timezone.utc) - data_api
-        return int(diff.total_seconds() / 3600)
+        agora = datetime.now(timezone.utc)
+        return int((agora - data_api).total_seconds() / 3600)
     except:
         return 999
 
@@ -277,9 +276,8 @@ def ids_recurso_variantes(tier, nome, enc):
 
 def identificar_cidade_bonus(item_base):
     for cidade, chaves in BONUS_CIDADE.items():
-        for chave in chaves:
-            if chave in item_base:
-                return cidade
+        if any(chave in item_base for chave in chaves):
+            return cidade
     return "Caerleon (Geral)"
 
 # ================= INTERFACE =================
@@ -300,21 +298,31 @@ if btn:
     filtro = FILTROS[categoria]
     itens = {k: v for k, v in ITENS_DB.items() if filtro(k, v)}
 
+    if not itens:
+        st.error("Nenhum item encontrado para essa categoria.")
+        st.stop()
+
     ids = set()
+
     for d in itens.values():
         ids.add(id_item(tier, d[0], encanto))
+
         for r in ids_recurso_variantes(tier, d[1], encanto):
             ids.add(r)
+
         if d[3]:
             for r in ids_recurso_variantes(tier, d[3], encanto):
                 ids.add(r)
+
         if d[5]:
             ids.add(f"T{tier}_{d[5]}")
 
-    data = requests.get(
+    response = requests.get(
         f"{API_URL}{','.join(ids)}?locations={','.join(CIDADES)}",
         timeout=20
-    ).json()
+    )
+
+    data = response.json()
 
     precos_itens = {}
     precos_recursos = {}
@@ -322,6 +330,7 @@ if btn:
     for p in data:
         pid = p["item_id"]
 
+        # BLACK MARKET → COMPRA
         if p["city"] == "Black Market":
             price = p["buy_price_max"]
             if price > 0:
@@ -331,6 +340,8 @@ if btn:
                         "price": price,
                         "horas": horas
                     }
+
+        # ROYAL CITIES → VENDA
         else:
             price = p["sell_price_min"]
             if price > 0:
@@ -355,6 +366,7 @@ if btn:
         for recurso, qtd in [(d[1], d[2]), (d[3], d[4])]:
             if not recurso:
                 continue
+
             for rid in ids_recurso_variantes(tier, recurso, encanto):
                 if rid in precos_recursos:
                     info = precos_recursos[rid]
@@ -371,7 +383,9 @@ if btn:
                 if art not in precos_recursos:
                     continue
                 custo += precos_recursos[art]["price"] * d[6] * quantidade
-                detalhes.append(f"Artefato — {precos_recursos[art]['price']:,}")
+                detalhes.append(
+                    f"Artefato — {precos_recursos[art]['price']:,} ({precos_recursos[art]['city']} {precos_recursos[art]['horas']}h)"
+                )
 
             custo *= 0.752
             venda = precos_itens[item_id]["price"] * quantidade
@@ -383,14 +397,13 @@ if btn:
     resultados.sort(key=lambda x: x[1], reverse=True)
 
     if not resultados:
-        st.error("Nenhum lucro encontrado.")
+        st.error("❌ Nenhum lucro encontrado.")
     else:
         for nome, lucro, venda, custo, detalhes in resultados[:20]:
             st.markdown(f"""
 ### 💎 {nome}
 💰 **Lucro:** {lucro:,}  
-🛒 Venda BM: {venda:,}  
-📉 Custo: {custo:,}  
-📦 {' | '.join(detalhes)}
+🛒 **Venda BM:** {venda:,}  
+📉 **Custo:** {custo:,}  
+📦 **Recursos:** {' | '.join(detalhes)}
 """)
-
