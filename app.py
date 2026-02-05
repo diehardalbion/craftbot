@@ -420,6 +420,12 @@ FILTROS = {
     "secundarias": lambda k, v: v[0].startswith("OFF_"),
 }
 
+categorias = list(FILTROS.keys())
+
+categoria = st.selectbox("Categoria", categorias)
+
+st.write(f"Categoria selecionada: {categoria}")
+
 # ================= FUNÇÕES =================
 
 def calcular_horas(data_iso):
