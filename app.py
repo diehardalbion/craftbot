@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 from datetime import datetime, timezone
 
-# ================= CONFIG =================
+# ================= CONFIGURAÇÕES E DICIONÁRIOS =================
 API_URL = "https://west.albion-online-data.com/api/v2/stats/prices/"
 CIDADES = ["Martlock", "Thetford", "FortSterling", "Lymhurst", "Bridgewatch", "Brecilien", "Caerleon", "Black Market"]
 
@@ -23,7 +23,8 @@ BONUS_CIDADE = {
     "Brecilien": ["CAPE", "BAG"]
 }
 
-# Certifique-se de preencher seu ITENS_DB completo aqui
+# Exemplo de ITENS_DB (Adicione seus itens aqui mantendo a estrutura)
+# Estrutura: "Nome": ["ID_BASE", "Recurso1", Qtd1, "Recurso2", Qtd2, "Artefato", QtdArt]
 ITENS_DB = {
     # --- OFF-HANDS E TOCHAS ---
     "TOMO DE FEITIÇOS": ["OFF_BOOK", "Tecido Fino", 4, "Couro Trabalhado", 4, None, 0],
@@ -240,13 +241,12 @@ FILTROS = {
     "secundarias": lambda k, v: v[0].startswith("OFF_"),
 }
 
-# ================= FUNÇÕES AUXILIARES ATUALIZADAS =================
+# ================= FUNÇÕES AUXILIARES =================
 
 def calcular_horas(data_iso):
     if not data_iso or data_iso.startswith("0001"): 
         return 999
     try:
-        # Tenta converter o formato da API (ex: 2023-10-27T14:00:00)
         data_api = datetime.fromisoformat(data_iso.replace("Z", "+00:00"))
         data_agora = datetime.now(timezone.utc)
         diff = data_agora - data_api
@@ -254,36 +254,36 @@ def calcular_horas(data_iso):
     except:
         return 999
 
-# No loop de organização de preços, adicione este filtro:
+def formatar_status_hora(h):
+    if h >= 999: return "❌ Sem Dados"
+    if h <= 3: return f"🟢 {h}h ago"
+    if h <= 24: return f"🟡 {h}h ago"
+    return f"🔴 {h}h (Muito Antigo)"
 
-for p in data:
-    pid = p["item_id"]
-    h_atualizacao = calcular_horas(p["sell_price_min_date"] if p["city"] != "Black Market" else p["buy_price_max_date"])
-    
-    # Se o dado for mais velho que 48h, podemos considerar como "vazio" para não te dar prejuízo
-    if h_atualizacao > 48:
-        continue 
-        
-    if p["city"] == "Black Market":
-        if p["buy_price_max"] > 0:
-            precos_itens[pid] = {"price": p["buy_price_max"], "horas": h_atualizacao, "city": "Black Market"}
-    else:
-        if p["sell_price_min"] > 0:
-            if pid not in precos_recursos or p["sell_price_min"] < precos_recursos[pid]["price"]:
-                precos_recursos[pid] = {"price": p["sell_price_min"], "city": p["city"], "horas": h_atualizacao}
+def id_item(tier, base, enc):
+    return f"T{tier}_{base}@{enc}" if enc > 0 else f"T{tier}_{base}"
+
+def identificar_cidade_bonus(item_base):
+    for cidade, chaves in BONUS_CIDADE.items():
+        for chave in chaves:
+            if chave in item_base:
+                return cidade
+    return "Caerleon (Geral)"
 
 # ================= INTERFACE STREAMLIT =================
 
-st.set_page_config(page_title="Albion Market Scanner", layout="wide")
+st.set_page_config(page_title="Albion Scanner", layout="wide")
 st.title("📈 Albion Market Scanner")
 
 with st.sidebar:
-    st.header("Configurações de Busca")
+    st.header("Configurações")
     categoria = st.selectbox("Categoria", list(FILTROS.keys()))
     tier = st.slider("Tier", 4, 8, 4)
     encanto = st.slider("Encanto", 0, 4, 0)
     quantidade = st.number_input("Quantidade", min_value=1, value=1)
     foco = st.checkbox("Usar Foco (47.7% Retorno)")
+    st.divider()
+    max_horas = st.slider("Esconder dados mais velhos que (horas):", 1, 72, 48)
     
     botao_scan = st.button("🚀 ESCANEAR LUCROS")
 
@@ -291,6 +291,11 @@ if botao_scan:
     filtro = FILTROS[categoria]
     itens_filtrados = {k: v for k, v in ITENS_DB.items() if filtro(k, v)}
     
+    if not itens_filtrados:
+        st.warning("Nenhum item cadastrado nesta categoria.")
+        st.stop()
+
+    # Criar lista de IDs para buscar na API
     ids_to_fetch = set()
     for d in itens_filtrados.values():
         ids_to_fetch.add(id_item(tier, d[0], encanto))
@@ -298,28 +303,36 @@ if botao_scan:
         if d[3]: ids_to_fetch.add(f"T{tier}_{RECURSO_MAP[d[3]]}@{encanto}" if encanto > 0 else f"T{tier}_{RECURSO_MAP[d[3]]}")
         if d[5]: ids_to_fetch.add(f"T{tier}_{d[5]}")
 
-    with st.spinner("Buscando preços..."):
+    with st.spinner("Conectando ao Albion Data Project..."):
         try:
-            r = requests.get(f"{API_URL}{','.join(ids_to_fetch)}?locations={','.join(CIDADES)}", timeout=20)
+            url_final = f"{API_URL}{','.join(ids_to_fetch)}?locations={','.join(CIDADES)}"
+            r = requests.get(url_final, timeout=15)
             data = r.json()
         except:
-            st.error("Erro na API.")
+            st.error("Erro ao buscar dados. Tente novamente.")
             st.stop()
 
-    # Organização de preços (Menor preço de venda para recursos, maior de compra para BM)
+    # Organização de preços
     precos_itens = {}
     precos_recursos = {}
 
     for p in data:
         pid = p["item_id"]
+        # Diferenciar hora de compra (BM) e hora de venda (Recursos)
+        h_atual = calcular_horas(p["buy_price_max_date"] if p["city"] == "Black Market" else p["sell_price_min_date"])
+        
+        if h_atual > max_horas:
+            continue
+
         if p["city"] == "Black Market":
             if p["buy_price_max"] > 0:
-                precos_itens[pid] = {"price": p["buy_price_max"], "horas": calcular_horas(p["buy_price_max_date"]), "city": "Black Market"}
+                precos_itens[pid] = {"price": p["buy_price_max"], "horas": h_atual, "city": "Black Market"}
         else:
             if p["sell_price_min"] > 0:
                 if pid not in precos_recursos or p["sell_price_min"] < precos_recursos[pid]["price"]:
-                    precos_recursos[pid] = {"price": p["sell_price_min"], "city": p["city"], "horas": calcular_horas(p["sell_price_min_date"])}
+                    precos_recursos[pid] = {"price": p["sell_price_min"], "city": p["city"], "horas": h_atual}
 
+    # Cálculos Finais
     resultados = []
     taxa_retorno = 0.523 if foco else 0.752 
 
@@ -331,7 +344,6 @@ if botao_scan:
         detalhes_lista = []
         falta_dado = False
 
-        # Loop de Recursos 1 e 2
         for i in [1, 3]:
             res_nome, res_qtd = d[i], d[i+1]
             if res_nome and res_qtd > 0:
@@ -340,17 +352,16 @@ if botao_scan:
                     p_info = precos_recursos[r_id]
                     total_res = p_info["price"] * res_qtd * quantidade
                     custo_materiais += total_res
-                    detalhes_lista.append(f"▫️ {res_qtd * quantidade}x {res_nome}: **{total_res:,}** ({p_info['city']} - {p_info['horas']}h)")
+                    detalhes_lista.append(f"▫️ {res_qtd * quantidade}x {res_nome}: **{total_res:,}** ({p_info['city']} - {formatar_status_hora(p_info['horas'])})")
                 else: falta_dado = True
 
-        # Artefatos
         if d[5] and d[6] > 0:
             art_id = f"T{tier}_{d[5]}"
             if art_id in precos_recursos:
                 p_info = precos_recursos[art_id]
                 total_art = p_info["price"] * d[6] * quantidade
                 custo_materiais += total_art
-                detalhes_lista.append(f"▫️ {d[6] * quantidade}x Artefato: **{total_art:,}** ({p_info['city']} - {p_info['horas']}h)")
+                detalhes_lista.append(f"▫️ {d[6] * quantidade}x Artefato: **{total_art:,}** ({p_info['city']} - {formatar_status_hora(p_info['horas'])})")
             else: falta_dado = True
 
         if falta_dado: continue
@@ -371,18 +382,20 @@ if botao_scan:
                 "detalhes": "\n".join(detalhes_lista)
             })
 
-    # EXIBIÇÃO EM "TELHAS" (EXPANDERS)
+    # EXIBIÇÃO
     if resultados:
-        st.success(f"Busca finalizada! {len(resultados)} itens lucrativos encontrados.")
         resultados.sort(key=lambda x: x["lucro"], reverse=True)
+        st.success(f"Foram encontrados {len(resultados)} itens lucrativos!")
         for r in resultados:
-            with st.expander(f"📦 {r['nome']} | Lucro: {r['lucro']:,} pratas"):
+            with st.expander(f"📦 {r['nome']} | Lucro: +{r['lucro']:,} silver"):
                 st.markdown(f"""
-                **Lucro:** {r['lucro']:,}  
-                **Venda:** {r['venda']:,} ({r['cidade_venda']} - {r['horas']}h)  
-                **Local de Bonus:** {r['local']}  
+                ### Detalhes do Item
+                - **Lucro Líquido:** {r['lucro']:,} pratas
+                - **Venda Bruta:** {r['venda']:,} ({r['cidade_venda']} - {formatar_status_hora(r['horas'])})
+                - **Bônus de Cidade:** {r['local']}
                 
-                **Recursos Necessários:** {r['detalhes']}
+                **Materiais (Menor Preço Encontrado):**
+                {r['detalhes']}
                 """)
     else:
-        st.warning("Nenhum item com lucro positivo encontrado no momento.")
+        st.warning("Nenhum lucro encontrado com os dados atuais. Tente mudar o Tier ou Categoria.")
