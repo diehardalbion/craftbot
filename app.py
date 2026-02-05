@@ -1,9 +1,10 @@
 import streamlit as st
 import requests
-import json
-from datetime import datetime, timezone
+import streamlit as st
 
-# ================= LOGIN =================
+import json
+import streamlit as st
+
 def verificar_acesso():
     if "logado" not in st.session_state:
         st.session_state["logado"] = False
@@ -39,7 +40,7 @@ def verificar_acesso():
 
 verificar_acesso()
 
-# ================= CONFIG PAGINA =================
+
 st.set_page_config(
     page_title="Radar Craft",
     layout="wide"
@@ -58,32 +59,40 @@ section[data-testid="stSidebar"] { background: #020617; }
 section[data-testid="stSidebar"] * { color: #f8fafc !important; }
 
 /* --- CORREÇÃO DO DROPDOWN (SELECTBOX) --- */
-/* Fundo do campo fechado */
 div[data-baseweb="select"] > div {
     background-color: #1e293b !important; 
     border: 1px solid #334155 !important;
 }
-
-/* Texto do item selecionado */
 div[data-baseweb="select"] span, div[data-baseweb="select"] div {
     color: #ffffff !important;
 }
-
-/* Fundo da lista que abre (Popover) */
 div[data-baseweb="popover"] ul {
     background-color: #1e293b !important;
     border: 1px solid #334155 !important;
 }
-
-/* Itens individuais da lista */
 div[data-baseweb="popover"] li {
     background-color: transparent !important;
     color: #ffffff !important;
 }
 
-/* Efeito de passar o mouse nos itens da lista */
-div[data-baseweb="popover"] li:hover {
-    background-color: #334155 !important;
+/* --- CORREÇÃO DOS CAMPOS DE NÚMERO (TIER, ENCANTO, QTD) --- */
+/* Fundo do campo de entrada */
+div[data-baseweb="input"] {
+    background-color: #1e293b !important;
+    border: 1px solid #334155 !important;
+    border-radius: 10px !important;
+}
+
+/* Texto dentro do campo (os números) */
+div[data-baseweb="input"] input {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important; /* Força cor no Chrome/Safari */
+}
+
+/* Cor dos ícones de + e - (botões laterais do number_input) */
+div[data-baseweb="input"] button {
+    background-color: transparent !important;
+    color: #ffffff !important;
 }
 
 /* Botão Escanear */
@@ -93,11 +102,17 @@ div[data-baseweb="popover"] li:hover {
     border-radius: 14px; 
     width: 100%;
     border: none;
+    margin-top: 1rem;
 }
 </style>
 """, unsafe_allow_html=True)
 
+
+
+from datetime import datetime, timezone
+
 # ================= CONFIG =================
+
 API_URL = "https://west.albion-online-data.com/api/v2/stats/prices/"
 
 CIDADES = [
@@ -128,22 +143,8 @@ BONUS_CIDADE = {
     "Brecilien": ["CAPE", "BAG"]
 }
 
-# ================= FILTROS =================
-FILTROS = {
-    "armadura_placa": lambda k, v: "ARMOR_PLATE" in v[0],
-    "armadura_couro": lambda k, v: "ARMOR_LEATHER" in v[0],
-    "armadura_pano": lambda k, v: "ARMOR_CLOTH" in v[0],
-    "botas_placa": lambda k, v: "SHOES_PLATE" in v[0],
-    "botas_couro": lambda k, v: "SHOES_LEATHER" in v[0],
-    "botas_pano": lambda k, v: "SHOES_CLOTH" in v[0],
-    "capacete_placa": lambda k, v: "HEAD_PLATE" in v[0],
-    "capacete_couro": lambda k, v: "HEAD_LEATHER" in v[0],
-    "capacete_pano": lambda k, v: "HEAD_CLOTH" in v[0],
-    "armas": lambda k, v: v[0].startswith(("MAIN_", "2H_")),
-    "secundarias": lambda k, v: v[0].startswith("OFF_")
-}
-
 # ================= ITENS_DB =================
+# 👉 COLE AQUI O MESMO ITENS_DB DO DISCORD
 ITENS_DB = {
     # --- OFF-HANDS E TOCHAS ---
     "TOMO DE FEITIÇOS": ["OFF_BOOK", "Tecido Fino", 4, "Couro Trabalhado", 4, None, 0],
@@ -345,8 +346,24 @@ ITENS_DB = {
     "ALVORADA": ["MAIN_SPEAR_AVALON", "Tábuas de Pinho", 16, "Barra de Aço", 8, "ARTEFACT_MAIN_SPEAR_AVALON", 1],
     "ARCHA FRATURADA": ["2H_SPEAR_CRYSTAL", "Tábuas de Pinho", 12, "Barra de Aço", 20, "QUESTITEM_TOKEN_CRYSTAL_SPEAR", 1]
 }
+# ================= FILTROS =================
+
+FILTROS = {
+    "armadura_placa": lambda k, v: "ARMOR_PLATE" in v[0],
+    "armadura_couro": lambda k, v: "ARMOR_LEATHER" in v[0],
+    "armadura_pano": lambda k, v: "ARMOR_CLOTH" in v[0],
+    "botas_placa": lambda k, v: "SHOES_PLATE" in v[0],
+    "botas_couro": lambda k, v: "SHOES_LEATHER" in v[0],
+    "botas_pano": lambda k, v: "SHOES_CLOTH" in v[0],
+    "capacete_placa": lambda k, v: "HEAD_PLATE" in v[0],
+    "capacete_couro": lambda k, v: "HEAD_LEATHER" in v[0],
+    "capacete_pano": lambda k, v: "HEAD_CLOTH" in v[0],
+    "armas": lambda k, v: v[0].startswith(("MAIN_", "2H_")),
+    "secundarias": lambda k, v: v[0].startswith("OFF_"),
+}
 
 # ================= FUNÇÕES =================
+
 def calcular_horas(data_iso):
     if not data_iso:
         return 999
@@ -357,8 +374,10 @@ def calcular_horas(data_iso):
     except:
         return 999
 
+
 def id_item(tier, base, enc):
     return f"T{tier}_{base}@{enc}" if enc > 0 else f"T{tier}_{base}"
+
 
 def ids_recurso_variantes(tier, nome, enc):
     base = f"T{tier}_{RECURSO_MAP[nome]}"
@@ -366,13 +385,17 @@ def ids_recurso_variantes(tier, nome, enc):
         return [f"{base}@{enc}", f"{base}_LEVEL{enc}@{enc}"]
     return [base]
 
+
 def identificar_cidade_bonus(item_base):
     for cidade, chaves in BONUS_CIDADE.items():
         if any(chave in item_base for chave in chaves):
             return cidade
     return "Caerleon (Geral)"
 
+
 # ================= INTERFACE =================
+
+st.set_page_config("Radar Craft Albion", layout="wide")
 st.title("⚔️ Radar Craft — Royal Cities + Black Market")
 
 with st.sidebar:
@@ -382,7 +405,9 @@ with st.sidebar:
     quantidade = st.number_input("Quantidade", 1, 999, 1)
     btn = st.button("🚀 ESCANEAR")
 
+
 # ================= EXECUÇÃO =================
+
 if btn:
     filtro = FILTROS[categoria]
     itens = {k: v for k, v in ITENS_DB.items() if filtro(k, v)}
@@ -392,13 +417,17 @@ if btn:
         st.stop()
 
     ids = set()
+
     for d in itens.values():
         ids.add(id_item(tier, d[0], encanto))
+
         for r in ids_recurso_variantes(tier, d[1], encanto):
             ids.add(r)
+
         if d[3]:
             for r in ids_recurso_variantes(tier, d[3], encanto):
                 ids.add(r)
+
         if d[5]:
             ids.add(f"T{tier}_{d[5]}")
 
@@ -406,6 +435,7 @@ if btn:
         f"{API_URL}{','.join(ids)}?locations={','.join(CIDADES)}",
         timeout=20
     )
+
     data = response.json()
 
     precos_itens = {}
@@ -413,35 +443,51 @@ if btn:
 
     for p in data:
         pid = p["item_id"]
+
+        # BLACK MARKET → COMPRA
         if p["city"] == "Black Market":
             price = p["buy_price_max"]
             if price > 0:
                 horas = calcular_horas(p["buy_price_max_date"])
                 if pid not in precos_itens or price > precos_itens[pid]["price"]:
-                    precos_itens[pid] = {"price": price, "horas": horas}
+                    precos_itens[pid] = {
+                        "price": price,
+                        "horas": horas
+                    }
+
+        # ROYAL CITIES → VENDA
         else:
             price = p["sell_price_min"]
             if price > 0:
                 horas = calcular_horas(p["sell_price_min_date"])
                 if pid not in precos_recursos or price < precos_recursos[pid]["price"]:
-                    precos_recursos[pid] = {"price": price, "city": p["city"], "horas": horas}
+                    precos_recursos[pid] = {
+                        "price": price,
+                        "city": p["city"],
+                        "horas": horas
+                    }
 
     resultados = []
 
     for nome, d in itens.items():
-        item_id_val = id_item(tier, d[0], encanto)
-        if item_id_val not in precos_itens:
+        item_id = id_item(tier, d[0], encanto)
+        if item_id not in precos_itens:
             continue
+
         custo = 0
         detalhes = []
+
         for recurso, qtd in [(d[1], d[2]), (d[3], d[4])]:
             if not recurso:
                 continue
+
             for rid in ids_recurso_variantes(tier, recurso, encanto):
                 if rid in precos_recursos:
                     info = precos_recursos[rid]
                     custo += info["price"] * qtd * quantidade
-                    detalhes.append(f"{qtd * quantidade}x {recurso} — {info['price']:,} ({info['city']} {info['horas']}h)")
+                    detalhes.append(
+                        f"{qtd * quantidade}x {recurso} — {info['price']:,} ({info['city']} {info['horas']}h)"
+                    )
                     break
             else:
                 break
@@ -450,13 +496,19 @@ if btn:
                 art = f"T{tier}_{d[5]}"
                 if art not in precos_recursos:
                     continue
+
                 qtd_art = d[6] * quantidade
                 preco_art = precos_recursos[art]["price"]
+
                 custo += preco_art * qtd_art
-                detalhes.append(f"{qtd_art}x Artefato — {preco_art:,} ({precos_recursos[art]['city']} {precos_recursos[art]['horas']}h)")
+                detalhes.append(
+                    f"{qtd_art}x Artefato — {preco_art:,} ({precos_recursos[art]['city']} {precos_recursos[art]['horas']}h)"
+                )
+
             custo *= 0.752
-            venda = precos_itens[item_id_val]["price"] * quantidade
+            venda = precos_itens[item_id]["price"] * quantidade
             lucro = (venda * 0.935) - custo
+
             if lucro > 0:
                 resultados.append((nome, int(lucro), int(venda), int(custo), detalhes))
 
