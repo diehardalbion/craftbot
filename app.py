@@ -1,10 +1,9 @@
 import streamlit as st
 import requests
-import streamlit as st
-
 import json
-import streamlit as st
+from datetime import datetime, timezone
 
+# ================= LOGIN =================
 def verificar_acesso():
     if "logado" not in st.session_state:
         st.session_state["logado"] = False
@@ -40,137 +39,39 @@ def verificar_acesso():
 
 verificar_acesso()
 
-
+# ================= CONFIG PAGINA =================
 st.set_page_config(
     page_title="Radar Craft",
     layout="wide"
 )
 
-st.markdown(
-    """
-    <style>
-    /* REMOVE faixa branca superior */
-    header {
-        background: transparent !important;
-    }
-    .stApp > header {
-        display: none;
-    }
-
-    /* REMOVE espaçamento extra do topo */
-    .block-container {
-        padding-top: 2rem !important;
-    }
-
-    /* FUNDO GERAL */
-    .stApp {
-        background: radial-gradient(circle at top, #0f172a, #020617);
-        color: #e5e7eb;
-    }
-
-    /* CONTEÚDO CENTRAL */
-    .block-container {
-        background-color: rgba(15, 23, 42, 0.94);
-        padding: 2.5rem;
-        border-radius: 22px;
-        box-shadow: 0 0 60px rgba(0,0,0,0.75);
-    }
-
-    /* SIDEBAR */
-    section[data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #020617, #020617);
-        padding-top: 2rem;
-    }
-
-    /* TEXTO DA SIDEBAR */
-    section[data-testid="stSidebar"] * {
-        color: #f8fafc !important;
-        font-weight: 500;
-    }
-
-    /* INPUTS DA SIDEBAR */
-    section[data-testid="stSidebar"] select,
-    section[data-testid="stSidebar"] input,
-    section[data-testid="stSidebar"] button,
-    div[data-baseweb="select"] > div {
-        background-color: #020617 !important;
-        color: #f9fafb !important;
-        border: 1px solid #1e293b !important;
-        border-radius: 10px !important;
-    }
-
-    /* REMOVE caret | do selectbox */
-    div[data-baseweb="select"] input {
-        caret-color: transparent !important;
-    }
-
-    /* TEXTO DO SELECTBOX */
-    div[data-baseweb="select"] span {
-        color: #f9fafb !important;
-        font-weight: 500;
-    }
-
-    /* DROPDOWN (lista aberta) */
-    ul[role="listbox"] {
-        background-color: #020617 !important;
-        border: 1px solid #1e293b !important;
-    }
-
-    li[role="option"] {
-        color: #e5e7eb !important;
-    }
-
-    li[role="option"]:hover {
-        background-color: #1e293b !important;
-    }
-
-    /* BOTÕES */
-    .stButton > button {
-        background: linear-gradient(135deg, #2563eb, #1d4ed8);
-        color: white;
-        border-radius: 14px;
-        font-weight: 600;
-        padding: 0.6rem 1.4rem;
-        border: none;
-    }
-
-    .stButton > button:hover {
-        background: linear-gradient(135deg, #1d4ed8, #1e40af);
-        transform: scale(1.02);
-    }
-
-    /* TÍTULOS */
-    h1, h2, h3 {
-        color: #f8fafc;
-        text-shadow: 0 0 8px rgba(0,0,0,0.6);
-    }
-    /* TEXTO DO ITEM SELECIONADO (select fechado) */
-div[data-baseweb="select"] > div {
-    background-color: #020617 !important;
-    color: #f9fafb !important;
+st.markdown("""
+<style>
+header { background: transparent !important; }
+.stApp > header { display: none; }
+.block-container { padding-top: 2rem !important; }
+.stApp { background: radial-gradient(circle at top, #0f172a, #020617); color: #e5e7eb; }
+.block-container { background-color: rgba(15, 23, 42, 0.94); padding: 2.5rem; border-radius: 22px; box-shadow: 0 0 60px rgba(0,0,0,0.75); }
+section[data-testid="stSidebar"] { background: linear-gradient(180deg, #020617, #020617); padding-top: 2rem; }
+section[data-testid="stSidebar"] * { color: #f8fafc !important; font-weight: 500; }
+section[data-testid="stSidebar"] select, section[data-testid="stSidebar"] input, section[data-testid="stSidebar"] button, div[data-baseweb="select"] > div {
+    background-color: #020617 !important; color: #f9fafb !important; border: 1px solid #1e293b !important; border-radius: 10px !important;
 }
-
-/* TEXTO INTERNO DO SELECT */
-div[data-baseweb="select"] > div > div {
-    color: #f9fafb !important;
-    font-weight: 500;
-}
-
-/* PLACEHOLDER / LABEL */
-div[data-baseweb="select"] span {
-    color: #f9fafb !important;
-}
-
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
-
-from datetime import datetime, timezone
+div[data-baseweb="select"] input { caret-color: transparent !important; }
+div[data-baseweb="select"] span { color: #f9fafb !important; font-weight: 500; }
+ul[role="listbox"] { background-color: #020617 !important; border: 1px solid #1e293b !important; }
+li[role="option"] { color: #e5e7eb !important; }
+li[role="option"]:hover { background-color: #1e293b !important; }
+.stButton > button { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border-radius: 14px; font-weight: 600; padding: 0.6rem 1.4rem; border: none; }
+.stButton > button:hover { background: linear-gradient(135deg, #1d4ed8, #1e40af); transform: scale(1.02); }
+h1, h2, h3 { color: #f8fafc; text-shadow: 0 0 8px rgba(0,0,0,0.6); }
+div[data-baseweb="select"] > div { background-color: #020617 !important; color: #f9fafb !important; }
+div[data-baseweb="select"] > div > div { color: #f9fafb !important; font-weight: 500; }
+div[data-baseweb="select"] span { color: #f9fafb !important; }
+</style>
+""", unsafe_allow_html=True)
 
 # ================= CONFIG =================
-
 API_URL = "https://west.albion-online-data.com/api/v2/stats/prices/"
 
 CIDADES = [
@@ -201,8 +102,22 @@ BONUS_CIDADE = {
     "Brecilien": ["CAPE", "BAG"]
 }
 
+# ================= FILTROS =================
+FILTROS = {
+    "armadura_placa": lambda k, v: "ARMOR_PLATE" in v[0],
+    "armadura_couro": lambda k, v: "ARMOR_LEATHER" in v[0],
+    "armadura_pano": lambda k, v: "ARMOR_CLOTH" in v[0],
+    "botas_placa": lambda k, v: "SHOES_PLATE" in v[0],
+    "botas_couro": lambda k, v: "SHOES_LEATHER" in v[0],
+    "botas_pano": lambda k, v: "SHOES_CLOTH" in v[0],
+    "capacete_placa": lambda k, v: "HEAD_PLATE" in v[0],
+    "capacete_couro": lambda k, v: "HEAD_LEATHER" in v[0],
+    "capacete_pano": lambda k, v: "HEAD_CLOTH" in v[0],
+    "armas": lambda k, v: v[0].startswith(("MAIN_", "2H_")),
+    "secundarias": lambda k, v: v[0].startswith("OFF_")
+}
+
 # ================= ITENS_DB =================
-# 👉 COLE AQUI O MESMO ITENS_DB DO DISCORD
 ITENS_DB = {
     # --- OFF-HANDS E TOCHAS ---
     "TOMO DE FEITIÇOS": ["OFF_BOOK", "Tecido Fino", 4, "Couro Trabalhado", 4, None, 0],
@@ -404,30 +319,8 @@ ITENS_DB = {
     "ALVORADA": ["MAIN_SPEAR_AVALON", "Tábuas de Pinho", 16, "Barra de Aço", 8, "ARTEFACT_MAIN_SPEAR_AVALON", 1],
     "ARCHA FRATURADA": ["2H_SPEAR_CRYSTAL", "Tábuas de Pinho", 12, "Barra de Aço", 20, "QUESTITEM_TOKEN_CRYSTAL_SPEAR", 1]
 }
-# ================= FILTROS =================
-
-FILTROS = {
-    "armadura_placa": lambda k, v: "ARMOR_PLATE" in v[0],
-    "armadura_couro": lambda k, v: "ARMOR_LEATHER" in v[0],
-    "armadura_pano": lambda k, v: "ARMOR_CLOTH" in v[0],
-    "botas_placa": lambda k, v: "SHOES_PLATE" in v[0],
-    "botas_couro": lambda k, v: "SHOES_LEATHER" in v[0],
-    "botas_pano": lambda k, v: "SHOES_CLOTH" in v[0],
-    "capacete_placa": lambda k, v: "HEAD_PLATE" in v[0],
-    "capacete_couro": lambda k, v: "HEAD_LEATHER" in v[0],
-    "capacete_pano": lambda k, v: "HEAD_CLOTH" in v[0],
-    "armas": lambda k, v: v[0].startswith(("MAIN_", "2H_")),
-    "secundarias": lambda k, v: v[0].startswith("OFF_"),
-}
-
-categorias = list(FILTROS.keys())
-
-categoria = st.selectbox("Categoria", categorias)
-
-st.write(f"Categoria selecionada: {categoria}")
 
 # ================= FUNÇÕES =================
-
 def calcular_horas(data_iso):
     if not data_iso:
         return 999
@@ -438,10 +331,8 @@ def calcular_horas(data_iso):
     except:
         return 999
 
-
 def id_item(tier, base, enc):
     return f"T{tier}_{base}@{enc}" if enc > 0 else f"T{tier}_{base}"
-
 
 def ids_recurso_variantes(tier, nome, enc):
     base = f"T{tier}_{RECURSO_MAP[nome]}"
@@ -449,17 +340,13 @@ def ids_recurso_variantes(tier, nome, enc):
         return [f"{base}@{enc}", f"{base}_LEVEL{enc}@{enc}"]
     return [base]
 
-
 def identificar_cidade_bonus(item_base):
     for cidade, chaves in BONUS_CIDADE.items():
         if any(chave in item_base for chave in chaves):
             return cidade
     return "Caerleon (Geral)"
 
-
 # ================= INTERFACE =================
-
-st.set_page_config("Radar Craft Albion", layout="wide")
 st.title("⚔️ Radar Craft — Royal Cities + Black Market")
 
 with st.sidebar:
@@ -469,9 +356,7 @@ with st.sidebar:
     quantidade = st.number_input("Quantidade", 1, 999, 1)
     btn = st.button("🚀 ESCANEAR")
 
-
 # ================= EXECUÇÃO =================
-
 if btn:
     filtro = FILTROS[categoria]
     itens = {k: v for k, v in ITENS_DB.items() if filtro(k, v)}
@@ -481,17 +366,13 @@ if btn:
         st.stop()
 
     ids = set()
-
     for d in itens.values():
         ids.add(id_item(tier, d[0], encanto))
-
         for r in ids_recurso_variantes(tier, d[1], encanto):
             ids.add(r)
-
         if d[3]:
             for r in ids_recurso_variantes(tier, d[3], encanto):
                 ids.add(r)
-
         if d[5]:
             ids.add(f"T{tier}_{d[5]}")
 
@@ -499,7 +380,6 @@ if btn:
         f"{API_URL}{','.join(ids)}?locations={','.join(CIDADES)}",
         timeout=20
     )
-
     data = response.json()
 
     precos_itens = {}
@@ -507,51 +387,35 @@ if btn:
 
     for p in data:
         pid = p["item_id"]
-
-        # BLACK MARKET → COMPRA
         if p["city"] == "Black Market":
             price = p["buy_price_max"]
             if price > 0:
                 horas = calcular_horas(p["buy_price_max_date"])
                 if pid not in precos_itens or price > precos_itens[pid]["price"]:
-                    precos_itens[pid] = {
-                        "price": price,
-                        "horas": horas
-                    }
-
-        # ROYAL CITIES → VENDA
+                    precos_itens[pid] = {"price": price, "horas": horas}
         else:
             price = p["sell_price_min"]
             if price > 0:
                 horas = calcular_horas(p["sell_price_min_date"])
                 if pid not in precos_recursos or price < precos_recursos[pid]["price"]:
-                    precos_recursos[pid] = {
-                        "price": price,
-                        "city": p["city"],
-                        "horas": horas
-                    }
+                    precos_recursos[pid] = {"price": price, "city": p["city"], "horas": horas}
 
     resultados = []
 
     for nome, d in itens.items():
-        item_id = id_item(tier, d[0], encanto)
-        if item_id not in precos_itens:
+        item_id_val = id_item(tier, d[0], encanto)
+        if item_id_val not in precos_itens:
             continue
-
         custo = 0
         detalhes = []
-
         for recurso, qtd in [(d[1], d[2]), (d[3], d[4])]:
             if not recurso:
                 continue
-
             for rid in ids_recurso_variantes(tier, recurso, encanto):
                 if rid in precos_recursos:
                     info = precos_recursos[rid]
                     custo += info["price"] * qtd * quantidade
-                    detalhes.append(
-                        f"{qtd * quantidade}x {recurso} — {info['price']:,} ({info['city']} {info['horas']}h)"
-                    )
+                    detalhes.append(f"{qtd * quantidade}x {recurso} — {info['price']:,} ({info['city']} {info['horas']}h)")
                     break
             else:
                 break
@@ -560,19 +424,13 @@ if btn:
                 art = f"T{tier}_{d[5]}"
                 if art not in precos_recursos:
                     continue
-
                 qtd_art = d[6] * quantidade
                 preco_art = precos_recursos[art]["price"]
-
                 custo += preco_art * qtd_art
-                detalhes.append(
-                    f"{qtd_art}x Artefato — {preco_art:,} ({precos_recursos[art]['city']} {precos_recursos[art]['horas']}h)"
-                )
-
+                detalhes.append(f"{qtd_art}x Artefato — {preco_art:,} ({precos_recursos[art]['city']} {precos_recursos[art]['horas']}h)")
             custo *= 0.752
-            venda = precos_itens[item_id]["price"] * quantidade
+            venda = precos_itens[item_id_val]["price"] * quantidade
             lucro = (venda * 0.935) - custo
-
             if lucro > 0:
                 resultados.append((nome, int(lucro), int(venda), int(custo), detalhes))
 
