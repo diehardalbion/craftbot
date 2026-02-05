@@ -58,41 +58,38 @@ header { background: transparent !important; }
 section[data-testid="stSidebar"] { background: #020617; }
 section[data-testid="stSidebar"] * { color: #f8fafc !important; }
 
-/* --- CORREÇÃO DO DROPDOWN (SELECTBOX) --- */
-div[data-baseweb="select"] > div {
-    background-color: #1e293b !important; 
+/* --- CORREÇÃO DEFINITIVA DOS INPUTS (NÚMEROS E SELECT) --- */
+
+/* Força o fundo escuro em TODOS os campos de entrada */
+input, div[data-baseweb="select"] > div, div[data-baseweb="input"] {
+    background-color: #1e293b !important;
+    color: #ffffff !important;
     border: 1px solid #334155 !important;
 }
-div[data-baseweb="select"] span, div[data-baseweb="select"] div {
-    color: #ffffff !important;
+
+/* Garante que o texto digitado (números) seja branco e visível */
+input {
+    -webkit-text-fill-color: #ffffff !important;
+    opacity: 1 !important;
 }
+
+/* Ajuste específico para os botões de + e - que sumiram no branco */
+div[data-testid="stNumberInput"] button {
+    background-color: #334155 !important;
+    color: white !important;
+    border-radius: 5px !important;
+}
+
+/* Estilo do Dropdown (Selectbox) quando aberto */
 div[data-baseweb="popover"] ul {
     background-color: #1e293b !important;
     border: 1px solid #334155 !important;
 }
 div[data-baseweb="popover"] li {
-    background-color: transparent !important;
     color: #ffffff !important;
 }
-
-/* --- CORREÇÃO DOS CAMPOS DE NÚMERO (TIER, ENCANTO, QTD) --- */
-/* Fundo do campo de entrada */
-div[data-baseweb="input"] {
-    background-color: #1e293b !important;
-    border: 1px solid #334155 !important;
-    border-radius: 10px !important;
-}
-
-/* Texto dentro do campo (os números) */
-div[data-baseweb="input"] input {
-    color: #ffffff !important;
-    -webkit-text-fill-color: #ffffff !important; /* Força cor no Chrome/Safari */
-}
-
-/* Cor dos ícones de + e - (botões laterais do number_input) */
-div[data-baseweb="input"] button {
-    background-color: transparent !important;
-    color: #ffffff !important;
+div[data-baseweb="popover"] li:hover {
+    background-color: #2563eb !important;
 }
 
 /* Botão Escanear */
@@ -102,7 +99,8 @@ div[data-baseweb="input"] button {
     border-radius: 14px; 
     width: 100%;
     border: none;
-    margin-top: 1rem;
+    font-weight: bold;
+    height: 3rem;
 }
 </style>
 """, unsafe_allow_html=True)
