@@ -516,10 +516,25 @@ if btn:
         st.error("❌ Nenhum lucro encontrado.")
     else:
         for nome, lucro, venda, custo, detalhes in resultados[:20]:
+            # Cálculo da Porcentagem de Lucro (ROI)
+            porcentagem = (lucro / custo) * 100 if custo > 0 else 0
+            
+            # Identifica a cidade bônus (usando sua função)
+            cidade_foco = identificar_cidade_bonus(nome)
+
+            # Montagem do Card em HTML
+            detalhes_html = "".join([f"<li>{d}</li>" for d in detalhes])
+            
             st.markdown(f"""
-### 💎 {nome}
-💰 **Lucro:** {lucro:,}  
-🛒 **Venda BM:** {venda:,}  
-📉 **Custo:** {custo:,}  
-📦 **Recursos:** {' | '.join(detalhes)}
-""")
+                <div class="craft-card">
+                    <div class="item-name">💎 {nome.upper()}</div>
+                    <div class="stat-line">💰 <b>Lucro:</b> {lucro:,} <span class="perc-lucro">+{porcentagem:.1f}%</span></div>
+                    <div class="stat-line">🛒 <b>Venda:</b> {venda:,} (Black Market)</div>
+                    <div class="stat-line">🏗️ <b>Local:</b> {cidade_foco}</div>
+                    <div class="stat-line">📦 <b>Custos:</b></div>
+                    <ul class="cost-list">
+                        {detalhes_html}
+                    </ul>
+                </div>
+            """, unsafe_allow_html=True)
+            
