@@ -431,7 +431,7 @@ if btn:
     resultados.sort(key=lambda x: x[1], reverse=True)
 
     # --- 8. EXIBIÇÃO DOS CARDS ---
-    if not resultados:
+         if not resultados:
         st.error("❌ Nenhum lucro encontrado.")
     else:
         for nome, lucro, venda, custo, detalhes in resultados[:20]:
