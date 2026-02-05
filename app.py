@@ -3,45 +3,83 @@ import requests
 import streamlit as st
 
 st.set_page_config(
-    page_title="CraftBot",
-    layout="centered"
+    page_title="Radar Craft",
+    layout="wide"
 )
 
 st.markdown(
     """
     <style>
-    /* fundo geral */
+    /* REMOVE faixa branca superior */
+    header {
+        background: transparent !important;
+    }
+    .stApp > header {
+        display: none;
+    }
+
+    /* FUNDO GERAL */
     .stApp {
-        background-color: #0b0f1a;
+        background: radial-gradient(circle at top, #0f172a, #020617);
         color: #e5e7eb;
     }
 
-    /* container principal */
+    /* CONTEÚDO CENTRAL */
     .block-container {
-        background-color: #111827;
+        background-color: rgba(15, 23, 42, 0.92);
         padding: 2.5rem;
-        border-radius: 18px;
-        box-shadow: 0 0 40px rgba(0,0,0,0.7);
+        border-radius: 22px;
+        box-shadow: 0 0 60px rgba(0,0,0,0.75);
     }
 
-    /* sidebar */
+    /* SIDEBAR */
     section[data-testid="stSidebar"] {
-        background-color: #020617;
+        background: linear-gradient(180deg, #020617, #020617);
+        color: #f9fafb;
+        padding-top: 2rem;
     }
 
-    /* títulos */
+    /* TEXTO DA SIDEBAR */
+    section[data-testid="stSidebar"] * {
+        color: #f9fafb !important;
+        font-weight: 500;
+    }
+
+    /* INPUTS DA SIDEBAR */
+    section[data-testid="stSidebar"] select,
+    section[data-testid="stSidebar"] input,
+    section[data-testid="stSidebar"] button {
+        background-color: #020617 !important;
+        color: #f9fafb !important;
+        border: 1px solid #1e293b !important;
+        border-radius: 10px;
+    }
+
+    /* BOTÕES */
+    .stButton > button {
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        color: white;
+        border-radius: 14px;
+        font-weight: 600;
+        padding: 0.6rem 1.4rem;
+        border: none;
+    }
+
+    .stButton > button:hover {
+        background: linear-gradient(135deg, #1d4ed8, #1e40af);
+        transform: scale(1.02);
+    }
+
+    /* TÍTULOS */
     h1, h2, h3 {
-        color: #f9fafb;
-    }
-
-    /* inputs */
-    .stSelectbox, .stButton, .stTextInput {
-        color: #f9fafb;
+        color: #f8fafc;
+        text-shadow: 0 0 8px rgba(0,0,0,0.6);
     }
     </style>
     """,
     unsafe_allow_html=True
 )
+
 
 from datetime import datetime, timezone
 
