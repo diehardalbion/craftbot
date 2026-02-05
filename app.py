@@ -2,9 +2,9 @@ import streamlit as st
 import requests
 from datetime import datetime, timezone
 
-# ================= CONFIGURAÇÕES E DICIONÁRIOS =================
+# ================= CONFIG =================
 API_URL = "https://west.albion-online-data.com/api/v2/stats/prices/"
-CIDADES = ["Martlock", "Thetford", "FortSterling", "Lymhurst", "Bridgewatch", "Brecilien", "Caerleon", "Black Market"]
+CIDADES = ["Martlock", "Thetford", "FortSterling", "Lymhurst", "Bridgewatch", "Brecilien", "Caerleon"]
 
 RECURSO_MAP = {
     "Tecido Fino": "CLOTH",
@@ -23,8 +23,7 @@ BONUS_CIDADE = {
     "Brecilien": ["CAPE", "BAG"]
 }
 
-# Exemplo de ITENS_DB (Adicione seus itens aqui mantendo a estrutura)
-# Estrutura: "Nome": ["ID_BASE", "Recurso1", Qtd1, "Recurso2", Qtd2, "Artefato", QtdArt]
+# Cole aqui o seu ITENS_DB completo do bot
 ITENS_DB = {
     # --- OFF-HANDS E TOCHAS ---
     "TOMO DE FEITIÇOS": ["OFF_BOOK", "Tecido Fino", 4, "Couro Trabalhado", 4, None, 0],
@@ -225,7 +224,7 @@ ITENS_DB = {
     "LANÇA TRINA": ["2H_GLAIVE_HELL", "Tábuas de Pinho", 20, "Barra de Aço", 12, "ARTEFACT_2H_GLAIVE_HELL", 1],
     "ALVORADA": ["MAIN_SPEAR_AVALON", "Tábuas de Pinho", 16, "Barra de Aço", 8, "ARTEFACT_MAIN_SPEAR_AVALON", 1],
     "ARCHA FRATURADA": ["2H_SPEAR_CRYSTAL", "Tábuas de Pinho", 12, "Barra de Aço", 20, "QUESTITEM_TOKEN_CRYSTAL_SPEAR", 1]
-} 
+}
 
 FILTROS = {
     "armadura_placa": lambda k, v: "ARMOR_PLATE" in v[0],
@@ -241,27 +240,25 @@ FILTROS = {
     "secundarias": lambda k, v: v[0].startswith("OFF_"),
 }
 
-# ================= FUNÇÕES AUXILIARES =================
+# ================= FUNÇÕES BASEADAS NO BOT =================
 
 def calcular_horas(data_iso):
-    if not data_iso or data_iso.startswith("0001"): 
-        return 999
     try:
         data_api = datetime.fromisoformat(data_iso.replace("Z", "+00:00"))
-        data_agora = datetime.now(timezone.utc)
-        diff = data_agora - data_api
-        return max(0, int(diff.total_seconds() / 3600))
+        diff = datetime.now(timezone.utc) - data_api
+        return int(diff.total_seconds() / 3600)
     except:
         return 999
 
-def formatar_status_hora(h):
-    if h >= 999: return "❌ Sem Dados"
-    if h <= 3: return f"🟢 {h}h ago"
-    if h <= 24: return f"🟡 {h}h ago"
-    return f"🔴 {h}h (Muito Antigo)"
-
 def id_item(tier, base, enc):
     return f"T{tier}_{base}@{enc}" if enc > 0 else f"T{tier}_{base}"
+
+def ids_recurso_variantes(tier, nome, enc):
+    if nome not in RECURSO_MAP: return []
+    base = f"T{tier}_{RECURSO_MAP[nome]}"
+    if enc > 0:
+        return [f"{base}@{enc}", f"{base}_LEVEL{enc}@{enc}"]
+    return [base]
 
 def identificar_cidade_bonus(item_base):
     for cidade, chaves in BONUS_CIDADE.items():
@@ -272,130 +269,119 @@ def identificar_cidade_bonus(item_base):
 
 # ================= INTERFACE STREAMLIT =================
 
-st.set_page_config(page_title="Albion Scanner", layout="wide")
-st.title("📈 Albion Market Scanner")
+st.set_page_config(page_title="Radar Craft Albion", layout="wide")
+st.title("⚔️ Radar Craft — Royal Cities")
 
 with st.sidebar:
     st.header("Configurações")
-    categoria = st.selectbox("Categoria", list(FILTROS.keys()))
-    tier = st.slider("Tier", 4, 8, 4)
-    encanto = st.slider("Encanto", 0, 4, 0)
-    quantidade = st.number_input("Quantidade", min_value=1, value=1)
-    foco = st.checkbox("Usar Foco (47.7% Retorno)")
-    st.divider()
-    max_horas = st.slider("Esconder dados mais velhos que (horas):", 1, 72, 48)
-    
-    botao_scan = st.button("🚀 ESCANEAR LUCROS")
+    cat_selecionada = st.selectbox("Categoria", list(FILTROS.keys()))
+    tier = st.number_input("Tier", 4, 8, 4)
+    encanto = st.number_input("Encanto", 0, 4, 0)
+    quantidade = st.number_input("Quantidade", 1, 999, 1)
+    btn_scan = st.button("🚀 ESCANEAR MERCADO")
 
-if botao_scan:
-    filtro = FILTROS[categoria]
-    itens_filtrados = {k: v for k, v in ITENS_DB.items() if filtro(k, v)}
-    
+if btn_scan:
+    filtro_fn = FILTROS[cat_selecionada]
+    itens_filtrados = {k: v for k, v in ITENS_DB.items() if filtro_fn(k, v)}
+
     if not itens_filtrados:
-        st.warning("Nenhum item cadastrado nesta categoria.")
+        st.warning("Nenhum item cadastrado nesta categoria no ITENS_DB.")
         st.stop()
 
-    # Criar lista de IDs para buscar na API
-    ids_to_fetch = set()
+    # Montar lista de IDs idêntica ao bot
+    ids_busca = set()
     for d in itens_filtrados.values():
-        ids_to_fetch.add(id_item(tier, d[0], encanto))
-        if d[1]: ids_to_fetch.add(f"T{tier}_{RECURSO_MAP[d[1]]}@{encanto}" if encanto > 0 else f"T{tier}_{RECURSO_MAP[d[1]]}")
-        if d[3]: ids_to_fetch.add(f"T{tier}_{RECURSO_MAP[d[3]]}@{encanto}" if encanto > 0 else f"T{tier}_{RECURSO_MAP[d[3]]}")
-        if d[5]: ids_to_fetch.add(f"T{tier}_{d[5]}")
+        ids_busca.add(id_item(tier, d[0], encanto))
+        for r_id in ids_recurso_variantes(tier, d[1], encanto):
+            ids_busca.add(r_id)
+        if d[3]:
+            for r_id in ids_recurso_variantes(tier, d[3], encanto):
+                ids_busca.add(r_id)
+        if d[5]:
+            ids_busca.add(f"T{tier}_{d[5]}")
 
-    with st.spinner("Conectando ao Albion Data Project..."):
+    # Request
+    with st.spinner("Consultando API..."):
         try:
-            url_final = f"{API_URL}{','.join(ids_to_fetch)}?locations={','.join(CIDADES)}"
-            r = requests.get(url_final, timeout=15)
+            r = requests.get(f"{API_URL}{','.join(ids_busca)}?locations={','.join(CIDADES)}", timeout=20)
             data = r.json()
         except:
-            st.error("Erro ao buscar dados. Tente novamente.")
+            st.error("Erro ao conectar com a API.")
             st.stop()
 
-    # Organização de preços
+    # Processar Preços (Lógica do Bot)
     precos_itens = {}
     precos_recursos = {}
 
     for p in data:
         pid = p["item_id"]
-        # Diferenciar hora de compra (BM) e hora de venda (Recursos)
-        h_atual = calcular_horas(p["buy_price_max_date"] if p["city"] == "Black Market" else p["sell_price_min_date"])
-        
-        if h_atual > max_horas:
-            continue
+        price = p["sell_price_min"]
+        if price > 0:
+            horas = calcular_horas(p["sell_price_min_date"])
+            # Lógica de maior preço de venda (para lucro máximo)
+            if pid not in precos_itens or price > precos_itens[pid]["price"]:
+                precos_itens[pid] = {"price": price, "city": p["city"], "horas": horas}
+            # Lógica de menor preço de recurso
+            if pid not in precos_recursos or price < precos_recursos[pid]["price"]:
+                precos_recursos[pid] = {"price": price, "city": p["city"], "horas": horas}
 
-        if p["city"] == "Black Market":
-            if p["buy_price_max"] > 0:
-                precos_itens[pid] = {"price": p["buy_price_max"], "horas": h_atual, "city": "Black Market"}
-        else:
-            if p["sell_price_min"] > 0:
-                if pid not in precos_recursos or p["sell_price_min"] < precos_recursos[pid]["price"]:
-                    precos_recursos[pid] = {"price": p["sell_price_min"], "city": p["city"], "horas": h_atual}
-
-    # Cálculos Finais
+    # Calcular Resultados
     resultados = []
-    taxa_retorno = 0.523 if foco else 0.752 
-
     for nome, d in itens_filtrados.items():
         item_id = id_item(tier, d[0], encanto)
         if item_id not in precos_itens: continue
 
-        custo_materiais = 0
-        detalhes_lista = []
-        falta_dado = False
+        custo_total = 0
+        detalhes = []
+        pode_calcular = True
 
-        for i in [1, 3]:
-            res_nome, res_qtd = d[i], d[i+1]
-            if res_nome and res_qtd > 0:
-                r_id = f"T{tier}_{RECURSO_MAP[res_nome]}@{encanto}" if encanto > 0 else f"T{tier}_{RECURSO_MAP[res_nome]}"
+        for recurso, qtd in [(d[1], d[2]), (d[3], d[4])]:
+            if not recurso: continue
+            encontrou_r = False
+            for r_id in ids_recurso_variantes(tier, recurso, encanto):
                 if r_id in precos_recursos:
-                    p_info = precos_recursos[r_id]
-                    total_res = p_info["price"] * res_qtd * quantidade
-                    custo_materiais += total_res
-                    detalhes_lista.append(f"▫️ {res_qtd * quantidade}x {res_nome}: **{total_res:,}** ({p_info['city']} - {formatar_status_hora(p_info['horas'])})")
-                else: falta_dado = True
+                    info = precos_recursos[r_id]
+                    custo_total += info["price"] * qtd * quantidade
+                    detalhes.append(f"▫️ {qtd * quantidade}x {recurso}: {info['price']:,} ({info['city']} - {info['horas']}h)")
+                    encontrou_r = True
+                    break
+            if not encontrou_r:
+                pode_calcular = False
+                break
+        
+        if pode_calcular:
+            if d[5]: # Artefato
+                art_id = f"T{tier}_{d[5]}"
+                if art_id in precos_recursos:
+                    custo_total += precos_recursos[art_id]["price"] * d[6] * quantidade
+                    detalhes.append(f"▫️ Artefato: {precos_recursos[art_id]['price']:,}")
+                else: pode_calcular = False
 
-        if d[5] and d[6] > 0:
-            art_id = f"T{tier}_{d[5]}"
-            if art_id in precos_recursos:
-                p_info = precos_recursos[art_id]
-                total_art = p_info["price"] * d[6] * quantidade
-                custo_materiais += total_art
-                detalhes_lista.append(f"▫️ {d[6] * quantidade}x Artefato: **{total_art:,}** ({p_info['city']} - {formatar_status_hora(p_info['horas'])})")
-            else: falta_dado = True
+        if pode_calcular:
+            custo_final = custo_total * 0.85 # Taxa de retorno de 15% do seu bot
+            venda = precos_itens[item_id]["price"] * quantidade
+            lucro = (venda * 0.94) - custo_final # Taxa de 6% do seu bot
 
-        if falta_dado: continue
+            if lucro > 0:
+                resultados.append({
+                    "nome": nome, "lucro": int(lucro), "venda": venda,
+                    "cidade": precos_itens[item_id]["city"], "horas": precos_itens[item_id]["horas"],
+                    "bonus": identificar_cidade_bonus(d[0]), "detalhes": "\n".join(detalhes),
+                    "pct": round((lucro/custo_final)*100, 1)
+                })
 
-        custo_final = int(custo_materiais * taxa_retorno)
-        venda_bruta = precos_itens[item_id]["price"] * quantidade
-        venda_liquida = int(venda_bruta * 0.935)
-        lucro = venda_liquida - custo_final
-
-        if lucro > 0:
-            resultados.append({
-                "nome": nome,
-                "lucro": lucro,
-                "venda": venda_bruta,
-                "cidade_venda": precos_itens[item_id]["city"],
-                "horas": precos_itens[item_id]["horas"],
-                "local": identificar_cidade_bonus(d[0]),
-                "detalhes": "\n".join(detalhes_lista)
-            })
-
-    # EXIBIÇÃO
+    # Exibição
     if resultados:
         resultados.sort(key=lambda x: x["lucro"], reverse=True)
-        st.success(f"Foram encontrados {len(resultados)} itens lucrativos!")
         for r in resultados:
-            with st.expander(f"📦 {r['nome']} | Lucro: +{r['lucro']:,} silver"):
-                st.markdown(f"""
-                ### Detalhes do Item
-                - **Lucro Líquido:** {r['lucro']:,} pratas
-                - **Venda Bruta:** {r['venda']:,} ({r['cidade_venda']} - {formatar_status_hora(r['horas'])})
-                - **Bônus de Cidade:** {r['local']}
-                
-                **Materiais (Menor Preço Encontrado):**
-                {r['detalhes']}
-                """)
+            with st.expander(f"💎 {r['nome']} - Lucro: {r['lucro']:,} silver ({r['pct']}%)"):
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.write(f"**Venda:** {r['venda']:,} em {r['cidade']}")
+                    st.write(f"**Local de Craft:** {r['bonus']}")
+                    st.write(f"**Update API:** {r['horas']}h atrás")
+                with col2:
+                    st.write("**Custos:**")
+                    st.write(r['detalhes'])
     else:
-        st.warning("Nenhum lucro encontrado com os dados atuais. Tente mudar o Tier ou Categoria.")
+        st.error("❌ Nenhum lucro encontrado com os dados atuais da API.")
