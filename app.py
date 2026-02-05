@@ -18,6 +18,7 @@ def verificar_acesso():
         submitted = st.form_submit_button("Entrar")
     if submitted:
         try:
+            # Simulação de carregamento de keys (ajuste para seu arquivo real)
             with open("keys.json", "r") as f:
                 chaves = json.load(f)
             if chave.strip() in chaves and chaves[chave.strip()]["ativa"]:
@@ -36,7 +37,9 @@ st.markdown("""
 <style>
 .stApp { background: radial-gradient(circle at top, #0f172a, #020617); color: #e5e7eb; }
 .block-container { background-color: rgba(15, 23, 42, 0.94); padding: 2.5rem; border-radius: 22px; }
-.stButton > button { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border-radius: 12px; font-weight: bold; }
+.stButton > button { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border-radius: 12px; font-weight: bold; width: 100%; }
+.status-old { color: #ff4b4b; font-weight: bold; border: 1px solid #ff4b4b; padding: 2px 5px; border-radius: 4px; font-size: 0.8em; }
+.status-fresh { color: #00ffcc; font-weight: bold; border: 1px solid #00ffcc; padding: 2px 5px; border-radius: 4px; font-size: 0.8em; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -53,6 +56,16 @@ BONUS_CIDADE = {
     "Fort Sterling": ["HAMMER", "SPEAR", "HOLY"],
     "Caerleon": ["KNUCKLES", "SHAPESHIFTER"],
     "Brecilien": ["CAPE", "BAG"]
+}
+
+# Tabela de Nutrição aproximada por peça (Gasto de Fome por craft)
+NUTRICAO_BASE = {
+    "ARMOR": 45,    # Peito
+    "HEAD": 22.5,   # Elmo
+    "SHOES": 22.5,  # Botas
+    "MAIN": 45,     # Arma 1 mão
+    "2H": 90,       # Arma 2 mãos
+    "OFF": 22.5     # Secundárias
 }
 
 ITENS_DB = {
@@ -257,30 +270,30 @@ ITENS_DB = {
     "ARCHA FRATURADA": ["2H_SPEAR_CRYSTAL", "Tábuas de Pinho", 12, "Barra de Aço", 20, "QUESTITEM_TOKEN_CRYSTAL_SPEAR", 1]
 }
 
+# (Mantenha o resto do seu dicionário ITENS_DB seguindo o padrão [..., "TIPO"])
+
 FILTROS = {
     "armadura_placa": lambda k, v: "ARMOR_PLATE" in v[0],
     "armadura_couro": lambda k, v: "ARMOR_LEATHER" in v[0],
     "armadura_pano": lambda k, v: "ARMOR_CLOTH" in v[0],
     "botas_placa": lambda k, v: "SHOES_PLATE" in v[0],
-    "botas_couro": lambda k, v: "SHOES_LEATHER" in v[0],
-    "botas_pano": lambda k, v: "SHOES_CLOTH" in v[0],
-    "capacete_placa": lambda k, v: "HEAD_PLATE" in v[0],
-    "capacete_couro": lambda k, v: "HEAD_LEATHER" in v[0],
-    "capacete_pano": lambda k, v: "HEAD_CLOTH" in v[0],
     "armas": lambda k, v: v[0].startswith(("MAIN_", "2H_")),
     "secundarias": lambda k, v: v[0].startswith("OFF_"),
 }
 
-def calcular_horas(data_iso):
+def calcular_dados_tempo(data_iso):
     if not data_iso or data_iso == "0001-01-01T00:00:00":
-        return "N/A"
+        return "N/A", False
     try:
         data_api = datetime.fromisoformat(data_iso.replace("Z", "+00:00"))
         agora = datetime.now(timezone.utc)
-        diff = (agora - data_api).total_seconds() / 3600
-        return f"{int(diff)}h" if diff < 48 else "Antigo"
+        diff_segutos = (agora - data_api).total_seconds()
+        diff_horas = diff_segutos / 3600
+        # Consideramos dado "Fresco" se tiver menos de 3 horas
+        fresco = diff_horas < 3
+        return f"{int(diff_horas)}h", fresco
     except:
-        return "N/A"
+        return "N/A", False
 
 def id_item(tier, base, enc):
     return f"T{tier}_{base}@{enc}" if enc > 0 else f"T{tier}_{base}"
@@ -293,13 +306,20 @@ def identificar_cidade_bonus(item_internal_id):
 
 # --- INTERFACE ---
 st.title("⚔️ Radar Craft — Royal Cities + Black Market")
+
 with st.sidebar:
+    st.header("Configurações de Craft")
     categoria = st.selectbox("Categoria", list(FILTROS.keys()))
     tier = st.number_input("Tier", 4, 8, 4)
     encanto = st.number_input("Encanto", 0, 4, 0)
     quantidade = st.number_input("Quantidade", 1, 999, 1)
     foco = st.checkbox("Usar Foco (43.5% RRR)", value=False)
-    btn = st.button("🚀 ESCANEAR")
+    
+    st.divider()
+    st.header("Custos de Estação")
+    taxa_loja = st.number_input("Taxa da Loja (por 100 nutrição)", 0, 10000, 500)
+    
+    btn = st.button("🚀 ESCANEAR MERCADO")
 
 if btn:
     filtro = FILTROS[categoria]
@@ -315,26 +335,34 @@ if btn:
                 if encanto > 0: ids.add(f"{base_r}_LEVEL{encanto}@{encanto}")
         if d[5]: ids.add(f"T{tier}_{d[5]}")
 
-    response = requests.get(f"{API_URL}{','.join(ids)}?locations={','.join(CIDADES)}").json()
+    try:
+        response = requests.get(f"{API_URL}{','.join(ids)}?locations={','.join(CIDADES)}").json()
+    except:
+        st.error("Erro ao conectar com a API.")
+        st.stop()
 
     precos_itens = {} 
     precos_recursos = {}
 
     for p in response:
-        pid, city, price = p["item_id"], p["city"], (p["buy_price_max"] if p["city"] == "Black Market" else p["sell_price_min"])
-        if price <= 10: continue # Ignora lixo
+        pid, city = p["item_id"], p["city"]
+        is_bm = (city == "Black Market")
+        price = p["buy_price_max"] if is_bm else p["sell_price_min"]
+        date_str = p["buy_price_max_date"] if is_bm else p["sell_price_min_date"]
+        
+        if price <= 10: continue 
+
+        horas, fresco = calcular_dados_tempo(date_str)
         
         is_item_final = any(pid == id_item(tier, d[0], encanto) for d in itens.values())
+        
         if is_item_final:
-            # Trava anti-bug: Ignora itens comuns custando 1 milhão ou ROIs absurdos
-            # Se for cidade real, só aceita se não for um valor absurdamente alto (ex: 500k p/ item T5 comum)
-            if city != "Black Market" and price > 400000 and tier < 6: continue
-            
+            if not is_bm and price > 600000 and tier < 6: continue
             if pid not in precos_itens or price > precos_itens[pid]["price"]:
-                precos_itens[pid] = {"price": price, "city": city, "horas": calcular_horas(p["buy_price_max_date"] if city == "Black Market" else p["sell_price_min_date"])}
+                precos_itens[pid] = {"price": price, "city": city, "horas": horas, "fresco": fresco}
         else:
             if pid not in precos_recursos or price < precos_recursos[pid]["price"]:
-                precos_recursos[pid] = {"price": price, "city": city, "horas": calcular_horas(p["sell_price_min_date"])}
+                precos_recursos[pid] = {"price": price, "city": city, "horas": horas}
 
     resultados = []
     rrr = 0.565 if foco else 0.752
@@ -343,7 +371,7 @@ if btn:
         item_id = id_item(tier, d[0], encanto)
         if item_id not in precos_itens: continue
 
-        custo, detalhes, erro_mat = 0, [], False
+        custo_mat, detalhes, erro_mat = 0, [], False
         for recurso, qtd in [(d[1], d[2]), (d[3], d[4])]:
             if not recurso or qtd == 0: continue
             rid = f"T{tier}_{RECURSO_MAP[recurso]}"
@@ -352,59 +380,67 @@ if btn:
             
             if found_rid:
                 p_m = precos_recursos[found_rid]
-                custo += p_m["price"] * (qtd * quantidade)
-                detalhes.append(f"{qtd * quantidade}x {recurso} — {p_m['price']:,} ({p_m['city']} {p_m['horas']})")
+                custo_mat += p_m["price"] * (qtd * quantidade)
+                detalhes.append(f"{qtd * quantidade}x {recurso} — {p_m['price']:,} ({p_m['city']})")
             else: erro_mat = True; break
         
         if erro_mat: continue
 
+        # Artefato
         if d[5]:
             art_id = f"T{tier}_{d[5]}"
             if art_id in precos_recursos:
-                p_a = precos_recursos[art_id]
-                custo += p_a["price"] * (d[6] * quantidade)
-                detalhes.append(f"{d[6] * quantidade}x Artefato — {p_a['price']:,} ({p_a['city']} {p_a['horas']})")
+                custo_mat += precos_recursos[art_id]["price"] * (d[6] * quantidade)
+                detalhes.append(f"{d[6] * quantidade}x Artefato — {precos_recursos[art_id]['price']:,}")
             else: continue
 
-        investimento = int(custo * rrr)
+        # Cálculo de Nutrição (Taxa da Loja)
+        tipo_item = d[7] if len(d) > 7 else "MAIN"
+        custo_nutricao = (NUTRICAO_BASE.get(tipo_item, 45) * (taxa_loja / 100)) * quantidade
+        
+        investimento_total = int((custo_mat * rrr) + custo_nutricao)
         venda_bruta = precos_itens[item_id]["price"] * quantidade
-        lucro = int((venda_bruta * 0.935) - investimento)
-        roi = (lucro / investimento) * 100 if investimento > 0 else 0
+        lucro = int((venda_bruta * 0.935) - investimento_total) # 6.5% de taxa de mercado/venda
+        roi = (lucro / investimento_total) * 100 if investimento_total > 0 else 0
 
-        # FILTRO FINAL: Se o ROI for maior que 500% e não for Black Market, provavelmente é BUG de dado.
         if lucro > 0:
-            if roi > 500 and precos_itens[item_id]["city"] != "Black Market":
-                continue
+            if roi > 400 and precos_itens[item_id]["city"] != "Black Market": continue
                 
             resultados.append({
-                "nome": nome, "lucro": lucro, "venda": venda_bruta, "custo": investimento,
+                "nome": nome, "lucro": lucro, "venda": venda_bruta, "custo": investimento_total,
                 "detalhes": detalhes, "cidade_craft": identificar_cidade_bonus(d[0]),
-                "cidade_venda": precos_itens[item_id]["city"], "roi": roi
+                "cidade_venda": precos_itens[item_id]["city"], "roi": roi,
+                "fresco": precos_itens[item_id]["fresco"], "horas": precos_itens[item_id]["horas"]
             })
 
     resultados.sort(key=lambda x: x["lucro"], reverse=True)
 
     if not resultados:
-        st.error("Nenhum lucro real encontrado (dados bugados foram filtrados).")
+        st.error("Nenhum lucro encontrado com os preços atuais.")
     else:
-        for res in resultados[:20]:
+        for res in resultados[:15]:
+            status_class = "status-fresh" if res['fresco'] else "status-old"
+            status_texto = "DADO RECENTE" if res['fresco'] else f"DADO ANTIGO ({res['horas']})"
+            
             det_html = "".join([f"<li>{d}</li>" for d in res["detalhes"]])
             st.markdown(f"""
-            <div style="background-color: #1e1e1e; padding: 15px; border-radius: 10px; border: 1px solid #444; margin-bottom: 20px;">
-                <div style="color: #00ffcc; font-size: 1.2em; font-weight: bold;">💎 {res['nome'].upper()} (T{tier}.{encanto})</div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+            <div style="background-color: #1e1e1e; padding: 18px; border-radius: 12px; border: 1px solid #444; margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: #00ffcc; font-size: 1.3em; font-weight: bold;">💎 {res['nome'].upper()} (T{tier}.{encanto})</span>
+                    <span class="{status_class}">{status_texto}</span>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
                     <div>
-                        <p style="color: white;">✅ <b>Lucro:</b> <span style="color: #00ff00;">{res['lucro']:,} silver</span></p>
-                        <p style="color: white;">🛒 <b>Venda:</b> {res['venda']:,} silver</p>
-                        <p style="color: white;">📈 <b>ROI:</b> {res['roi']:.1f}%</p>
+                        <p style="color: white; margin: 2px 0;">✅ <b>Lucro Líquido:</b> <span style="color: #00ff00; font-size: 1.1em;">{res['lucro']:,} silver</span></p>
+                        <p style="color: #bbb; margin: 2px 0;">🛒 Venda: {res['venda']:,} | ROI: {res['roi']:.1f}%</p>
                     </div>
                     <div>
-                        <p style="color: white;">🔨 <b>Onde Craftar:</b> <span style="color: #ffaa00;">{res['cidade_craft']}</span></p>
-                        <p style="color: white;">🏛️ <b>Onde Vender:</b> <span style="color: #ffaa00;">{res['cidade_venda']}</span></p>
+                        <p style="color: white; margin: 2px 0;">🔨 <b>Craft:</b> <span style="color: #ffaa00;">{res['cidade_craft']}</span></p>
+                        <p style="color: white; margin: 2px 0;">🏛️ <b>Venda:</b> <span style="color: #ffaa00;">{res['cidade_venda']}</span></p>
                     </div>
                 </div>
-                <div style="margin-top: 10px; border-top: 1px dashed #444; padding-top: 10px;">
-                    <ul style="color: #ddd; font-size: 0.9em;">{det_html}</ul>
+                <div style="margin-top: 12px; border-top: 1px dashed #444; padding-top: 10px;">
+                    <ul style="color: #aaa; font-size: 0.85em; column-count: 2;">{det_html}</ul>
                 </div>
             </div>
             """, unsafe_allow_html=True)
