@@ -86,16 +86,39 @@ if "autenticado" not in st.session_state:
     st.session_state.autenticado = False
 
 if not st.session_state.autenticado:
-    st.title("🛡️ Acesso Restrito")
-    key_input = st.text_input("Insira sua Chave:", type="password")
-    if st.button("ACESSAR"):
-        sucesso, mensagem = verificar_chave(key_input)
-        if sucesso:
-            st.session_state.autenticado = True
-            st.session_state.cliente = mensagem
-            st.rerun()
-        else:
-            st.error(mensagem)
+    st.title("🛡️ Radar Craft - Acesso Restrito")
+    
+    col1, col2 = st.columns([1, 1])
+
+    with col1:
+        st.markdown("### Já possui acesso?")
+        key_input = st.text_input("Insira sua Chave:", type="password")
+        if st.button("LIBERAR ACESSO"):
+            sucesso, mensagem = verificar_chave(key_input)
+            if sucesso:
+                st.session_state.autenticado = True
+                st.session_state.cliente = mensagem
+                st.rerun()
+            else:
+                st.error(mensagem)
+
+    with col2:
+        st.markdown("### Adquirir Nova Chave")
+        st.write("Tenha acesso a todas as rotas de lucro do Albion Online por um preço acessível.")
+        
+        # CARD DE PREÇO
+        st.markdown("""
+        <div style="background: rgba(46, 204, 113, 0.1); padding: 20px; border-radius: 10px; border: 1px solid #2ecc71; text-align: center;">
+            <h2 style="margin:0; color: #2ecc71;">R$ 15,00</h2>
+            <p style="color: white;">Acesso Mensal (30 dias)</p>
+            <a href="https://wa.me/5521983042557?text=Olá! Gostaria de comprar uma key para o Radar Craft Albion." target="_blank" style="text-decoration: none;">
+                <div style="background-color: #25d366; color: white; padding: 12px; border-radius: 5px; font-weight: bold; margin-top: 10px;">
+                    🟢 COMPRAR VIA WHATSAPP
+                </div>
+            </a>
+        </div>
+        """, unsafe_allow_html=True)
+
     st.stop()
 
 # ================= CONFIG DE DADOS =================
