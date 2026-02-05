@@ -240,25 +240,37 @@ FILTROS = {
     "secundarias": lambda k, v: v[0].startswith("OFF_"),
 }
 
-# ================= FUNÇÕES AUXILIARES =================
+# ================= FUNÇÕES AUXILIARES ATUALIZADAS =================
 
 def calcular_horas(data_iso):
+    if not data_iso or data_iso.startswith("0001"): 
+        return 999
     try:
+        # Tenta converter o formato da API (ex: 2023-10-27T14:00:00)
         data_api = datetime.fromisoformat(data_iso.replace("Z", "+00:00"))
         data_agora = datetime.now(timezone.utc)
         diff = data_agora - data_api
-        return int(diff.total_seconds() / 3600)
-    except: return 999
+        return max(0, int(diff.total_seconds() / 3600))
+    except:
+        return 999
 
-def id_item(tier, base, enc):
-    return f"T{tier}_{base}@{enc}" if enc > 0 else f"T{tier}_{base}"
+# No loop de organização de preços, adicione este filtro:
 
-def identificar_cidade_bonus(item_base):
-    for cidade, chaves in BONUS_CIDADE.items():
-        for chave in chaves:
-            if chave in item_base:
-                return cidade
-    return "Caerleon (Geral)"
+for p in data:
+    pid = p["item_id"]
+    h_atualizacao = calcular_horas(p["sell_price_min_date"] if p["city"] != "Black Market" else p["buy_price_max_date"])
+    
+    # Se o dado for mais velho que 48h, podemos considerar como "vazio" para não te dar prejuízo
+    if h_atualizacao > 48:
+        continue 
+        
+    if p["city"] == "Black Market":
+        if p["buy_price_max"] > 0:
+            precos_itens[pid] = {"price": p["buy_price_max"], "horas": h_atualizacao, "city": "Black Market"}
+    else:
+        if p["sell_price_min"] > 0:
+            if pid not in precos_recursos or p["sell_price_min"] < precos_recursos[pid]["price"]:
+                precos_recursos[pid] = {"price": p["sell_price_min"], "city": p["city"], "horas": h_atualizacao}
 
 # ================= INTERFACE STREAMLIT =================
 
