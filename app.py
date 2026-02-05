@@ -23,7 +23,6 @@ BONUS_CIDADE = {
     "Brecilien": ["CAPE", "BAG"]
 }
 
-# Cole aqui o seu ITENS_DB completo do bot
 ITENS_DB = {
     # --- OFF-HANDS E TOCHAS ---
     "TOMO DE FEITIÇOS": ["OFF_BOOK", "Tecido Fino", 4, "Couro Trabalhado", 4, None, 0],
@@ -226,21 +225,7 @@ ITENS_DB = {
     "ARCHA FRATURADA": ["2H_SPEAR_CRYSTAL", "Tábuas de Pinho", 12, "Barra de Aço", 20, "QUESTITEM_TOKEN_CRYSTAL_SPEAR", 1]
 }
 
-FILTROS = {
-    "armadura_placa": lambda k, v: "ARMOR_PLATE" in v[0],
-    "armadura_couro": lambda k, v: "ARMOR_LEATHER" in v[0],
-    "armadura_pano": lambda k, v: "ARMOR_CLOTH" in v[0],
-    "botas_placa": lambda k, v: "SHOES_PLATE" in v[0],
-    "botas_couro": lambda k, v: "SHOES_LEATHER" in v[0],
-    "botas_pano": lambda k, v: "SHOES_CLOTH" in v[0],
-    "capacete_placa": lambda k, v: "HEAD_PLATE" in v[0],
-    "capacete_couro": lambda k, v: "HEAD_LEATHER" in v[0],
-    "capacete_pano": lambda k, v: "HEAD_CLOTH" in v[0],
-    "armas": lambda k, v: v[0].startswith(("MAIN_", "2H_")),
-    "secundarias": lambda k, v: v[0].startswith("OFF_"),
-}
-
-# ================= FUNÇÕES BASEADAS NO BOT =================
+# ================= FUNÇÕES =================
 
 def calcular_horas(data_iso):
     try:
@@ -254,7 +239,8 @@ def id_item(tier, base, enc):
     return f"T{tier}_{base}@{enc}" if enc > 0 else f"T{tier}_{base}"
 
 def ids_recurso_variantes(tier, nome, enc):
-    if nome not in RECURSO_MAP: return []
+    if nome not in RECURSO_MAP:
+        return []
     base = f"T{tier}_{RECURSO_MAP[nome]}"
     if enc > 0:
         return [f"{base}@{enc}", f"{base}_LEVEL{enc}@{enc}"]
@@ -262,12 +248,11 @@ def ids_recurso_variantes(tier, nome, enc):
 
 def identificar_cidade_bonus(item_base):
     for cidade, chaves in BONUS_CIDADE.items():
-        for chave in chaves:
-            if chave in item_base:
-                return cidade
+        if any(chave in item_base for chave in chaves):
+            return cidade
     return "Caerleon (Geral)"
 
-# ================= INTERFACE STREAMLIT =================
+# ================= STREAMLIT =================
 
 st.set_page_config(page_title="Radar Craft Albion", layout="wide")
 st.title("⚔️ Radar Craft — Royal Cities")
@@ -285,103 +270,127 @@ if btn_scan:
     itens_filtrados = {k: v for k, v in ITENS_DB.items() if filtro_fn(k, v)}
 
     if not itens_filtrados:
-        st.warning("Nenhum item cadastrado nesta categoria no ITENS_DB.")
+        st.warning("Nenhum item nesta categoria.")
         st.stop()
 
-    # Montar lista de IDs idêntica ao bot
-    ids_busca = set()
-    for d in itens_filtrados.values():
-        ids_busca.add(id_item(tier, d[0], encanto))
-        for r_id in ids_recurso_variantes(tier, d[1], encanto):
-            ids_busca.add(r_id)
-        if d[3]:
-            for r_id in ids_recurso_variantes(tier, d[3], encanto):
-                ids_busca.add(r_id)
-        if d[5]:
-            ids_busca.add(f"T{tier}_{d[5]}")
+    IDS_ITENS = set()
+    IDS_RECURSOS = set()
 
-    # Request
+    for d in itens_filtrados.values():
+        IDS_ITENS.add(id_item(tier, d[0], encanto))
+
+        for r in ids_recurso_variantes(tier, d[1], encanto):
+            IDS_RECURSOS.add(r)
+
+        if d[3]:
+            for r in ids_recurso_variantes(tier, d[3], encanto):
+                IDS_RECURSOS.add(r)
+
+        if d[5]:
+            IDS_RECURSOS.add(f"T{tier}_{d[5]}")
+
+    IDS_BUSCA = IDS_ITENS | IDS_RECURSOS
+
     with st.spinner("Consultando API..."):
         try:
-            r = requests.get(f"{API_URL}{','.join(ids_busca)}?locations={','.join(CIDADES)}", timeout=20)
+            r = requests.get(
+                f"{API_URL}{','.join(IDS_BUSCA)}?locations={','.join(CIDADES)}",
+                timeout=20
+            )
             data = r.json()
         except:
-            st.error("Erro ao conectar com a API.")
+            st.error("Erro ao conectar à API.")
             st.stop()
 
-    # Processar Preços (Lógica do Bot)
     precos_itens = {}
     precos_recursos = {}
 
     for p in data:
         pid = p["item_id"]
         price = p["sell_price_min"]
-        if price > 0:
-            horas = calcular_horas(p["sell_price_min_date"])
-            # Lógica de maior preço de venda (para lucro máximo)
+        if price <= 0:
+            continue
+
+        horas = calcular_horas(p["sell_price_min_date"])
+        if horas > 24:
+            continue
+
+        if pid in IDS_ITENS:
             if pid not in precos_itens or price > precos_itens[pid]["price"]:
                 precos_itens[pid] = {"price": price, "city": p["city"], "horas": horas}
-            # Lógica de menor preço de recurso
+
+        elif pid in IDS_RECURSOS:
             if pid not in precos_recursos or price < precos_recursos[pid]["price"]:
                 precos_recursos[pid] = {"price": price, "city": p["city"], "horas": horas}
 
-    # Calcular Resultados
     resultados = []
+
     for nome, d in itens_filtrados.items():
         item_id = id_item(tier, d[0], encanto)
-        if item_id not in precos_itens: continue
+        if item_id not in precos_itens:
+            continue
 
-        custo_total = 0
+        custo = 0
         detalhes = []
-        pode_calcular = True
+        valido = True
 
         for recurso, qtd in [(d[1], d[2]), (d[3], d[4])]:
-            if not recurso: continue
-            encontrou_r = False
+            if not recurso:
+                continue
+
+            achou = False
             for r_id in ids_recurso_variantes(tier, recurso, encanto):
                 if r_id in precos_recursos:
                     info = precos_recursos[r_id]
-                    custo_total += info["price"] * qtd * quantidade
-                    detalhes.append(f"▫️ {qtd * quantidade}x {recurso}: {info['price']:,} ({info['city']} - {info['horas']}h)")
-                    encontrou_r = True
+                    if info["price"] < 100:
+                        valido = False
+                        break
+                    custo += info["price"] * qtd * quantidade
+                    detalhes.append(
+                        f"▫️ {qtd*quantidade}x {recurso}: {info['price']:,} ({info['city']} - {info['horas']}h)"
+                    )
+                    achou = True
                     break
-            if not encontrou_r:
-                pode_calcular = False
+
+            if not achou:
+                valido = False
                 break
-        
-        if pode_calcular:
-            if d[5]: # Artefato
-                art_id = f"T{tier}_{d[5]}"
-                if art_id in precos_recursos:
-                    custo_total += precos_recursos[art_id]["price"] * d[6] * quantidade
-                    detalhes.append(f"▫️ Artefato: {precos_recursos[art_id]['price']:,}")
-                else: pode_calcular = False
 
-        if pode_calcular:
-            custo_final = custo_total * 0.85 # Taxa de retorno de 15% do seu bot
-            venda = precos_itens[item_id]["price"] * quantidade
-            lucro = (venda * 0.94) - custo_final # Taxa de 6% do seu bot
+        if valido and d[5]:
+            art_id = f"T{tier}_{d[5]}"
+            if art_id in precos_recursos:
+                custo += precos_recursos[art_id]["price"] * d[6] * quantidade
+                detalhes.append(f"▫️ Artefato: {precos_recursos[art_id]['price']:,}")
+            else:
+                valido = False
 
-            if lucro > 0:
-                resultados.append({
-                    "nome": nome, "lucro": int(lucro), "venda": venda,
-                    "cidade": precos_itens[item_id]["city"], "horas": precos_itens[item_id]["horas"],
-                    "bonus": identificar_cidade_bonus(d[0]), "detalhes": "\n".join(detalhes),
-                    "pct": round((lucro/custo_final)*100, 1)
-                })
+        if not valido:
+            continue
 
-    # Exibição
+        custo_final = custo * 0.85
+        venda = precos_itens[item_id]["price"] * quantidade
+        lucro = (venda * 0.94) - custo_final
+
+        if lucro > 0:
+            resultados.append({
+                "nome": nome,
+                "lucro": int(lucro),
+                "pct": round((lucro / custo_final) * 100, 1),
+                "venda": venda,
+                "cidade": precos_itens[item_id]["city"],
+                "horas": precos_itens[item_id]["horas"],
+                "bonus": identificar_cidade_bonus(d[0]),
+                "detalhes": "\n".join(detalhes)
+            })
+
     if resultados:
         resultados.sort(key=lambda x: x["lucro"], reverse=True)
         for r in resultados:
-            with st.expander(f"💎 {r['nome']} - Lucro: {r['lucro']:,} silver ({r['pct']}%)"):
-                col1, col2 = st.columns(2)
-                with col1:
-                    st.write(f"**Venda:** {r['venda']:,} em {r['cidade']}")
-                    st.write(f"**Local de Craft:** {r['bonus']}")
-                    st.write(f"**Update API:** {r['horas']}h atrás")
-                with col2:
-                    st.write("**Custos:**")
-                    st.write(r['detalhes'])
+            with st.expander(f"💎 {r['nome']} — Lucro: {r['lucro']:,} ({r['pct']}%)"):
+                st.write(f"**Venda:** {r['venda']:,} em {r['cidade']}")
+                st.write(f"**Craft Bonus:** {r['bonus']}")
+                st.write(f"**Update:** {r['horas']}h atrás")
+                st.write("**Custos:**")
+                st.write(r["detalhes"])
     else:
-        st.error("❌ Nenhum lucro encontrado com os dados atuais da API.")
+        st.error("❌ Nenhum lucro real encontrado.")
