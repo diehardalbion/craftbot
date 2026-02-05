@@ -1,7 +1,52 @@
 {
-  "DIEHARD-TESTE-001": {
+  "RADAR-A7Q9-K2MZ-FX4L": {
     "ativa": true,
-    "cliente": "Admin",
-    "expira": null
+    "cliente": "Cliente 1",
+    "expira": "null"
+  },
+  "RADAR-P9X4-ZM2Q-LK7A": {
+    "ativa": true,
+    "cliente": "Cliente 2",
+    "expira": "2026-03-05"
+  },
+  "RADAR-6FQK-X9A2-MZP7": {
+    "ativa": true,
+    "cliente": "Cliente 3",
+    "expira": "2026-03-05"
+  },
+  "RADAR-M2Z7-PAQX-9K4F": {
+    "ativa": true,
+    "cliente": "Cliente 4",
+    "expira": "2026-03-05"
+  },
+  "RADAR-XF7Q-94MK-AZP2": {
+    "ativa": true,
+    "cliente": "Cliente 5",
+    "expira": "2026-03-05"
+  },
+  "RADAR-QA9Z-MF27-KXP4": {
+    "ativa": true,
+    "cliente": "Cliente 6",
+    "expira": "2026-03-05"
+  },
+  "RADAR-Z7P4-XM2A-Q9KF": {
+    "ativa": true,
+    "cliente": "Cliente 7",
+    "expira": "2026-03-05"
+  },
+  "RADAR-4MZK-QA97-X2FP": {
+    "ativa": true,
+    "cliente": "Cliente 8",
+    "expira": "2026-03-05"
+  },
+  "RADAR-K9P2-Z7XQ-MA4F": {
+    "ativa": true,
+    "cliente": "Cliente 9",
+    "expira": "2026-03-05"
+  },
+  "RADAR-XQF4-2MZ9-K7AP": {
+    "ativa": true,
+    "cliente": "Cliente 10",
+    "expira": "2026-03-05"
   }
 }
