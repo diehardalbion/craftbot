@@ -376,8 +376,10 @@ def calcular_horas(data_iso):
     except:
         return 999
 
+
 def id_item(tier, base, enc):
     return f"T{tier}_{base}@{enc}" if enc > 0 else f"T{tier}_{base}"
+
 
 def ids_recurso_variantes(tier, nome, enc):
     base = f"T{tier}_{RECURSO_MAP[nome]}"
@@ -385,11 +387,13 @@ def ids_recurso_variantes(tier, nome, enc):
         return [f"{base}@{enc}", f"{base}_LEVEL{enc}@{enc}"]
     return [base]
 
+
 def identificar_cidade_bonus(item_base):
     for cidade, chaves in BONUS_CIDADE.items():
         if any(chave in item_base for chave in chaves):
             return cidade
     return "Caerleon (Geral)"
+
 
 # ================= INTERFACE =================
 
@@ -402,6 +406,7 @@ with st.sidebar:
     encanto = st.number_input("Encanto", 0, 4, 0)
     quantidade = st.number_input("Quantidade", 1, 999, 1)
     btn = st.button("🚀 ESCANEAR")
+
 
 # ================= EXECUÇÃO =================
 
@@ -493,9 +498,13 @@ if btn:
                 art = f"T{tier}_{d[5]}"
                 if art not in precos_recursos:
                     continue
-                custo += precos_recursos[art]["price"] * d[6] * quantidade
+
+                qtd_art = d[6] * quantidade
+                preco_art = precos_recursos[art]["price"]
+
+                custo += preco_art * qtd_art
                 detalhes.append(
-                    f"Artefato — {precos_recursos[art]['price']:,} ({precos_recursos[art]['city']} {precos_recursos[art]['horas']}h)"
+                    f"{qtd_art}x Artefato — {preco_art:,} ({precos_recursos[art]['city']} {precos_recursos[art]['horas']}h)"
                 )
 
             custo *= 0.752
