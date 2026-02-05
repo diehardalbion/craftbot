@@ -292,28 +292,67 @@ if botao_scan:
                     precos_recursos[pid] = {"price": p["sell_price_min"], "city": p["city"]}
 
     resultados = []
-    taxa_retorno = 0.523 if foco else 0.752 # 0.523 multiplica o custo (sobra do retorno de 47.7%)
+    resultados = []
+    taxa_retorno = 0.523 if foco else 0.752 
 
     for nome, d in itens_filtrados.items():
         item_id = id_item(tier, d[0], encanto)
         if item_id not in precos_itens: continue
 
         custo_materiais = 0
+        detalhes_lista = []
+        falta_dado = False
+
+        # Cálculo de Recursos e Artefatos
         for i in [1, 3]:
             res_nome, res_qtd = d[i], d[i+1]
             if res_nome and res_qtd > 0:
                 r_id = f"T{tier}_{RECURSO_MAP[res_nome]}@{encanto}" if encanto > 0 else f"T{tier}_{RECURSO_MAP[res_nome]}"
                 if r_id in precos_recursos:
-                    custo_materiais += precos_recursos[r_id]["price"] * res_qtd * quantidade
+                    p_info = precos_recursos[r_id]
+                    total_res = p_info["price"] * res_qtd * quantidade
+                    custo_materiais += total_res
+                    detalhes_lista.append(f"▫️ {res_qtd * quantidade}x {res_nome}: **{total_res:,}** ({p_info['city']})")
+                else: falta_dado = True
+
+        if d[5] and d[6] > 0: # Artefato
+            art_id = f"T{tier}_{d[5]}"
+            if art_id in precos_recursos:
+                p_info = precos_recursos[art_id]
+                total_art = p_info["price"] * d[6] * quantidade
+                custo_materiais += total_art
+                detalhes_lista.append(f"▫️ {d[6] * quantidade}x Artefato: **{total_art:,}** ({p_info['city']})")
+            else: falta_dado = True
+
+        if falta_dado: continue
 
         custo_final = int(custo_materiais * taxa_retorno)
-        venda_liquida = int((precos_itens[item_id]["price"] * quantidade) * 0.935)
+        venda_bruta = precos_itens[item_id]["price"] * quantidade
+        venda_liquida = int(venda_bruta * 0.935)
         lucro = venda_liquida - custo_final
 
         if lucro > 0:
-            resultados.append({"Item": nome, "Lucro": lucro, "Investimento": custo_final, "Retorno %": round((lucro/custo_final)*100, 1)})
+            resultados.append({
+                "nome": nome,
+                "lucro": lucro,
+                "venda": venda_bruta,
+                "cidade_venda": "Black Market",
+                "horas": precos_itens[item_id]["horas"],
+                "local": identificar_cidade_bonus(d[0]),
+                "detalhes": "\n".join(detalhes_lista)
+            })
 
+    # EXIBIÇÃO DOS RESULTADOS (O "Nível de Detalhes" que você quer)
     if resultados:
-        st.table(sorted(resultados, key=lambda x: x['Lucro'], reverse=True))
+        resultados.sort(key=lambda x: x["lucro"], reverse=True)
+        for r in resultados:
+            with st.expander(f"💰 {r['nome']} - Lucro: {r['lucro']:,} silver"):
+                st.markdown(f"""
+                **Lucro:** {r['lucro']:,}  
+                **Venda:** {r['venda']:,} ({r['cidade_venda']} - {r['horas']}h)  
+                **Local:** {r['local']}  
+                **Recursos:** {r['detalhes']}
+                """)
+                st.divider()
     else:
-        st.warning("Nenhum item lucrativo encontrado com os dados atuais.")
+        st.warning("Nenhum item lucrativo encontrado.")
