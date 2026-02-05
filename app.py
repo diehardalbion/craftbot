@@ -242,7 +242,11 @@ FILTROS = {
     "armadura_couro": lambda k, v: "ARMOR_LEATHER" in v[0],
     "armadura_pano": lambda k, v: "ARMOR_CLOTH" in v[0],
     "botas_placa": lambda k, v: "SHOES_PLATE" in v[0],
+    "botas_couro": lambda k, v: "SHOES_LEATHER" in v[0],
+    "botas_pano": lambda k, v: "SHOES_CLOTH" in v[0],
     "capacete_placa": lambda k, v: "HEAD_PLATE" in v[0],
+    "capacete_couro": lambda k, v: "HEAD_LEATHER" in v[0],
+    "capacete_pano": lambda k, v: "HEAD_CLOTH" in v[0],
     "armas": lambda k, v: v[0].startswith(("MAIN_", "2H_")),
     "secundarias": lambda k, v: v[0].startswith("OFF_"),
 }
