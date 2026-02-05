@@ -1,45 +1,28 @@
 import streamlit as st
 import requests
-import json
 from datetime import datetime, timezone
 
-# --- 1. ACESSO ---
-def validar_chave(chave_digitada):
-    try:
-        with open('keys.json', 'r') as f:
-            chaves = json.load(f)
-        if chave_digitada in chaves:
-            dados = chaves[chave_digitada]
-            if dados.get("ativa"): return True, dados.get("cliente")
-        return False, None
-    except: return False, None
-
-if 'autenticado' not in st.session_state: st.session_state['autenticado'] = False
-if not st.session_state['autenticado']:
-    st.title("🔑 Radar Craft Pro")
-    chave_input = st.text_input("Chave:", type="password")
-    if st.button("Entrar"):
-        sucesso, cliente = validar_chave(chave_input)
-        if sucesso:
-            st.session_state['autenticado'] = True
-            st.rerun()
-    st.stop()
-
-# --- 2. CONFIGURAÇÃO ---
-st.set_page_config(page_title="Radar Albion", layout="wide")
+# ================= CONFIG =================
 
 API_URL = "https://west.albion-online-data.com/api/v2/stats/prices/"
-CIDADES = ["Martlock", "Thetford", "FortSterling", "Lymhurst", "Bridgewatch", "Brecilien", "Caerleon", "Black Market"]
 
-# PADRONIZAÇÃO TOTAL DOS NOMES PARA EVITAR O ERRO DE LINHA 263
+CIDADES = [
+    "Martlock",
+    "Thetford",
+    "FortSterling",
+    "Lymhurst",
+    "Bridgewatch",
+    "Brecilien",
+    "Caerleon",
+    "Black Market"
+]
+
 RECURSO_MAP = {
-    "TECDO": "CLOTH",
-    "COURO": "LEATHER",
-    "METAL": "METALBAR",
-    "TABUA": "PLANKS"
+    "Tecido Fino": "CLOTH",
+    "Couro Trabalhado": "LEATHER",
+    "Barra de Aço": "METALBAR",
+    "Tábuas de Pinho": "PLANKS"
 }
-
-NUTRICAO_MAP = {"ARMOR": 44.4, "HEAD": 22.2, "SHOES": 22.2, "MAIN": 44.4, "2H": 88.8, "OFF": 22.2, "KNUCKLES": 44.4, "CAPE": 22.2, "BAG": 22.2}
 
 BONUS_CIDADE = {
     "Martlock": ["AXE", "QUARTERSTAFF", "FROSTSTAFF", "SHOES_PLATE", "OFF_"],
@@ -51,7 +34,8 @@ BONUS_CIDADE = {
     "Brecilien": ["CAPE", "BAG"]
 }
 
-# BANCO DE DADOS COM CHAVES PADRONIZADAS (METAL, COURO, TECIDO, TABUA)
+# ================= ITENS_DB =================
+# 👉 COLE AQUI O MESMO ITENS_DB DO DISCORD
 ITENS_DB = {
     # --- OFF-HANDS E TOCHAS ---
     "TOMO DE FEITIÇOS": ["OFF_BOOK", "Tecido Fino", 4, "Couro Trabalhado", 4, None, 0],
@@ -122,7 +106,7 @@ ITENS_DB = {
     "Casaco da Tenacidade": ["ARMOR_LEATHER_CRYSTAL", "Couro Trabalhado", 16, None, 0, "QUESTITEM_TOKEN_CRYSTAL_ARMOR_LEATHER", 1],
 
     # --- CAPUZES DE COURO ---
-    "Capud de Mercenário": ["HEAD_LEATHER_SET1", "Couro Trabalhado", 8, None, 0, None, 0],
+    "Capuz de Mercenário": ["HEAD_LEATHER_SET1", "Couro Trabalhado", 8, None, 0, None, 0],
     "Capuz de Caçador": ["HEAD_LEATHER_SET2", "Couro Trabalhado", 8, None, 0, None, 0],
     "Capuz de Assassino": ["HEAD_LEATHER_SET3", "Couro Trabalhado", 8, None, 0, None, 0],
     "Capuz Real": ["HEAD_LEATHER_ROYAL", "Couro Trabalhado", 8, None, 0, "QUESTITEM_TOKEN_ROYAL", 2],
@@ -253,94 +237,173 @@ ITENS_DB = {
     "ALVORADA": ["MAIN_SPEAR_AVALON", "Tábuas de Pinho", 16, "Barra de Aço", 8, "ARTEFACT_MAIN_SPEAR_AVALON", 1],
     "ARCHA FRATURADA": ["2H_SPEAR_CRYSTAL", "Tábuas de Pinho", 12, "Barra de Aço", 20, "QUESTITEM_TOKEN_CRYSTAL_SPEAR", 1]
 }
+# ================= FILTROS =================
 
-# --- 3. SIDEBAR ---
-with st.sidebar:
-    st.header("⚙️ Filtros de Craft")
-    t_sel = st.number_input("Tier", 4, 8, 4)
-    e_sel = st.number_input("Encanto", 0, 4, 0)
-    foco = st.checkbox("Usar Foco (Bônus Cidade)")
-    taxa_loja = st.number_input("Taxa Loja", 0, 5000, 500)
-    btn = st.button("🚀 ATUALIZAR RADAR")
+FILTROS = {
+    "armadura_placa": lambda k, v: "ARMOR_PLATE" in v[0],
+    "armadura_couro": lambda k, v: "ARMOR_LEATHER" in v[0],
+    "armadura_pano": lambda k, v: "ARMOR_CLOTH" in v[0],
+    "botas_placa": lambda k, v: "SHOES_PLATE" in v[0],
+    "botas_couro": lambda k, v: "SHOES_LEATHER" in v[0],
+    "botas_pano": lambda k, v: "SHOES_CLOTH" in v[0],
+    "capacete_placa": lambda k, v: "HEAD_PLATE" in v[0],
+    "capacete_couro": lambda k, v: "HEAD_LEATHER" in v[0],
+    "capacete_pano": lambda k, v: "HEAD_CLOTH" in v[0],
+    "armas": lambda k, v: v[0].startswith(("MAIN_", "2H_")),
+    "secundarias": lambda k, v: v[0].startswith("OFF_"),
+}
 
-# --- 4. LOGICA ---
-if btn:
-    # Gerar IDs dos itens finais e dos recursos necessários
-    ids_finais = {f"T{t_sel}_{v[0]}" + (f"@{e_sel}" if e_sel > 0 else ""): k for k, v in ITENS_DB.items()}
-    ids_recursos = set()
-    
-    for v in ITENS_DB.values():
-        if v[1] and v[1] in RECURSO_MAP:
-            ids_recursos.add(f"T{t_sel}_{RECURSO_MAP[v[1]]}" + (f"@{e_sel}" if e_sel > 0 else ""))
-        if v[3] and v[3] in RECURSO_MAP:
-            ids_recursos.add(f"T{t_sel}_{RECURSO_MAP[v[3]]}" + (f"@{e_sel}" if e_sel > 0 else ""))
+# ================= FUNÇÕES =================
 
-    todos_ids = list(ids_finais.keys()) + list(ids_recursos)
-    
+def calcular_horas(data_iso):
+    if not data_iso:
+        return 999
     try:
-        data = requests.get(f"{API_URL}{','.join(todos_ids)}?locations={','.join(CIDADES)}").json()
-        precos = {}
-        for p in data:
-            pid, city = p["item_id"], p["city"]
-            # Seleciona o preço (Buy do BM ou Sell das Cidades)
-            price = p["buy_price_max"] if city == "Black Market" else p["sell_price_min"]
-            
-            # FILTRO ANTI-BUG: Remove preços absurdos de itens T4/T5
-            if price < 100: continue
-            if t_sel <= 5 and price > 500000: continue 
-            
-            if pid not in precos: precos[pid] = {}
-            precos[pid][city] = price
+        data_api = datetime.fromisoformat(data_iso.replace("Z", "+00:00"))
+        agora = datetime.now(timezone.utc)
+        return int((agora - data_api).total_seconds() / 3600)
+    except:
+        return 999
 
-        rrr = 0.521 if foco else 0.752
-        resultados = []
+def id_item(tier, base, enc):
+    return f"T{tier}_{base}@{enc}" if enc > 0 else f"T{tier}_{base}"
 
-        for item_id, nome_pt in ids_finais.items():
-            if item_id not in precos: continue
-            
-            info = ITENS_DB[nome_pt]
-            custo_mats = 0
-            dados_completos = True
-            
-            # Cálculo do custo dos materiais com o mesmo encanto
-            for res_nome, res_qtd in [(info[1], info[2]), (info[3], info[4])]:
-                if res_nome:
-                    rid = f"T{t_sel}_{RECURSO_MAP[res_nome]}" + (f"@{e_sel}" if e_sel > 0 else "")
-                    precos_res = [precos[rid][c] for c in precos.get(rid, {}) if c != "Black Market"]
-                    if precos_res: custo_mats += min(precos_res) * res_qtd
-                    else: dados_completos = False
-            
-            if not dados_completos: continue
+def ids_recurso_variantes(tier, nome, enc):
+    base = f"T{tier}_{RECURSO_MAP[nome]}"
+    if enc > 0:
+        return [f"{base}@{enc}", f"{base}_LEVEL{enc}@{enc}"]
+    return [base]
 
-            # Cálculo de Taxa e Lucro
-            taxa = (NUTRICAO_MAP.get(info[0].split("_")[0], 44.4) * t_sel * (taxa_loja/100))
-            custo_total = int((custo_mats * rrr) + taxa)
+def identificar_cidade_bonus(item_base):
+    for cidade, chaves in BONUS_CIDADE.items():
+        if any(chave in item_base for chave in chaves):
+            return cidade
+    return "Caerleon (Geral)"
 
-            for cidade, pvenda in precos[item_id].items():
-                venda_liquida = pvenda * 0.935
-                lucro = int(venda_liquida - custo_total)
-                
-                # Só mostra se o lucro for real e o ROI não for infinito
-                if lucro > 500 and lucro < 1000000:
-                    c_craft = "Caerleon"
-                    for city_b, ids_b in BONUS_CIDADE.items():
-                        if any(x in item_id for x in ids_b): c_craft = city_b
-                    
-                    resultados.append({
-                        "nome": f"{nome_pt} .{e_sel}", "lucro": lucro, 
-                        "roi": (lucro/custo_total)*100, "venda": cidade, 
-                        "craft": c_craft, "p": pvenda
-                    })
+# ================= INTERFACE =================
 
-        if not resultados:
-            st.warning(f"Sem lucro detectado para .{e_sel}. Verifique se os recursos .{e_sel} têm preços no mercado.")
+st.set_page_config("Radar Craft Albion", layout="wide")
+st.title("⚔️ Radar Craft — Royal Cities + Black Market")
+
+with st.sidebar:
+    categoria = st.selectbox("Categoria", list(FILTROS.keys()))
+    tier = st.number_input("Tier", 4, 8, 4)
+    encanto = st.number_input("Encanto", 0, 4, 0)
+    quantidade = st.number_input("Quantidade", 1, 999, 1)
+    btn = st.button("🚀 ESCANEAR")
+
+# ================= EXECUÇÃO =================
+
+if btn:
+    filtro = FILTROS[categoria]
+    itens = {k: v for k, v in ITENS_DB.items() if filtro(k, v)}
+
+    if not itens:
+        st.error("Nenhum item encontrado para essa categoria.")
+        st.stop()
+
+    ids = set()
+
+    for d in itens.values():
+        ids.add(id_item(tier, d[0], encanto))
+
+        for r in ids_recurso_variantes(tier, d[1], encanto):
+            ids.add(r)
+
+        if d[3]:
+            for r in ids_recurso_variantes(tier, d[3], encanto):
+                ids.add(r)
+
+        if d[5]:
+            ids.add(f"T{tier}_{d[5]}")
+
+    response = requests.get(
+        f"{API_URL}{','.join(ids)}?locations={','.join(CIDADES)}",
+        timeout=20
+    )
+
+    data = response.json()
+
+    precos_itens = {}
+    precos_recursos = {}
+
+    for p in data:
+        pid = p["item_id"]
+
+        # BLACK MARKET → COMPRA
+        if p["city"] == "Black Market":
+            price = p["buy_price_max"]
+            if price > 0:
+                horas = calcular_horas(p["buy_price_max_date"])
+                if pid not in precos_itens or price > precos_itens[pid]["price"]:
+                    precos_itens[pid] = {
+                        "price": price,
+                        "horas": horas
+                    }
+
+        # ROYAL CITIES → VENDA
         else:
-            for r in sorted(resultados, key=lambda x: x['lucro'], reverse=True)[:15]:
-                st.markdown(f"""
-                <div style="background:#111827; padding:15px; border-radius:10px; border-left:5px solid #3b82f6; margin-bottom:10px;">
-                <b style="color:#3b82f6;">{r['nome']}</b> | Lucro: <span style="color:#4ade80;">{r['lucro']:,} silver</span> | ROI: {r['roi']:.1f}%<br>
-                🔨 Craft: {r['craft']} | 🏛️ Vender em: {r['venda']} | Preço: {r['p']:,}
-                </div>
-                """, unsafe_allow_html=True)
-    except Exception as e:
-        st.error(f"Erro na conexão com Albion Data: {e}")
+            price = p["sell_price_min"]
+            if price > 0:
+                horas = calcular_horas(p["sell_price_min_date"])
+                if pid not in precos_recursos or price < precos_recursos[pid]["price"]:
+                    precos_recursos[pid] = {
+                        "price": price,
+                        "city": p["city"],
+                        "horas": horas
+                    }
+
+    resultados = []
+
+    for nome, d in itens.items():
+        item_id = id_item(tier, d[0], encanto)
+        if item_id not in precos_itens:
+            continue
+
+        custo = 0
+        detalhes = []
+
+        for recurso, qtd in [(d[1], d[2]), (d[3], d[4])]:
+            if not recurso:
+                continue
+
+            for rid in ids_recurso_variantes(tier, recurso, encanto):
+                if rid in precos_recursos:
+                    info = precos_recursos[rid]
+                    custo += info["price"] * qtd * quantidade
+                    detalhes.append(
+                        f"{qtd * quantidade}x {recurso} — {info['price']:,} ({info['city']} {info['horas']}h)"
+                    )
+                    break
+            else:
+                break
+        else:
+            if d[5]:
+                art = f"T{tier}_{d[5]}"
+                if art not in precos_recursos:
+                    continue
+                custo += precos_recursos[art]["price"] * d[6] * quantidade
+                detalhes.append(
+                    f"Artefato — {precos_recursos[art]['price']:,} ({precos_recursos[art]['city']} {precos_recursos[art]['horas']}h)"
+                )
+
+            custo *= 0.752
+            venda = precos_itens[item_id]["price"] * quantidade
+            lucro = (venda * 0.935) - custo
+
+            if lucro > 0:
+                resultados.append((nome, int(lucro), int(venda), int(custo), detalhes))
+
+    resultados.sort(key=lambda x: x[1], reverse=True)
+
+    if not resultados:
+        st.error("❌ Nenhum lucro encontrado.")
+    else:
+        for nome, lucro, venda, custo, detalhes in resultados[:20]:
+            st.markdown(f"""
+### 💎 {nome}
+💰 **Lucro:** {lucro:,}  
+🛒 **Venda BM:** {venda:,}  
+📉 **Custo:** {custo:,}  
+📦 **Recursos:** {' | '.join(detalhes)}
+""")
