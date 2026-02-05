@@ -388,32 +388,41 @@ if btn_scan:
                     "mats": "".join(detalhes_mats)
                 })
 
-        # 8. EXIBIÇÃO
+        # --- 8. EXIBIÇÃO ---
         st.subheader(f"📊 Melhores Oportunidades: T{tier}.{encanto}")
+        
         if not resultados:
-        st.error("Nenhum lucro real encontrado (dados bugados foram filtrados).")
-    else:
-        for res in resultados[:20]:
-            det_html = "".join([f"<li>{d}</li>" for d in res["detalhes"]])
-            st.markdown(f"""
-            <div style="background-color: #1e1e1e; padding: 15px; border-radius: 10px; border: 1px solid #444; margin-bottom: 20px;">
-                <div style="color: #00ffcc; font-size: 1.2em; font-weight: bold;">💎 {res['nome'].upper()} (T{tier}.{encanto})</div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
-                    <div>
-                        <p style="color: white;">✅ <b>Lucro:</b> <span style="color: #00ff00;">{res['lucro']:,} silver</span></p>
-                        <p style="color: white;">🛒 <b>Venda:</b> {res['venda']:,} silver</p>
-                        <p style="color: white;">📈 <b>ROI:</b> {res['roi']:.1f}%</p>
+            # Esta linha precisa de 4 espaços a mais que o 'if'
+            st.error("Nenhum lucro real encontrado (dados bugados foram filtrados).")
+        else:
+            # O 'else' precisa estar alinhado exatamente com o 'if'
+            resultados.sort(key=lambda x: x["lucro"], reverse=True)
+            for res in resultados[:20]:
+                # Usando 'mats' que é como definimos na lista de resultados
+                st.markdown(f"""
+                <div style="background-color: #1e1e1e; padding: 15px; border-radius: 10px; border: 1px solid #444; margin-bottom: 20px;">
+                    <div style="color: #00ffcc; font-size: 1.2em; font-weight: bold;">💎 {res['nome'].upper()} (T{tier}.{encanto})</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+                        <div>
+                            <p style="color: white;">✅ <b>Lucro:</b> <span style="color: #00ff00;">{res['lucro']:,} silver</span></p>
+                            <p style="color: white;">🛒 <b>Venda:</b> {res['venda']:,} silver</p>
+                            <p style="color: white;">📈 <b>ROI:</b> {res['roi']:.1f}%</p>
+                        </div>
+                        <div>
+                            <p style="color: white;">🔨 <b>Onde Craftar:</b> <span style="color: #ffaa00;">{res['cidade_craft']}</span></p>
+                            <p style="color: white;">🏛️ <b>Onde Vender:</b> <span style="color: #ffaa00;">{res['cidade_venda']}</span></p>
+                            <p style="color: white;">🕒 <b>Atualizado há:</b> {res['tempo']}</p>
+                        </div>
                     </div>
-                    <div>
-                        <p style="color: white;">🔨 <b>Onde Craftar:</b> <span style="color: #ffaa00;">{res['cidade_craft']}</span></p>
-                        <p style="color: white;">🏛️ <b>Onde Vender:</b> <span style="color: #ffaa00;">{res['cidade_venda']}</span></p>
+                    <div style="margin-top: 10px; border-top: 1px dashed #444; padding-top: 10px;">
+                        <ul style="color: #ddd; font-size: 0.9em;">{res['mats']}</ul>
                     </div>
                 </div>
-                <div style="margin-top: 10px; border-top: 1px dashed #444; padding-top: 10px;">
-                    <ul style="color: #ddd; font-size: 0.9em;">{det_html}</ul>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
+                """, unsafe_allow_html=True)
+
+    except Exception as e:
+        # Esse except deve estar alinhado com o 'try' lá de cima
+        st.error(f"Erro no processamento: {e}")
 
     except Exception as e:
         st.error(f"Erro no processamento: {e}")
