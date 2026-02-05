@@ -426,37 +426,43 @@ if btn:
 
     resultados.sort(key=lambda x: x[1], reverse=True)
 
-    if not resultados:
-    st.error("❌ Nenhum lucro encontrado.")
-else:
-    st.subheader(f"📊 Resultados para {categoria} T{tier}.{encanto}")
-    
-    for nome, lucro, venda, custo, detalhes, h_venda in resultados[:20]:
-        # Cálculo da porcentagem de lucro sobre o investimento
-        perc_lucro = (lucro / custo) * 100 if custo > 0 else 0
-        
-        # Identifica a cidade de bônus baseada no item
-        cidade_foco = identificar_cidade_bonus(nome) # Se você tiver essa função mapeada
+    O erro IndentationError acontece porque no Python a indentação (o espaço no começo da linha) é obrigatória. No seu código, a linha do st.error precisa estar um pouco mais para a direita para o Python entender que ela faz parte do if.
 
-        # Formatação do Card no seu estilo solicitado
-        st.markdown(f"""
-        <div style="background-color: #ffffff; border-radius: 10px; padding: 15px; margin-bottom: 15px; border-left: 6px solid #2ecc71; box-shadow: 2px 2px 8px rgba(0,0,0,0.1); color: #333;">
-            <div style="font-weight: bold; font-size: 1.1rem; margin-bottom: 8px;">
-                ⚔️ Radar Craft — {categoria} T{tier}.{encanto} x{quantidade} [{tier}.{encanto}] {nome}
+Aqui está o bloco corrigido e ajustado para o formato exato que você pediu:
+
+Python
+    # Corrigindo a indentação e aplicando o formato solicitado
+    if not resultados:
+        st.error("❌ Nenhum lucro encontrado.")
+    else:
+        st.subheader(f"📊 Resultados para {categoria} T{tier}.{encanto}")
+        
+        for nome, lucro, venda, custo, detalhes, h_venda in resultados[:20]:
+            # Cálculo da porcentagem de lucro sobre o investimento
+            perc_lucro = (lucro / custo) * 100 if custo > 0 else 0
+            
+            # Identifica a cidade de bônus baseada no item
+            cidade_foco = identificar_cidade_bonus(nome)
+
+            # Formatação exata do Card solicitado
+            st.markdown(f"""
+            <div style="background-color: #ffffff; border-radius: 10px; padding: 15px; margin-bottom: 15px; border-left: 6px solid #2ecc71; box-shadow: 2px 2px 8px rgba(0,0,0,0.1); color: #333;">
+                <div style="font-weight: bold; font-size: 1.1rem; margin-bottom: 8px; color: #1e293b;">
+                    ⚔️ Radar Craft — {categoria} T{tier}.{encanto} x{quantidade} [{tier}.{encanto}] {nome}
+                </div>
+                <div style="font-size: 0.95rem; line-height: 1.6;">
+                    <span style="color: #27ae60; font-weight: bold;">💰 Lucro: {lucro:,} ({perc_lucro:.2f}%)</span> | 
+                    <b>Investimento:</b> {custo:,} | 
+                    <b>Venda:</b> {venda:,} (Black Market - {h_venda}h)
+                </div>
+                <div style="font-size: 0.9rem; margin-top: 5px; color: #475569;">
+                    📍 <b>Local:</b> {cidade_foco}
+                </div>
+                <div style="background: #f8f9fa; padding: 8px; border-radius: 5px; margin-top: 8px; font-size: 0.85rem; border: 1px solid #e2e8f0; color: #475569;">
+                    📦 <b>Recursos:</b> {" | ".join(detalhes)}
+                </div>
             </div>
-            <div style="font-size: 0.95rem; line-height: 1.6;">
-                <span style="color: #27ae60; font-weight: bold;">💰 Lucro: {lucro:,} ({perc_lucro:.2f}%)</span> | 
-                <b>Investimento:</b> {custo:,} | 
-                <b>Venda:</b> {venda:,} (Black Market - {h_venda}h)
-            </div>
-            <div style="font-size: 0.9rem; margin-top: 5px; color: #555;">
-                📍 <b>Local:</b> {cidade_foco}
-            </div>
-            <div style="background: #f8f9fa; padding: 8px; border-radius: 5px; margin-top: 8px; font-size: 0.85rem; border: 1px solid #eee;">
-                📦 <b>Recursos:</b> {" | ".join(detalhes)}
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
 
 # Footer simples
 st.markdown("---")
