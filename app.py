@@ -18,6 +18,11 @@ st.markdown(
         display: none;
     }
 
+    /* REMOVE espaçamento extra do topo */
+    .block-container {
+        padding-top: 2rem !important;
+    }
+
     /* FUNDO GERAL */
     .stApp {
         background: radial-gradient(circle at top, #0f172a, #020617);
@@ -26,7 +31,7 @@ st.markdown(
 
     /* CONTEÚDO CENTRAL */
     .block-container {
-        background-color: rgba(15, 23, 42, 0.92);
+        background-color: rgba(15, 23, 42, 0.94);
         padding: 2.5rem;
         border-radius: 22px;
         box-shadow: 0 0 60px rgba(0,0,0,0.75);
@@ -35,24 +40,49 @@ st.markdown(
     /* SIDEBAR */
     section[data-testid="stSidebar"] {
         background: linear-gradient(180deg, #020617, #020617);
-        color: #f9fafb;
         padding-top: 2rem;
     }
 
     /* TEXTO DA SIDEBAR */
     section[data-testid="stSidebar"] * {
-        color: #f9fafb !important;
+        color: #f8fafc !important;
         font-weight: 500;
     }
 
     /* INPUTS DA SIDEBAR */
     section[data-testid="stSidebar"] select,
     section[data-testid="stSidebar"] input,
-    section[data-testid="stSidebar"] button {
+    section[data-testid="stSidebar"] button,
+    div[data-baseweb="select"] > div {
         background-color: #020617 !important;
         color: #f9fafb !important;
         border: 1px solid #1e293b !important;
-        border-radius: 10px;
+        border-radius: 10px !important;
+    }
+
+    /* REMOVE caret | do selectbox */
+    div[data-baseweb="select"] input {
+        caret-color: transparent !important;
+    }
+
+    /* TEXTO DO SELECTBOX */
+    div[data-baseweb="select"] span {
+        color: #f9fafb !important;
+        font-weight: 500;
+    }
+
+    /* DROPDOWN (lista aberta) */
+    ul[role="listbox"] {
+        background-color: #020617 !important;
+        border: 1px solid #1e293b !important;
+    }
+
+    li[role="option"] {
+        color: #e5e7eb !important;
+    }
+
+    li[role="option"]:hover {
+        background-color: #1e293b !important;
     }
 
     /* BOTÕES */
