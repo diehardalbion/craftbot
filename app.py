@@ -47,27 +47,53 @@ st.set_page_config(
 
 st.markdown("""
 <style>
+/* Reset geral e Background */
 header { background: transparent !important; }
 .stApp > header { display: none; }
-.block-container { padding-top: 2rem !important; }
 .stApp { background: radial-gradient(circle at top, #0f172a, #020617); color: #e5e7eb; }
 .block-container { background-color: rgba(15, 23, 42, 0.94); padding: 2.5rem; border-radius: 22px; box-shadow: 0 0 60px rgba(0,0,0,0.75); }
-section[data-testid="stSidebar"] { background: linear-gradient(180deg, #020617, #020617); padding-top: 2rem; }
-section[data-testid="stSidebar"] * { color: #f8fafc !important; font-weight: 500; }
-section[data-testid="stSidebar"] select, section[data-testid="stSidebar"] input, section[data-testid="stSidebar"] button, div[data-baseweb="select"] > div {
-    background-color: #020617 !important; color: #f9fafb !important; border: 1px solid #1e293b !important; border-radius: 10px !important;
+
+/* Sidebar */
+section[data-testid="stSidebar"] { background: #020617; }
+section[data-testid="stSidebar"] * { color: #f8fafc !important; }
+
+/* --- CORREÇÃO DO DROPDOWN (SELECTBOX) --- */
+/* Fundo do campo fechado */
+div[data-baseweb="select"] > div {
+    background-color: #1e293b !important; 
+    border: 1px solid #334155 !important;
 }
-div[data-baseweb="select"] input { caret-color: transparent !important; }
-div[data-baseweb="select"] span { color: #f9fafb !important; font-weight: 500; }
-ul[role="listbox"] { background-color: #020617 !important; border: 1px solid #1e293b !important; }
-li[role="option"] { color: #e5e7eb !important; }
-li[role="option"]:hover { background-color: #1e293b !important; }
-.stButton > button { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border-radius: 14px; font-weight: 600; padding: 0.6rem 1.4rem; border: none; }
-.stButton > button:hover { background: linear-gradient(135deg, #1d4ed8, #1e40af); transform: scale(1.02); }
-h1, h2, h3 { color: #f8fafc; text-shadow: 0 0 8px rgba(0,0,0,0.6); }
-div[data-baseweb="select"] > div { background-color: #020617 !important; color: #f9fafb !important; }
-div[data-baseweb="select"] > div > div { color: #f9fafb !important; font-weight: 500; }
-div[data-baseweb="select"] span { color: #f9fafb !important; }
+
+/* Texto do item selecionado */
+div[data-baseweb="select"] span, div[data-baseweb="select"] div {
+    color: #ffffff !important;
+}
+
+/* Fundo da lista que abre (Popover) */
+div[data-baseweb="popover"] ul {
+    background-color: #1e293b !important;
+    border: 1px solid #334155 !important;
+}
+
+/* Itens individuais da lista */
+div[data-baseweb="popover"] li {
+    background-color: transparent !important;
+    color: #ffffff !important;
+}
+
+/* Efeito de passar o mouse nos itens da lista */
+div[data-baseweb="popover"] li:hover {
+    background-color: #334155 !important;
+}
+
+/* Botão Escanear */
+.stButton > button { 
+    background: linear-gradient(135deg, #2563eb, #1d4ed8); 
+    color: white !important; 
+    border-radius: 14px; 
+    width: 100%;
+    border: none;
+}
 </style>
 """, unsafe_allow_html=True)
 
