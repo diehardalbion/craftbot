@@ -256,12 +256,23 @@ FILTROS = {
 # ================= FUNÇÕES =================
 
 def calcular_horas(data_iso):
-    if not data_iso:
-        return 999
     try:
+        from datetime import datetime, timezone
+        # 1. Trata o sufixo 'Z' e garante que o Python entenda como UTC
         data_api = datetime.fromisoformat(data_iso.replace("Z", "+00:00"))
-        agora = datetime.now(timezone.utc)
-        return int((agora - data_api).total_seconds() / 3600)
+        # 2. Pega a hora atual EXATA em UTC
+        data_agora = datetime.now(timezone.utc)
+        
+        # 3. Se a data da API for a "data zero" (bug comum da API do Albion), retorna 999
+        if data_api.year < 2000: 
+            return 999
+            
+        # 4. Calcula a diferença total em segundos e converte para horas
+        diff = data_agora - data_api
+        horas = int(diff.total_seconds() / 3600)
+        
+        # 5. Garante que não retorne horas negativas (caso o relógio do PC esteja atrasado)
+        return max(0, horas)
     except:
         return 999
 
