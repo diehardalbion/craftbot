@@ -258,21 +258,15 @@ FILTROS = {
 def calcular_horas(data_iso):
     try:
         from datetime import datetime, timezone
-        # 1. Trata o sufixo 'Z' e garante que o Python entenda como UTC
+        # Converte a data da API e trata o 'Z'
         data_api = datetime.fromisoformat(data_iso.replace("Z", "+00:00"))
-        # 2. Pega a hora atual EXATA em UTC
+        # Pega a hora atual em UTC
         data_agora = datetime.now(timezone.utc)
         
-        # 3. Se a data da API for a "data zero" (bug comum da API do Albion), retorna 999
-        if data_api.year < 2000: 
-            return 999
-            
-        # 4. Calcula a diferença total em segundos e converte para horas
-        diff = data_agora - data_api
-        horas = int(diff.total_seconds() / 3600)
+        # O PULO DO GATO: remove o fuso horário de ambas para poder subtrair sem erro
+        diff = data_agora.replace(tzinfo=None) - data_api.replace(tzinfo=None)
         
-        # 5. Garante que não retorne horas negativas (caso o relógio do PC esteja atrasado)
-        return max(0, horas)
+        return int(diff.total_seconds() / 3600)
     except:
         return 999
 
