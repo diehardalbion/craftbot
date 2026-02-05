@@ -30,7 +30,15 @@ st.set_page_config(page_title="Radar Albion", layout="wide")
 
 API_URL = "https://west.albion-online-data.com/api/v2/stats/prices/"
 CIDADES = ["Martlock", "Thetford", "FortSterling", "Lymhurst", "Bridgewatch", "Brecilien", "Caerleon", "Black Market"]
-RECURSO_MAP = {"Tecido": "CLOTH", "Couro": "LEATHER", "Metal": "METALBAR", "Tabua": "PLANKS"}
+
+# PADRONIZAÇÃO TOTAL DOS NOMES PARA EVITAR O ERRO DE LINHA 263
+RECURSO_MAP = {
+    "TECDO": "CLOTH",
+    "COURO": "LEATHER",
+    "METAL": "METALBAR",
+    "TABUA": "PLANKS"
+}
+
 NUTRICAO_MAP = {"ARMOR": 44.4, "HEAD": 22.2, "SHOES": 22.2, "MAIN": 44.4, "2H": 88.8, "OFF": 22.2, "KNUCKLES": 44.4, "CAPE": 22.2, "BAG": 22.2}
 
 BONUS_CIDADE = {
@@ -43,7 +51,7 @@ BONUS_CIDADE = {
     "Brecilien": ["CAPE", "BAG"]
 }
 
-# Banco de dados expandido com nomes internos corretos
+# BANCO DE DADOS COM CHAVES PADRONIZADAS (METAL, COURO, TECIDO, TABUA)
 ITENS_DB = {
     # --- OFF-HANDS E TOCHAS ---
     "TOMO DE FEITIÇOS": ["OFF_BOOK", "Tecido Fino", 4, "Couro Trabalhado", 4, None, 0],
@@ -248,20 +256,24 @@ ITENS_DB = {
 
 # --- 3. SIDEBAR ---
 with st.sidebar:
-    st.header("⚙️ Filtros")
+    st.header("⚙️ Filtros de Craft")
     t_sel = st.number_input("Tier", 4, 8, 4)
     e_sel = st.number_input("Encanto", 0, 4, 0)
-    foco = st.checkbox("Usar Foco (47.9% RRR)")
+    foco = st.checkbox("Usar Foco (Bônus Cidade)")
     taxa_loja = st.number_input("Taxa Loja", 0, 5000, 500)
-    btn = st.button("🚀 ESCANEAR")
+    btn = st.button("🚀 ATUALIZAR RADAR")
 
 # --- 4. LOGICA ---
 if btn:
+    # Gerar IDs dos itens finais e dos recursos necessários
     ids_finais = {f"T{t_sel}_{v[0]}" + (f"@{e_sel}" if e_sel > 0 else ""): k for k, v in ITENS_DB.items()}
     ids_recursos = set()
+    
     for v in ITENS_DB.values():
-        if v[1]: ids_recursos.add(f"T{t_sel}_{RECURSO_MAP[v[1]]}" + (f"@{e_sel}" if e_sel > 0 else ""))
-        if v[3]: ids_recursos.add(f"T{t_sel}_{RECURSO_MAP[v[3]]}" + (f"@{e_sel}" if e_sel > 0 else ""))
+        if v[1] and v[1] in RECURSO_MAP:
+            ids_recursos.add(f"T{t_sel}_{RECURSO_MAP[v[1]]}" + (f"@{e_sel}" if e_sel > 0 else ""))
+        if v[3] and v[3] in RECURSO_MAP:
+            ids_recursos.add(f"T{t_sel}_{RECURSO_MAP[v[3]]}" + (f"@{e_sel}" if e_sel > 0 else ""))
 
     todos_ids = list(ids_finais.keys()) + list(ids_recursos)
     
@@ -269,10 +281,13 @@ if btn:
         data = requests.get(f"{API_URL}{','.join(todos_ids)}?locations={','.join(CIDADES)}").json()
         precos = {}
         for p in data:
-            pid, city, price = p["item_id"], p["city"], (p["buy_price_max"] if p["city"] == "Black Market" else p["sell_price_min"])
+            pid, city = p["item_id"], p["city"]
+            # Seleciona o preço (Buy do BM ou Sell das Cidades)
+            price = p["buy_price_max"] if city == "Black Market" else p["sell_price_min"]
+            
+            # FILTRO ANTI-BUG: Remove preços absurdos de itens T4/T5
             if price < 100: continue
-            # FILTRO ANTI-BUG: Se for T4 e o preço for maior que 300k, ignora (preço falso)
-            if t_sel == 4 and price > 300000: continue
+            if t_sel <= 5 and price > 500000: continue 
             
             if pid not in precos: precos[pid] = {}
             precos[pid][city] = price
@@ -283,27 +298,30 @@ if btn:
         for item_id, nome_pt in ids_finais.items():
             if item_id not in precos: continue
             
-            # Cálculo de custo
             info = ITENS_DB[nome_pt]
             custo_mats = 0
-            possui_recurso = True
+            dados_completos = True
             
+            # Cálculo do custo dos materiais com o mesmo encanto
             for res_nome, res_qtd in [(info[1], info[2]), (info[3], info[4])]:
                 if res_nome:
                     rid = f"T{t_sel}_{RECURSO_MAP[res_nome]}" + (f"@{e_sel}" if e_sel > 0 else "")
                     precos_res = [precos[rid][c] for c in precos.get(rid, {}) if c != "Black Market"]
                     if precos_res: custo_mats += min(precos_res) * res_qtd
-                    else: possui_recurso = False
+                    else: dados_completos = False
             
-            if not possui_recurso: continue
+            if not dados_completos: continue
 
+            # Cálculo de Taxa e Lucro
             taxa = (NUTRICAO_MAP.get(info[0].split("_")[0], 44.4) * t_sel * (taxa_loja/100))
             custo_total = int((custo_mats * rrr) + taxa)
 
             for cidade, pvenda in precos[item_id].items():
-                lucro = int((pvenda * 0.935) - custo_total)
-                if lucro > 500:
-                    # Achar cidade de craft
+                venda_liquida = pvenda * 0.935
+                lucro = int(venda_liquida - custo_total)
+                
+                # Só mostra se o lucro for real e o ROI não for infinito
+                if lucro > 500 and lucro < 1000000:
                     c_craft = "Caerleon"
                     for city_b, ids_b in BONUS_CIDADE.items():
                         if any(x in item_id for x in ids_b): c_craft = city_b
@@ -315,13 +333,14 @@ if btn:
                     })
 
         if not resultados:
-            st.warning(f"Nenhum item .{e_sel} com lucro real. Verifique se os recursos .{e_sel} têm preços na API.")
+            st.warning(f"Sem lucro detectado para .{e_sel}. Verifique se os recursos .{e_sel} têm preços no mercado.")
         else:
             for r in sorted(resultados, key=lambda x: x['lucro'], reverse=True)[:15]:
                 st.markdown(f"""
                 <div style="background:#111827; padding:15px; border-radius:10px; border-left:5px solid #3b82f6; margin-bottom:10px;">
-                <b style="color:#3b82f6;">{r['nome']}</b> | Lucro: <span style="color:#4ade80;">{r['lucro']:,} silver</span><br>
-                🔨 Craft: {r['craft']} | 🏛️ Venda: {r['venda']} | Preço: {r['p']:,}
+                <b style="color:#3b82f6;">{r['nome']}</b> | Lucro: <span style="color:#4ade80;">{r['lucro']:,} silver</span> | ROI: {r['roi']:.1f}%<br>
+                🔨 Craft: {r['craft']} | 🏛️ Vender em: {r['venda']} | Preço: {r['p']:,}
                 </div>
                 """, unsafe_allow_html=True)
-    except: st.error("Erro ao conectar na API.")
+    except Exception as e:
+        st.error(f"Erro na conexão com Albion Data: {e}")
