@@ -256,13 +256,20 @@ FILTROS = {
 # ================= FUNÇÕES =================
 
 def calcular_horas(data_iso):
-    if not data_iso:
+    if not data_iso or data_iso == "0001-01-01T00:00:00":
         return 999
     try:
+        # Garante que estamos lidando com UTC de forma robusta
         data_api = datetime.fromisoformat(data_iso.replace("Z", "+00:00"))
         agora = datetime.now(timezone.utc)
-        return int((agora - data_api).total_seconds() / 3600)
-    except:
+        
+        # Diferença em segundos convertida para horas
+        diff = agora - data_api
+        horas = int(diff.total_seconds() / 3600)
+        
+        # Evita números negativos caso o relógio local esteja atrasado
+        return max(0, horas)
+    except Exception:
         return 999
 
 def id_item(tier, base, enc):
