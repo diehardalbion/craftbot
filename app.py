@@ -23,6 +23,7 @@ BONUS_CIDADE = {
     "Brecilien": ["CAPE", "BAG"]
 }
 
+# Certifique-se de preencher seu ITENS_DB completo aqui
 ITENS_DB = {
     # --- OFF-HANDS E TOCHAS ---
     "TOMO DE FEITIÇOS": ["OFF_BOOK", "Tecido Fino", 4, "Couro Trabalhado", 4, None, 0],
@@ -229,10 +230,17 @@ FILTROS = {
     "armadura_placa": lambda k, v: "ARMOR_PLATE" in v[0],
     "armadura_couro": lambda k, v: "ARMOR_LEATHER" in v[0],
     "armadura_pano": lambda k, v: "ARMOR_CLOTH" in v[0],
+    "botas_placa": lambda k, v: "SHOES_PLATE" in v[0],
+    "botas_couro": lambda k, v: "SHOES_LEATHER" in v[0],
+    "botas_pano": lambda k, v: "SHOES_CLOTH" in v[0],
+    "capacete_placa": lambda k, v: "HEAD_PLATE" in v[0],
+    "capacete_couro": lambda k, v: "HEAD_LEATHER" in v[0],
+    "capacete_pano": lambda k, v: "HEAD_CLOTH" in v[0],
     "armas": lambda k, v: v[0].startswith(("MAIN_", "2H_")),
+    "secundarias": lambda k, v: v[0].startswith("OFF_"),
 }
 
-# ================= FUNÇÕES =================
+# ================= FUNÇÕES AUXILIARES =================
 
 def calcular_horas(data_iso):
     try:
@@ -245,9 +253,16 @@ def calcular_horas(data_iso):
 def id_item(tier, base, enc):
     return f"T{tier}_{base}@{enc}" if enc > 0 else f"T{tier}_{base}"
 
+def identificar_cidade_bonus(item_base):
+    for cidade, chaves in BONUS_CIDADE.items():
+        for chave in chaves:
+            if chave in item_base:
+                return cidade
+    return "Caerleon (Geral)"
+
 # ================= INTERFACE STREAMLIT =================
 
-st.set_page_config(page_title="Albion Craft Scanner", layout="wide")
+st.set_page_config(page_title="Albion Market Scanner", layout="wide")
 st.title("📈 Albion Market Scanner")
 
 with st.sidebar:
@@ -269,15 +284,17 @@ if botao_scan:
         ids_to_fetch.add(id_item(tier, d[0], encanto))
         if d[1]: ids_to_fetch.add(f"T{tier}_{RECURSO_MAP[d[1]]}@{encanto}" if encanto > 0 else f"T{tier}_{RECURSO_MAP[d[1]]}")
         if d[3]: ids_to_fetch.add(f"T{tier}_{RECURSO_MAP[d[3]]}@{encanto}" if encanto > 0 else f"T{tier}_{RECURSO_MAP[d[3]]}")
+        if d[5]: ids_to_fetch.add(f"T{tier}_{d[5]}")
 
-    with st.spinner("Buscando preços na API..."):
+    with st.spinner("Buscando preços..."):
         try:
             r = requests.get(f"{API_URL}{','.join(ids_to_fetch)}?locations={','.join(CIDADES)}", timeout=20)
             data = r.json()
         except:
-            st.error("Erro ao conectar na API.")
+            st.error("Erro na API.")
             st.stop()
 
+    # Organização de preços (Menor preço de venda para recursos, maior de compra para BM)
     precos_itens = {}
     precos_recursos = {}
 
@@ -285,13 +302,12 @@ if botao_scan:
         pid = p["item_id"]
         if p["city"] == "Black Market":
             if p["buy_price_max"] > 0:
-                precos_itens[pid] = {"price": p["buy_price_max"], "horas": calcular_horas(p["buy_price_max_date"])}
+                precos_itens[pid] = {"price": p["buy_price_max"], "horas": calcular_horas(p["buy_price_max_date"]), "city": "Black Market"}
         else:
             if p["sell_price_min"] > 0:
                 if pid not in precos_recursos or p["sell_price_min"] < precos_recursos[pid]["price"]:
-                    precos_recursos[pid] = {"price": p["sell_price_min"], "city": p["city"]}
+                    precos_recursos[pid] = {"price": p["sell_price_min"], "city": p["city"], "horas": calcular_horas(p["sell_price_min_date"])}
 
-    resultados = []
     resultados = []
     taxa_retorno = 0.523 if foco else 0.752 
 
@@ -303,7 +319,7 @@ if botao_scan:
         detalhes_lista = []
         falta_dado = False
 
-        # Cálculo de Recursos e Artefatos
+        # Loop de Recursos 1 e 2
         for i in [1, 3]:
             res_nome, res_qtd = d[i], d[i+1]
             if res_nome and res_qtd > 0:
@@ -312,16 +328,17 @@ if botao_scan:
                     p_info = precos_recursos[r_id]
                     total_res = p_info["price"] * res_qtd * quantidade
                     custo_materiais += total_res
-                    detalhes_lista.append(f"▫️ {res_qtd * quantidade}x {res_nome}: **{total_res:,}** ({p_info['city']})")
+                    detalhes_lista.append(f"▫️ {res_qtd * quantidade}x {res_nome}: **{total_res:,}** ({p_info['city']} - {p_info['horas']}h)")
                 else: falta_dado = True
 
-        if d[5] and d[6] > 0: # Artefato
+        # Artefatos
+        if d[5] and d[6] > 0:
             art_id = f"T{tier}_{d[5]}"
             if art_id in precos_recursos:
                 p_info = precos_recursos[art_id]
                 total_art = p_info["price"] * d[6] * quantidade
                 custo_materiais += total_art
-                detalhes_lista.append(f"▫️ {d[6] * quantidade}x Artefato: **{total_art:,}** ({p_info['city']})")
+                detalhes_lista.append(f"▫️ {d[6] * quantidade}x Artefato: **{total_art:,}** ({p_info['city']} - {p_info['horas']}h)")
             else: falta_dado = True
 
         if falta_dado: continue
@@ -336,23 +353,24 @@ if botao_scan:
                 "nome": nome,
                 "lucro": lucro,
                 "venda": venda_bruta,
-                "cidade_venda": "Black Market",
+                "cidade_venda": precos_itens[item_id]["city"],
                 "horas": precos_itens[item_id]["horas"],
                 "local": identificar_cidade_bonus(d[0]),
                 "detalhes": "\n".join(detalhes_lista)
             })
 
-    # EXIBIÇÃO DOS RESULTADOS (O "Nível de Detalhes" que você quer)
+    # EXIBIÇÃO EM "TELHAS" (EXPANDERS)
     if resultados:
+        st.success(f"Busca finalizada! {len(resultados)} itens lucrativos encontrados.")
         resultados.sort(key=lambda x: x["lucro"], reverse=True)
         for r in resultados:
-            with st.expander(f"💰 {r['nome']} - Lucro: {r['lucro']:,} silver"):
+            with st.expander(f"📦 {r['nome']} | Lucro: {r['lucro']:,} pratas"):
                 st.markdown(f"""
                 **Lucro:** {r['lucro']:,}  
                 **Venda:** {r['venda']:,} ({r['cidade_venda']} - {r['horas']}h)  
-                **Local:** {r['local']}  
-                **Recursos:** {r['detalhes']}
+                **Local de Bonus:** {r['local']}  
+                
+                **Recursos Necessários:** {r['detalhes']}
                 """)
-                st.divider()
     else:
-        st.warning("Nenhum item lucrativo encontrado.")
+        st.warning("Nenhum item com lucro positivo encontrado no momento.")
