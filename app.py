@@ -5,22 +5,19 @@ from datetime import datetime, timezone
 # ================= CONFIGURAÇÃO DA PÁGINA =================
 st.set_page_config(page_title="Radar Craft Albion", layout="wide")
 
-# CSS para transformar o visual "Branco Feio" em um Modo Dark Profissional
+# CSS Profissional - Estilo Dark Mode Discord/Gaming
 st.markdown("""
     <style>
-    /* Fundo e cores principais */
     .stApp {
         background-color: #0e1117;
         color: #ffffff;
     }
     
-    /* Sidebar estilizada */
     [data-testid="stSidebar"] {
         background-color: #161b22;
         border-right: 1px solid #30363d;
     }
 
-    /* Cards de itens estilo Discord */
     .item-card {
         background-color: #1c2128;
         border: 1px solid #30363d;
@@ -31,24 +28,22 @@ st.markdown("""
     }
     
     .item-card:hover {
-        border-color: #5865f2; /* Cor azul Discord */
+        border-color: #5865f2;
         transform: translateY(-3px);
         box-shadow: 0 4px 15px rgba(0,0,0,0.3);
     }
 
-    /* Destaques de valores */
-    .lucro-valor { color: #2ecc71; font-weight: bold; font-size: 1.3em; }
+    .lucro-valor { color: #2ecc71; font-weight: bold; font-size: 1.4em; }
     .venda-valor { color: #3498db; font-weight: bold; }
-    .custo-valor { color: #e74c3c; }
-    .recurso-texto { color: #8b949e; font-size: 0.9em; line-height: 1.4; }
+    .custo-valor { color: #e74c3c; font-weight: bold; }
+    .recurso-texto { color: #8b949e; font-size: 0.9em; }
     
-    /* Ajuste de títulos */
     h1, h2, h3 { color: #ffffff !important; }
     hr { border-color: #30363d; }
     </style>
     """, unsafe_allow_html=True)
 
-# ================= CONFIG API =================
+# ================= CONFIG API & DATABASE =================
 API_URL = "https://west.albion-online-data.com/api/v2/stats/prices/"
 CIDADES = ["Martlock", "Thetford", "FortSterling", "Lymhurst", "Bridgewatch", "Brecilien", "Caerleon", "Black Market"]
 
@@ -69,8 +64,8 @@ BONUS_CIDADE = {
     "Brecilien": ["CAPE", "BAG"]
 }
 
+# (O ITENS_DB permanece o mesmo da sua versão anterior por ser a base de dados correta)
 ITENS_DB = {
-    # --- OFF-HANDS E TOCHAS ---
     "TOMO DE FEITIÇOS": ["OFF_BOOK", "Tecido Fino", 4, "Couro Trabalhado", 4, None, 0],
     "OLHO DOS SEGREDOS": ["OFF_ORB_HELL", "Tecido Fino", 4, "Couro Trabalhado", 4, "ARTEFACT_OFF_ORB_HELL", 1],
     "MUISEC": ["OFF_LAMP_HELL", "Tecido Fino", 4, "Couro Trabalhado", 4, "ARTEFACT_OFF_LAMP_HELL", 1],
@@ -83,8 +78,6 @@ ITENS_DB = {
     "LUME CRIPTICO": ["OFF_LAMP_UNDEAD", "Tábuas de Pinho", 4, "Tecido Fino", 4, "ARTEFACT_OFF_LAMP_UNDEAD", 1],
     "CETRO SAGRADO": ["OFF_CENSER_AVALON", "Tábuas de Pinho", 4, "Tecido Fino", 4, "ARTEFACT_OFF_CENSER_AVALON", 1],
     "TOCHA CHAMA AZUL": ["OFF_LAMP_CRYSTAL", "Tábuas de Pinho", 4, "Tecido Fino", 4, "QUESTITEM_TOKEN_CRYSTAL_LAMP", 1],
-
-    # --- BOTAS DE PLACA ---
     "BOTAS DE SOLDADO": ["SHOES_PLATE_SET1", "Barra de Aço", 8, None, 0, None, 0],
     "BOTAS DE CAVALEIRO": ["SHOES_PLATE_SET2", "Barra de Aço", 8, None, 0, None, 0],
     "BOTAS DE GUARDIÃO": ["SHOES_PLATE_SET3", "Barra de Aço", 8, None, 0, None, 0],
@@ -94,8 +87,6 @@ ITENS_DB = {
     "BOTAS JUDICANTES": ["SHOES_PLATE_KEEPER", "Barra de Aço", 8, None, 0, "ARTEFACT_SHOES_PLATE_KEEPER", 1],
     "BOTAS DE TECELÃO": ["SHOES_PLATE_AVALON", "Barra de Aço", 8, None, 0, "ARTEFACT_SHOES_PLATE_AVALON", 1],
     "BOTAS DA BRAVURA": ["SHOES_PLATE_CRYSTAL", "Barra de Aço", 8, None, 0, "QUESTITEM_TOKEN_CRYSTAL_SHOES_PLATE", 1],
-
-    # --- ARMADURAS DE PLACA ---
     "ARMADURA DE SOLDADO": ["ARMOR_PLATE_SET1", "Barra de Aço", 16, None, 0, None, 0],
     "ARMADURA DE CAVALEIRO": ["ARMOR_PLATE_SET2", "Barra de Aço", 16, None, 0, None, 0],
     "ARMADURA DE GUARDIÃO": ["ARMOR_PLATE_SET3", "Barra de Aço", 16, None, 0, None, 0],
@@ -105,8 +96,6 @@ ITENS_DB = {
     "ARMADURA JUDICANTE": ["ARMOR_PLATE_KEEPER", "Barra de Aço", 16, None, 0, "ARTEFACT_ARMOR_PLATE_KEEPER", 1],
     "ARMADURA DE TECELÃO": ["ARMOR_PLATE_AVALON", "Barra de Aço", 16, None, 0, "ARTEFACT_ARMOR_PLATE_AVALON", 1],
     "ARMADURA DA BRAVURA": ["ARMOR_PLATE_CRYSTAL", "Barra de Aço", 16, None, 0, "QUESTITEM_TOKEN_CRYSTAL_ARMOR_PLATE", 1],
-
-    # --- ELMOS DE PLACA ---
     "ELMO DE SOLDADO": ["HEAD_PLATE_SET1", "Barra de Aço", 8, None, 0, None, 0],
     "ELMO DE CAVALEIRO": ["HEAD_PLATE_SET2", "Barra de Aço", 8, None, 0, None, 0],
     "ELMO DE GUARDIÃO": ["HEAD_PLATE_SET3", "Barra de Aço", 8, None, 0, None, 0],
@@ -116,8 +105,6 @@ ITENS_DB = {
     "ELMO JUDICANTE": ["HEAD_PLATE_KEEPER", "Barra de Aço", 8, None, 0, "ARTEFACT_HEAD_PLATE_KEEPER", 1],
     "ELMO DE TECELÃO": ["HEAD_PLATE_AVALON", "Barra de Aço", 8, None, 0, "ARTEFACT_HEAD_PLATE_AVALON", 1],
     "ELMO DA BRAVURA": ["HEAD_PLATE_CRYSTAL", "Barra de Aço", 8, None, 0, "QUESTITEM_TOKEN_CRYSTAL_HEAD_PLATE", 1],
-
-    # --- SAPATOS DE COURO ---
     "Sapatos de Mercenário": ["SHOES_LEATHER_SET1", "Couro Trabalhado", 8, None, 0, None, 0],
     "Sapatos de Caçador": ["SHOES_LEATHER_SET2", "Couro Trabalhado", 8, None, 0, None, 0],
     "Sapatos de Assassino": ["SHOES_LEATHER_SET3", "Couro Trabalhado", 8, None, 0, None, 0],
@@ -126,8 +113,6 @@ ITENS_DB = {
     "Sapatos Espectrais": ["SHOES_LEATHER_UNDEAD", "Couro Trabalhado", 8, None, 0, "ARTEFACT_SHOES_LEATHER_UNDEAD", 1],
     "Sapatos de Andarilho da Névoa": ["SHOES_LEATHER_FEY", "Couro Trabalhado", 8, None, 0, "ARTEFACT_SHOES_LEATHER_FEY", 1],
     "Sapatos da Tenacidade": ["SHOES_LEATHER_CRYSTAL", "Couro Trabalhado", 8, None, 0, "QUESTITEM_TOKEN_CRYSTAL_SHOES_LEATHER", 1],
-
-    # --- CASACOS DE COURO ---
     "Casaco Mercenário": ["ARMOR_LEATHER_SET1", "Couro Trabalhado", 16, None, 0, None, 0],
     "Casaco de Caçador": ["ARMOR_LEATHER_SET2", "Couro Trabalhado", 16, None, 0, None, 0],
     "Casaco de Assassino": ["ARMOR_LEATHER_SET3", "Couro Trabalhado", 16, None, 0, None, 0],
@@ -137,8 +122,6 @@ ITENS_DB = {
     "Casaco Espectral": ["ARMOR_LEATHER_UNDEAD", "Couro Trabalhado", 16, None, 0, "ARTEFACT_ARMOR_LEATHER_UNDEAD", 1],
     "Casaco de Andarilho da Névoa": ["ARMOR_LEATHER_FEY", "Couro Trabalhado", 16, None, 0, "ARTEFACT_ARMOR_LEATHER_FEY", 1],
     "Casaco da Tenacidade": ["ARMOR_LEATHER_CRYSTAL", "Couro Trabalhado", 16, None, 0, "QUESTITEM_TOKEN_CRYSTAL_ARMOR_LEATHER", 1],
-
-    # --- CAPUZES DE COURO ---
     "Capuz de Mercenário": ["HEAD_LEATHER_SET1", "Couro Trabalhado", 8, None, 0, None, 0],
     "Capuz de Caçador": ["HEAD_LEATHER_SET2", "Couro Trabalhado", 8, None, 0, None, 0],
     "Capuz de Assassino": ["HEAD_LEATHER_SET3", "Couro Trabalhado", 8, None, 0, None, 0],
@@ -148,8 +131,6 @@ ITENS_DB = {
     "Capuz Espectral": ["HEAD_LEATHER_UNDEAD", "Couro Trabalhado", 8, None, 0, "ARTEFACT_HEAD_LEATHER_UNDEAD", 1],
     "Capuz de Andarilho da Névoa": ["HEAD_LEATHER_FEY", "Couro Trabalhado", 8, None, 0, "ARTEFACT_HEAD_LEATHER_FEY", 1],
     "Capuz da Tenacidade": ["HEAD_LEATHER_CRYSTAL", "Couro Trabalhado", 8, None, 0, "QUESTITEM_TOKEN_CRYSTAL_HEAD_LEATHER", 1],
-
-    # --- SANDÁLIAS DE TECIDO ---
     "Sandálias de Erudito": ["SHOES_CLOTH_SET1", "Tecido Fino", 8, None, 0, None, 0],
     "Sandálias de Clérigo": ["SHOES_CLOTH_SET2", "Tecido Fino", 8, None, 0, None, 0],
     "Sandálias de Mago": ["SHOES_CLOTH_SET3", "Tecido Fino", 8, None, 0, None, 0],
@@ -159,8 +140,6 @@ ITENS_DB = {
     "Sandálias Sectárias": ["SHOES_CLOTH_MORGANA", "Tecido Fino", 8, None, 0, "ARTEFACT_SHOES_CLOTH_MORGANA", 1],
     "Sandálias Feéricas": ["SHOES_CLOTH_FEY", "Tecido Fino", 8, None, 0, "ARTEFACT_SHOES_CLOTH_FEY", 1],
     "Sandálias Da Pureza": ["SHOES_CLOTH_CRYSTAL", "Tecido Fino", 8, None, 0, "QUESTITEM_TOKEN_CRYSTAL_SHOES_CLOTH", 1],
-
-    # --- ROBES DE TECIDO ---
     "Robe do Erudito": ["ARMOR_CLOTH_SET1", "Tecido Fino", 16, None, 0, None, 0],
     "Robe de Clérigo": ["ARMOR_CLOTH_SET2", "Tecido Fino", 16, None, 0, None, 0],
     "Robe de Mago": ["ARMOR_CLOTH_SET3", "Tecido Fino", 16, None, 0, None, 0],
@@ -170,8 +149,6 @@ ITENS_DB = {
     "Robe Sectário": ["ARMOR_CLOTH_MORGANA", "Tecido Fino", 16, None, 0, "ARTEFACT_ARMOR_CLOTH_MORGANA", 1],
     "Robe Feérico": ["ARMOR_CLOTH_FEY", "Tecido Fino", 16, None, 0, "ARTEFACT_ARMOR_CLOTH_FEY", 1],
     "Robe da Pureza": ["ARMOR_CLOTH_CRYSTAL", "Tecido Fino", 16, None, 0, "QUESTITEM_TOKEN_CRYSTAL_ARMOR_CLOTH", 1],
-
-    # --- CAPOTES DE TECIDO ---
     "Capote de Erudito": ["HEAD_CLOTH_SET1", "Tecido Fino", 8, None, 0, None, 0],
     "Capote de Clérigo": ["HEAD_CLOTH_SET2", "Tecido Fino", 8, None, 0, None, 0],
     "Capote de Mago": ["HEAD_CLOTH_SET3", "Tecido Fino", 8, None, 0, None, 0],
@@ -181,8 +158,6 @@ ITENS_DB = {
     "Capote Sectário": ["HEAD_CLOTH_MORGANA", "Tecido Fino", 8, None, 0, "ARTEFACT_HEAD_CLOTH_MORGANA", 1],
     "Capote Feérico": ["HEAD_CLOTH_FEY", "Tecido Fino", 8, None, 0, "ARTEFACT_HEAD_CLOTH_FEY", 1],
     "Capote da Pureza": ["HEAD_CLOTH_CRYSTAL", "Tecido Fino", 8, None, 0, "QUESTITEM_TOKEN_CRYSTAL_HEAD_CLOTH", 1],
-
-    # --- ESPADAS ---
     "ESPADA LARGA": ["MAIN_SWORD", "Barra de Aço", 16, "Couro Trabalhado", 8, None, 0],
     "MONTANTE": ["2H_CLAYMORE", "Barra de Aço", 20, "Couro Trabalhado", 12, None, 0],
     "ESPADAS DUPLAS": ["2H_DUALSWORD", "Barra de Aço", 20, "Couro Trabalhado", 12, None, 0],
@@ -191,8 +166,6 @@ ITENS_DB = {
     "PAR DE GALATINAS": ["2H_DUALSWORD_HELL", "Barra de Aço", 20, "Couro Trabalhado", 12, "ARTEFACT_2H_DUALSWORD_HELL", 1],
     "CRIA-REAIS": ["2H_CLAYMORE_AVALON", "Barra de Aço", 20, "Couro Trabalhado", 12, "ARTEFACT_2H_CLAYMORE_AVALON", 1],
     "LÂMINA DA INFINIDADE": ["2H_SWORD_CRYSTAL", "Barra de Aço", 16, "Couro Trabalhado", 8, "QUESTITEM_TOKEN_CRYSTAL_SWORD", 1],
-
-    # --- MACHADOS ---
     "MACHADO DE GUERRA": ["MAIN_AXE", "Barra de Aço", 16, "Tábuas de Pinho", 8, None, 0],
     "MACHADÃO": ["2H_AXE", "Barra de Aço", 20, "Tábuas de Pinho", 12, None, 0],
     "ALABARDA": ["2H_HALBERD", "Tábuas de Pinho", 20, "Barra de Aço", 12, None, 0],
@@ -201,8 +174,6 @@ ITENS_DB = {
     "PATAS DE URSO": ["2H_AXE_KEEPER", "Tábuas de Pinho", 12, "Barra de Aço", 20, "ARTEFACT_2H_AXE_KEEPER", 1],
     "QUEBRA-REINO": ["2H_AXE_AVALON", "Tábuas de Pinho", 12, "Barra de Aço", 20, "ARTEFACT_2H_AXE_AVALON", 1],
     "FOICE DE CRISTAL": ["2H_AXE_CRYSTAL", "Tábuas de Pinho", 12, "Barra de Aço", 20, "QUESTITEM_TOKEN_CRYSTAL_AXE", 1],
-
-    # --- MAÇAS ---
     "MAÇA": ["MAIN_MACE", "Barra de Aço", 16, "Tecido Fino", 8, None, 0],
     "MAÇA PESADA": ["2H_MACE", "Barra de Aço", 20, "Tecido Fino", 12, None, 0],
     "MANGUAL": ["2H_FLAIL", "Barra de Aço", 20, "Tecido Fino", 12, None, 0],
@@ -211,8 +182,6 @@ ITENS_DB = {
     "MAÇA CAMBRIANA": ["2H_MACE_MORGANA", "Barra de Aço", 20, "Tecido Fino", 12, "ARTEFACT_2H_MACE_MORGANA", 1],
     "JURADOR": ["2H_MACE_AVALON", "Barra de Aço", 20, "Tecido Fino", 12, "ARTEFACT_2H_MACE_AVALON", 1],
     "MONARCA TEMPESTUOSO": ["2H_MACE_CRYSTAL", "Barra de Aço", 16, "Tecido Fino", 8, "QUESTITEM_TOKEN_CRYSTAL_MACE", 1],
-
-    # --- MARTELOS ---
     "MARTELO": ["MAIN_HAMMER", "Barra de Aço", 24, None, 0, None, 0],
     "MARTELO DE BATALHA": ["2H_HAMMER", "Barra de Aço", 20, "Tecido Fino", 12, None, 0],
     "MARTELO ELEVADO": ["2H_POLEHAMMER", "Barra de Aço", 20, "Tecido Fino", 12, None, 0],
@@ -221,8 +190,6 @@ ITENS_DB = {
     "GUARDA-BOSQUES": ["2H_RAM_KEEPER", "Barra de Aço", 20, "Tecido Fino", 12, "ARTEFACT_2H_RAM_KEEPER", 1],
     "MÃO DA JUSTIÇA": ["2H_HAMMER_AVALON", "Barra de Aço", 20, "Tecido Fino", 12, "ARTEFACT_2H_HAMMER_AVALON", 1],
     "MARTELO ESTRONDOSO": ["2H_HAMMER_CRYSTAL", "Barra de Aço", 20, "Tecido Fino", 12, "QUESTITEM_TOKEN_CRYSTAL_HAMMER", 1],
-
-    # --- LUVAS ---
     "LUVAS DE LUTADOR": ["MAIN_KNUCKLES", "Barra de Aço", 12, "Couro Trabalhado", 20, None, 0],
     "BRAÇADEIRAS DE BATALHA": ["2H_KNUCKLES", "Barra de Aço", 12, "Couro Trabalhado", 20, None, 0],
     "MANOPLAS CRAVADAS": ["2H_SPIKED_KNUCKLES", "Barra de Aço", 12, "Couro Trabalhado", 20, None, 0],
@@ -231,8 +198,6 @@ ITENS_DB = {
     "CESTUS GOLPEADORES": ["2H_KNUCKLES_MORGANA", "Barra de Aço", 12, "Couro Trabalhado", 20, "ARTEFACT_2H_KNUCKLES_MORGANA", 1],
     "PUNHOS DE AVALON": ["2H_KNUCKLES_AVALON", "Barra de Aço", 12, "Couro Trabalhado", 20, "ARTEFACT_2H_KNUCKLES_AVALON", 1],
     "BRAÇADEIRAS PULSANTES": ["2H_KNUCKLES_CRYSTAL", "Barra de Aço", 12, "Couro Trabalhado", 20, "QUESTITEM_TOKEN_CRYSTAL_KNUCKLES", 1],
-
-    # --- BESTAS ---
     "BESTA": ["2H_CROSSBOW", "Tábuas de Pinho", 20, "Barra de Aço", 12, None, 0],
     "BESTA PESADA": ["2H_CROSSBOW_LARGE", "Tábuas de Pinho", 20, "Barra de Aço", 12, None, 0],
     "BESTA LEVE": ["MAIN_CROSSBOW", "Tábuas de Pinho", 16, "Barra de Aço", 8, None, 0],
@@ -241,16 +206,12 @@ ITENS_DB = {
     "ARCO DE CERGO": ["2H_CROSSBOW_MORGANA", "Tábuas de Pinho", 20, "Barra de Aço", 12, "ARTEFACT_2H_CROSSBOW_MORGANA", 1],
     "MODELADOR DE ENERGIA": ["2H_CROSSBOW_AVALON", "Tábuas de Pinho", 20, "Barra de Aço", 12, "ARTEFACT_2H_CROSSBOW_AVALON", 1],
     "DETONADORES RELUZENTES": ["2H_CROSSBOW_CRYSTAL", "Tábuas de Pinho", 20, "Barra de Aço", 12, "QUESTITEM_TOKEN_CRYSTAL_CROSSBOW", 1],
-
-    # --- ESCUDOS ---
     "ESCUDO": ["OFF_SHIELD", "Tábuas de Pinho", 4, "Barra de Aço", 4, None, 0],
     "SARCÓFAGO": ["OFF_SHIELD_UNDEAD", "Tábuas de Pinho", 4, "Barra de Aço", 4, "ARTEFACT_OFF_SHIELD_UNDEAD", 1],
     "ESCUDO VAMPÍRICO": ["OFF_SHIELD_HELL", "Tábuas de Pinho", 4, "Barra de Aço", 4, "ARTEFACT_OFF_SHIELD_HELL", 1],
     "QUEBRA-ROSTOS": ["OFF_SHIELD_HELL", "Tábuas de Pinho", 4, "Barra de Aço", 4, "ARTEFACT_OFF_SHIELD_HELL_2", 1],
     "ÉGIDE ASTRAL": ["OFF_SHIELD_AVALON", "Tábuas de Pinho", 4, "Barra de Aço", 4, "ARTEFACT_OFF_SHIELD_AVALON", 1],
     "BARREIRA INQUEBRÁVEL": ["OFF_SHIELD_CRYSTAL", "Tábuas de Pinho", 4, "Barra de Aço", 4, "QUESTITEM_TOKEN_CRYSTAL_SHIELD", 1],
-
-    # --- ADAGAS ---
     "ADAGA": ["MAIN_DAGGER", "Barra de Aço", 12, "Couro Trabalhado", 12, None, 0],
     "PAR DE ADAGAS": ["2H_DAGGER", "Barra de Aço", 16, "Couro Trabalhado", 16, None, 0],
     "GARRAS": ["MAIN_DAGGER_HELL", "Barra de Aço", 12, "Couro Trabalhado", 20, None, 0],
@@ -259,8 +220,6 @@ ITENS_DB = {
     "MORTÍFICOS": ["2H_DUAL_DAGGER_HELL", "Barra de Aço", 16, "Couro Trabalhado", 16, "ARTEFACT_2H_DUAL_DAGGER_HELL", 1],
     "FÚRIA CONTIDA": ["2H_DAGGER_AVALON", "Barra de Aço", 12, "Couro Trabalhado", 20, "ARTEFACT_2H_DAGGER_AVALON", 1],
     "GÊMEAS ANIQUILADORAS": ["2H_DAGGER_CRYSTAL", "Barra de Aço", 16, "Couro Trabalhado", 16, "QUESTITEM_TOKEN_CRYSTAL_DAGGER", 1],
-
-    # --- LANÇAS ---
     "LANÇA": ["MAIN_SPEAR", "Tábuas de Pinho", 16, "Barra de Aço", 8, None, 0],
     "PIQUE": ["2H_SPEAR", "Tábuas de Pinho", 20, "Barra de Aço", 12, None, 0],
     "ARCHA": ["2H_GLAIVE", "Tábuas de Pinho", 12, "Barra de Aço", 20, None, 0],
@@ -272,20 +231,20 @@ ITENS_DB = {
 }
 
 FILTROS = {
-    "armadura_placa": lambda k, v: "ARMOR_PLATE" in v[0],
-    "armadura_couro": lambda k, v: "ARMOR_LEATHER" in v[0],
-    "armadura_pano": lambda k, v: "ARMOR_CLOTH" in v[0],
-    "botas_placa": lambda k, v: "SHOES_PLATE" in v[0],
-    "botas_couro": lambda k, v: "SHOES_LEATHER" in v[0],
-    "botas_pano": lambda k, v: "SHOES_CLOTH" in v[0],
-    "capacete_placa": lambda k, v: "HEAD_PLATE" in v[0],
-    "capacete_couro": lambda k, v: "HEAD_LEATHER" in v[0],
-    "capacete_pano": lambda k, v: "HEAD_CLOTH" in v[0],
-    "armas": lambda k, v: v[0].startswith(("MAIN_", "2H_")),
-    "secundarias": lambda k, v: v[0].startswith("OFF_"),
+    "Armaduras (Placa)": lambda k, v: "ARMOR_PLATE" in v[0],
+    "Armaduras (Couro)": lambda k, v: "ARMOR_LEATHER" in v[0],
+    "Armaduras (Pano)": lambda k, v: "ARMOR_CLOTH" in v[0],
+    "Botas (Placa)": lambda k, v: "SHOES_PLATE" in v[0],
+    "Botas (Couro)": lambda k, v: "SHOES_LEATHER" in v[0],
+    "Botas (Pano)": lambda k, v: "SHOES_CLOTH" in v[0],
+    "Elmos (Placa)": lambda k, v: "HEAD_PLATE" in v[0],
+    "Elmos (Couro)": lambda k, v: "HEAD_LEATHER" in v[0],
+    "Elmos (Pano)": lambda k, v: "HEAD_CLOTH" in v[0],
+    "Armas": lambda k, v: v[0].startswith(("MAIN_", "2H_")),
+    "Secundárias": lambda k, v: v[0].startswith("OFF_"),
 }
 
-# ================= FUNÇÕES =================
+# ================= FUNÇÕES AUXILIARES =================
 
 def calcular_horas(data_iso):
     try:
@@ -321,7 +280,7 @@ with st.sidebar:
     categoria = st.selectbox("Categoria", list(FILTROS.keys()))
     tier = st.number_input("Tier", 4, 8, 4)
     encanto = st.number_input("Encanto", 0, 4, 0)
-    quantidade = st.number_input("Quantidade", 1, 999, 1)
+    quantidade = st.number_input("Quantidade de Itens", 1, 999, 1)
     btn = st.button("🚀 ESCANEAR MERCADO", use_container_width=True)
 
 # ================= EXECUÇÃO DO SCANNER =================
@@ -342,7 +301,7 @@ if btn:
             for r in ids_recurso_variantes(tier, d[3], encanto): ids.add(r)
         if d[5]: ids.add(f"T{tier}_{d[5]}")
 
-    with st.spinner('Consultando Albion Data Project...'):
+    with st.spinner('Consultando Preços em Albion...'):
         response = requests.get(f"{API_URL}{','.join(ids)}?locations={','.join(CIDADES)}", timeout=20)
         data = response.json()
 
@@ -373,34 +332,39 @@ if btn:
         detalhes = []
         skip = False
 
-        for recurso, qtd in [(d[1], d[2]), (d[3], d[4])]:
+        # Cálculo de Recursos Normais
+        for recurso, qtd_base in [(d[1], d[2]), (d[3], d[4])]:
             if not recurso: continue
             for rid in ids_recurso_variantes(tier, recurso, encanto):
                 if rid in precos_recursos:
                     info = precos_recursos[rid]
-                    custo_bruto += info["price"] * qtd * quantidade
-                    detalhes.append(f"{qtd * quantidade}x {recurso}: {info['price']:,} ({info['city']} {info['horas']}h)")
+                    qtd_total = qtd_base * quantidade
+                    custo_bruto += info["price"] * qtd_total
+                    detalhes.append(f"📦 {qtd_total}x {recurso}: {info['price']:,} silver ({info['city']} {info['horas']}h)")
                     break
             else: skip = True; break
         
         if skip: continue
 
+        # Cálculo de Artefato (se houver)
         if d[5]:
             art = f"T{tier}_{d[5]}"
             if art in precos_recursos:
-                custo_bruto += precos_recursos[art]["price"] * d[6] * quantidade
-                detalhes.append(f"Artefato: {precos_recursos[art]['price']:,} ({precos_recursos[art]['city']})")
+                qtd_art_total = d[6] * quantidade
+                custo_bruto += precos_recursos[art]["price"] * qtd_art_total
+                detalhes.append(f"💎 {qtd_art_total}x Artefato: {precos_recursos[art]['price']:,} silver ({precos_recursos[art]['city']})")
             else: continue
 
-        custo_final = int(custo_bruto * 0.752)
+        # Taxas e Cálculos Finais
+        custo_final = int(custo_bruto * 0.752) # Estimativa de 24.8% de retorno
         venda_total = precos_itens[item_id]["price"] * quantidade
-        lucro_liquido = int((venda_total * 0.935) - custo_final)
+        lucro_liquido = int((venda_total * 0.935) - custo_final) # 6.5% Taxa BM
         lucro_pct = round((lucro_liquido / custo_final) * 100, 1) if custo_final > 0 else 0
 
         if lucro_liquido > 0:
             resultados.append({
                 "nome": nome, "lucro": lucro_liquido, "pct": lucro_pct,
-                "venda": venda_total, "custo": custo_final, 
+                "venda": venda_total, "investimento": custo_final, 
                 "detalhes": detalhes, "bonus": identificar_cidade_bonus(d[0]),
                 "horas_bm": precos_itens[item_id]["horas"]
             })
@@ -408,33 +372,42 @@ if btn:
     resultados.sort(key=lambda x: x["lucro"], reverse=True)
 
     if not resultados:
-            # Esta linha precisa de 4 espaços a mais que o 'if'
-            st.error("Nenhum lucro real encontrado (dados bugados foram filtrados).")
-        else:
-            # O 'else' precisa estar alinhado exatamente com o 'if'
-            resultados.sort(key=lambda x: x["lucro"], reverse=True)
-            for res in resultados[:20]:
-                # Usando 'mats' que é como definimos na lista de resultados
-                st.markdown(f"""
-                <div style="background-color: #1e1e1e; padding: 15px; border-radius: 10px; border: 1px solid #444; margin-bottom: 20px;">
-                    <div style="color: #00ffcc; font-size: 1.2em; font-weight: bold;">💎 {res['nome'].upper()} (T{tier}.{encanto})</div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
-                        <div>
-                            <p style="color: white;">✅ <b>Lucro:</b> <span style="color: #00ff00;">{res['lucro']:,} silver</span></p>
-                            <p style="color: white;">🛒 <b>Venda:</b> {res['venda']:,} silver</p>
-                            <p style="color: white;">📈 <b>ROI:</b> {res['roi']:.1f}%</p>
-                        </div>
-                        <div>
-                            <p style="color: white;">🔨 <b>Onde Craftar:</b> <span style="color: #ffaa00;">{res['cidade_craft']}</span></p>
-                            <p style="color: white;">🏛️ <b>Onde Vender:</b> <span style="color: #ffaa00;">{res['cidade_venda']}</span></p>
-                            <p style="color: white;">🕒 <b>Atualizado há:</b> {res['tempo']}</p>
+        st.warning("Nenhuma oportunidade lucrativa detectada no momento.")
+    else:
+        st.subheader(f"🔍 Top {len(resultados[:15])} Oportunidades Lucrativas")
+        for r in resultados[:15]:
+            recursos_html = "".join([f"<div style='margin-bottom:4px;'>{d}</div>" for d in r['detalhes']])
+            
+            st.markdown(f"""
+                <div class="item-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h2 style="margin:0; font-size: 1.4em;">⚔️ {r['nome']}</h2>
+                        <div style="text-align: right;">
+                            <span class="lucro-valor">+{r['lucro']:,} silver</span><br>
+                            <span style="color: #2ecc71; font-weight: bold;">📈 {r['pct']}% Lucro</span>
                         </div>
                     </div>
-                    <div style="margin-top: 10px; border-top: 1px dashed #444; padding-top: 10px;">
-                        <ul style="color: #ddd; font-size: 0.9em;">{res['mats']}</ul>
+                    
+                    <hr style="opacity: 0.1; margin: 10px 0;">
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        
+                        <div>
+                            <p style="margin: 4px 0;">🏗️ <b>Onde Craftar:</b> <span style="color: #f1c40f;">{r['bonus']}</span></p>
+                            <p style="margin: 4px 0;">💰 <b>Investimento:</b> <span class="custo-valor">{r['investimento']:,} silver</span></p>
+                            <p style="margin: 4px 0;">🏛️ <b>Venda BM:</b> <span class="venda-valor">{r['venda']:,}</span> <small>({r['horas_bm']}h atrás)</small></p>
+                        </div>
+
+                        <div style="background: #0d1117; padding: 12px; border-radius: 8px;">
+                            <b style="font-size: 0.8em; color: #8b949e; text-transform: uppercase;">Onde Comprar Recursos (Melhor Preço):</b>
+                            <div class="recurso-texto" style="margin-top: 8px;">
+                                {recursos_html}
+                            </div>
+                        </div>
+
                     </div>
                 </div>
-                """, unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
 
 st.divider()
-st.caption("Dados via Albion Data Project. Cálculos incluem taxa de venda BM (6.5%) e taxa de uso de estação (estimada).")
+st.caption("Desenvolvido para Albion Online. Dados via API Albion Data Project.")
