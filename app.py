@@ -294,10 +294,9 @@ FILTROS = {
     "secundarias": lambda k, v: v[0].startswith("OFF_"),
 }
 
-# ================= FUNÇÕES (MANTIDAS) =================
+# ================= FUNÇÕES =================
 def calcular_horas(data_iso):
     try:
-        from datetime import timezone
         data_api = datetime.fromisoformat(data_iso.replace("Z", "+00:00"))
         data_agora = datetime.now(timezone.utc)
         diff = data_agora.replace(tzinfo=None) - data_api.replace(tzinfo=None)
@@ -312,29 +311,20 @@ def ids_recurso_variantes(tier, nome, enc):
     if enc > 0: return [f"{base}@{enc}", f"{base}_LEVEL{enc}@{enc}"]
     return [base]
 
+def identificar_cidade_bonus(nome_item):
+    for cidade, sufixos in BONUS_CIDADE.items():
+        for s in sufixos:
+            if s in ITENS_DB[nome_item][0]:
+                return f"{cidade} (Geral)"
+    return "Caerleon (Geral)"
+
 # ================= INTERFACE =================
 st.set_page_config("Radar Craft Albion", layout="wide", page_icon="⚔️")
 
-# CSS para mudar o visual
 st.markdown("""
 <style>
-    /* Estilo do Card */
-    .item-card {
-        background-color: #ffffff;
-        border-radius: 10px;
-        padding: 15px;
-        margin-bottom: 15px;
-        border-left: 6px solid #2ecc71;
-        box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
-    }
-    .item-title { color: #2c3e50; font-size: 1.2rem; font-weight: bold; margin-bottom: 5px; }
-    .profit-positive { color: #27ae60; font-weight: bold; font-size: 1.1rem; }
-    .price-details { color: #7f8c8d; font-size: 0.9rem; margin-top: 5px; }
-    .resource-box { background: #f8f9fa; padding: 5px 10px; border-radius: 5px; border: 1px solid #e9ecef; margin-top: 8px; font-size: 0.85rem; }
-    
-    /* Melhoria no Sidebar */
+    .item-card { background-color: #ffffff; border-radius: 10px; padding: 15px; margin-bottom: 15px; border-left: 6px solid #2ecc71; box-shadow: 2px 2px 8px rgba(0,0,0,0.1); }
     [data-testid="stSidebar"] { background-color: #1a1c23; color: white; }
-    .stButton>button { width: 100%; border-radius: 5px; background-color: #2ecc71; color: white; font-weight: bold; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -398,13 +388,15 @@ if btn:
 
         for recurso, qtd in [(d[1], d[2]), (d[3], d[4])]:
             if not recurso: continue
+            found = False
             for rid in ids_recurso_variantes(tier, recurso, encanto):
                 if rid in precos_recursos:
                     info = precos_recursos[rid]
                     custo += info["price"] * qtd * quantidade
-                    detalhes.append(f"• {qtd * quantidade}x {recurso}: {info['price']:,} ({info['city']} {info['horas']}h)")
+                    detalhes.append(f"{qtd * quantidade}x {recurso}: {info['price']:,} ({info['city']} - {info['horas']}h)")
+                    found = True
                     break
-            else: 
+            if not found:
                 valid_craft = False
                 break
         
@@ -414,37 +406,27 @@ if btn:
             art = f"T{tier}_{d[5]}"
             if art in precos_recursos:
                 custo += precos_recursos[art]["price"] * d[6] * quantidade
-                detalhes.append(f"• Artefato: {precos_recursos[art]['price']:,} ({precos_recursos[art]['city']})")
+                detalhes.append(f"Artefato: {precos_recursos[art]['price']:,} ({precos_recursos[art]['city']} - {precos_recursos[art]['horas']}h)")
             else: continue
 
-        custo *= 0.752
+        custo_final = int(custo * 0.752)
         venda = precos_itens[item_id]["price"] * quantidade
-        lucro = (venda * 0.935) - custo
+        lucro = int((venda * 0.935) - custo_final)
 
         if lucro > 0:
-            resultados.append((nome, int(lucro), int(venda), int(custo), detalhes, precos_itens[item_id]["horas"]))
+            resultados.append((nome, lucro, venda, custo_final, detalhes, precos_itens[item_id]["horas"]))
 
     resultados.sort(key=lambda x: x[1], reverse=True)
 
-    O erro IndentationError acontece porque no Python a indentação (o espaço no começo da linha) é obrigatória. No seu código, a linha do st.error precisa estar um pouco mais para a direita para o Python entender que ela faz parte do if.
-
-Aqui está o bloco corrigido e ajustado para o formato exato que você pediu:
-
-Python
-
-if not resultados:
+    if not resultados:
         st.error("❌ Nenhum lucro encontrado.")
-else:
+    else:
         st.subheader(f"📊 Resultados para {categoria} T{tier}.{encanto}")
         
         for nome, lucro, venda, custo, detalhes, h_venda in resultados[:20]:
-            # Cálculo da porcentagem de lucro sobre o investimento
             perc_lucro = (lucro / custo) * 100 if custo > 0 else 0
-            
-            # Identifica a cidade de bônus baseada no item
             cidade_foco = identificar_cidade_bonus(nome)
 
-            # Formatação exata do Card solicitado
             st.markdown(f"""
             <div style="background-color: #ffffff; border-radius: 10px; padding: 15px; margin-bottom: 15px; border-left: 6px solid #2ecc71; box-shadow: 2px 2px 8px rgba(0,0,0,0.1); color: #333;">
                 <div style="font-weight: bold; font-size: 1.1rem; margin-bottom: 8px; color: #1e293b;">
@@ -464,6 +446,5 @@ else:
             </div>
             """, unsafe_allow_html=True)
 
-# Footer simples
 st.markdown("---")
 st.caption("Radar Craft Albion - Dados via Albion Online Data Project")
