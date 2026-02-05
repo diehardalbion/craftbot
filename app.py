@@ -2,6 +2,46 @@ import streamlit as st
 import requests
 from datetime import datetime, timezone
 
+# ================= SISTEMA DE LOGIN / KEYS =================
+def verificar_chave(chave_usuario):
+    try:
+        with open("keys.json", "r") as f:
+            keys_db = json.load(f)
+        
+        if chave_usuario in keys_db:
+            dados = keys_db[chave_usuario]
+            if not dados["ativa"]:
+                return False, "Esta chave foi desativada."
+            
+            if dados["expira"] != "null":
+                data_expira = datetime.strptime(dados["expira"], "%Y-%m-%d").date()
+                if datetime.now().date() > data_expira:
+                    return False, "Esta chave expirou."
+            
+            return True, dados["cliente"]
+        return False, "Chave inválida."
+    except Exception as e:
+        return False, f"Erro ao acessar keys.json: {e}"
+
+# Inicializa a sessão
+if "autenticado" not in st.session_state:
+    st.session_state.autenticado = False
+
+# Tela de Bloqueio
+if not st.session_state.autenticado:
+    st.title("🛡️ Acesso Restrito")
+    key_input = st.text_input("Insira sua Chave:", type="password")
+    if st.button("ACESSAR"):
+        sucesso, mensagem = verificar_chave(key_input)
+        if sucesso:
+            st.session_state.autenticado = True
+            st.session_state.cliente = mensagem
+            st.rerun()
+        else:
+            st.error(mensagem)
+    st.stop() # Bloqueia o carregamento do restante do app
+# ===========================================================
+
 # ================= CONFIG =================
 
 API_URL = "https://west.albion-online-data.com/api/v2/stats/prices/"
