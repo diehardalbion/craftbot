@@ -439,30 +439,30 @@ if btn:
             cidade_foco = identificar_cidade_bonus(nome)
             detalhes_html = "".join([f"<li>{d}</li>" for d in detalhes])
             
-            # TODO O CONTEÚDO DEVE ESTAR DENTRO DESTE ST.MARKDOWN
-            st.markdown(f"""
-                <div style="background-color: #1e1e1e; padding: 15px; border-radius: 10px; border: 1px solid #444; margin-bottom: 20px; font-family: sans-serif;">
-                    <div style="color: #00ffcc; font-size: 1.2em; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #444;">
-                        💎 {nome.upper()} (T{tier}.{encanto})
+            # Montando a string HTML em uma variável primeiro para evitar erro de parse
+            card_html = f"""
+            <div style="background-color: #1e1e1e; padding: 15px; border-radius: 10px; border: 1px solid #444; margin-bottom: 20px; font-family: sans-serif;">
+                <div style="color: #00ffcc; font-size: 1.2em; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #444;">
+                    💎 {nome.upper()} (T{tier}.{encanto})
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div>
+                        <p style="margin: 2px 0; color: white;">✅ <b>Lucro Líquido:</b> <span style="color: #00ff00;">{lucro:,} silver</span></p>
+                        <p style="margin: 2px 0; color: white;">📈 <b>ROI:</b> <span style="color: #00ff00;">+{porcentagem:.1f}%</span></p>
+                        <p style="margin: 2px 0; color: white;">💰 <b>Investimento Total:</b> {custo:,} silver</p>
                     </div>
-                    
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                        <div>
-                            <p style="margin: 2px 0; color: white;">✅ <b>Lucro Líquido:</b> <span style="color: #00ff00;">{lucro:,} silver</span></p>
-                            <p style="margin: 2px 0; color: white;">📈 <b>ROI:</b> <span style="color: #00ff00;">+{porcentagem:.1f}%</span></p>
-                            <p style="margin: 2px 0; color: white;">💰 <b>Investimento Total:</b> {custo:,} silver</p>
-                        </div>
-                        <div>
-                            <p style="margin: 2px 0; color: white;">🔨 <b>Onde Craftar:</b> <span style="color: #ffaa00;">{cidade_foco}</span></p>
-                            <p style="margin: 2px 0; color: white;">🏛️ <b>Onde Vender:</b> <span style="color: #ffaa00;">Black Market</span></p>
-                        </div>
-                    </div>
-
-                    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #444;">
-                        <p style="margin-bottom: 5px; font-weight: bold; color: #aaa;">📦 MATERIAIS / ONDE COMPRAR:</p>
-                        <ul style="list-style-type: none; padding-left: 5px; font-size: 0.9em; color: #ddd;">
-                            {detalhes_html}
-                        </ul>
+                    <div>
+                        <p style="margin: 2px 0; color: white;">🔨 <b>Onde Craftar:</b> <span style="color: #ffaa00;">{cidade_foco}</span></p>
+                        <p style="margin: 2px 0; color: white;">🏛️ <b>Onde Vender:</b> <span style="color: #ffaa00;">Black Market</span></p>
                     </div>
                 </div>
-            """, unsafe_allow_html=True)
+                <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #444;">
+                    <p style="margin-bottom: 5px; font-weight: bold; color: #aaa;">📦 MATERIAIS / ONDE COMPRAR:</p>
+                    <ul style="list-style-type: none; padding-left: 5px; font-size: 0.9em; color: #ddd; line-height: 1.6;">
+                        {detalhes_html}
+                    </ul>
+                </div>
+            </div>
+            """
+            # Executa o markdown garantindo que o parâmetro seja lido
+            st.markdown(card_html, unsafe_allow_html=True)
