@@ -144,6 +144,23 @@ st.markdown(
         color: #f8fafc;
         text-shadow: 0 0 8px rgba(0,0,0,0.6);
     }
+    /* TEXTO DO ITEM SELECIONADO (select fechado) */
+div[data-baseweb="select"] > div {
+    background-color: #020617 !important;
+    color: #f9fafb !important;
+}
+
+/* TEXTO INTERNO DO SELECT */
+div[data-baseweb="select"] > div > div {
+    color: #f9fafb !important;
+    font-weight: 500;
+}
+
+/* PLACEHOLDER / LABEL */
+div[data-baseweb="select"] span {
+    color: #f9fafb !important;
+}
+
     </style>
     """,
     unsafe_allow_html=True
