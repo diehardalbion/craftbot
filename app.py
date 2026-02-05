@@ -431,41 +431,36 @@ if btn:
     resultados.sort(key=lambda x: x[1], reverse=True)
 
     # --- 8. EXIBIÇÃO DOS CARDS ---
-         if not resultados:
+    if not resultados:
         st.error("❌ Nenhum lucro encontrado.")
     else:
         for nome, lucro, venda, custo, detalhes in resultados[:20]:
-            # Cálculo de ROI
             porcentagem = (lucro / custo) * 100 if custo > 0 else 0
-            
-            # Onde craftar (sua função de cidade bônus)
-            onde_craftar = identificar_cidade_bonus(nome)
-            
-            # Onde comprar (pegamos das informações dos detalhes)
-            # Vamos extrair a primeira cidade que aparece nos detalhes como referência
+            cidade_foco = identificar_cidade_bonus(nome)
             detalhes_html = "".join([f"<li>{d}</li>" for d in detalhes])
             
+            # TODO O CONTEÚDO DEVE ESTAR DENTRO DESTE ST.MARKDOWN
             st.markdown(f"""
-                <div class="craft-card" style="border: 1px solid #444; padding: 15px; border-radius: 10px; margin-bottom: 10px; background-color: #1e1e1e;">
-                    <div style="font-size: 1.2em; font-weight: bold; color: #00ffcc; border-bottom: 1px solid #444; padding-bottom: 5px; margin-bottom: 10px;">
+                <div style="background-color: #1e1e1e; padding: 15px; border-radius: 10px; border: 1px solid #444; margin-bottom: 20px; font-family: sans-serif;">
+                    <div style="color: #00ffcc; font-size: 1.2em; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #444;">
                         💎 {nome.upper()} (T{tier}.{encanto})
                     </div>
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                         <div>
-                            <p style="margin: 2px 0;">💹 <b>Lucro Líquido:</b> <span style="color: #00ff00;">{lucro:,} silver</span></p>
-                            <p style="margin: 2px 0;">📈 <b>ROI:</b> <span style="color: #00ff00;">+{porcentagem:.1f}%</span></p>
-                            <p style="margin: 2px 0;">💰 <b>Investimento Total:</b> {custo:,} silver</p>
+                            <p style="margin: 2px 0; color: white;">✅ <b>Lucro Líquido:</b> <span style="color: #00ff00;">{lucro:,} silver</span></p>
+                            <p style="margin: 2px 0; color: white;">📈 <b>ROI:</b> <span style="color: #00ff00;">+{porcentagem:.1f}%</span></p>
+                            <p style="margin: 2px 0; color: white;">💰 <b>Investimento Total:</b> {custo:,} silver</p>
                         </div>
                         <div>
-                            <p style="margin: 2px 0;">🔨 <b>Onde Craftar:</b> <span style="color: #ffaa00;">{onde_craftar}</span></p>
-                            <p style="margin: 2px 0;">🏛️ <b>Onde Vender:</b> <span style="color: #ffaa00;">Black Market</span></p>
+                            <p style="margin: 2px 0; color: white;">🔨 <b>Onde Craftar:</b> <span style="color: #ffaa00;">{cidade_foco}</span></p>
+                            <p style="margin: 2px 0; color: white;">🏛️ <b>Onde Vender:</b> <span style="color: #ffaa00;">Black Market</span></p>
                         </div>
                     </div>
 
-                    <div style="margin-top: 10px; padding-top: 5px; border-top: 1px dashed #444;">
+                    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #444;">
                         <p style="margin-bottom: 5px; font-weight: bold; color: #aaa;">📦 MATERIAIS / ONDE COMPRAR:</p>
-                        <ul style="list-style-type: none; padding-left: 5px; font-size: 0.9em;">
+                        <ul style="list-style-type: none; padding-left: 5px; font-size: 0.9em; color: #ddd;">
                             {detalhes_html}
                         </ul>
                     </div>
