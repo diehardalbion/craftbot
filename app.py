@@ -439,7 +439,6 @@ if btn:
             cidade_foco = identificar_cidade_bonus(nome)
             detalhes_html = "".join([f"<li>{d}</li>" for d in detalhes])
             
-            # Montando a string HTML em uma variável primeiro para evitar erro de parse
             card_html = f"""
             <div style="background-color: #1e1e1e; padding: 15px; border-radius: 10px; border: 1px solid #444; margin-bottom: 20px; font-family: sans-serif;">
                 <div style="color: #00ffcc; font-size: 1.2em; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #444;">
@@ -448,6 +447,7 @@ if btn:
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                     <div>
                         <p style="margin: 2px 0; color: white;">✅ <b>Lucro Líquido:</b> <span style="color: #00ff00;">{lucro:,} silver</span></p>
+                        <p style="margin: 2px 0; color: white;">🛒 <b>Preço de Venda:</b> <span style="color: #00ff00;">{venda:,} silver</span></p>
                         <p style="margin: 2px 0; color: white;">📈 <b>ROI:</b> <span style="color: #00ff00;">+{porcentagem:.1f}%</span></p>
                         <p style="margin: 2px 0; color: white;">💰 <b>Investimento Total:</b> {custo:,} silver</p>
                     </div>
@@ -464,5 +464,4 @@ if btn:
                 </div>
             </div>
             """
-            # Executa o markdown garantindo que o parâmetro seja lido
             st.markdown(card_html, unsafe_allow_html=True)
