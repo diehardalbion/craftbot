@@ -12,7 +12,7 @@ st.markdown("""
     /* FUNDO DA APLICAÇÃO */
     .stApp {
         background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)), 
-                    url("https://i.imgur.com/qRWyYwj.gif"); /* <--- COLOQUE SEU LINK AQUI */
+                    url("https://i.imgur.com/kVAiMjD.png"); /* <--- COLOQUE SEU LINK AQUI */
         background-size: cover;
         background-attachment: fixed;
     }
