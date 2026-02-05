@@ -408,31 +408,33 @@ if btn:
     resultados.sort(key=lambda x: x["lucro"], reverse=True)
 
     if not resultados:
-        st.warning("Nenhuma oportunidade lucrativa detectada no momento.")
-    else:
-        st.subheader(f"🔍 Top {len(resultados[:15])} Oportunidades")
-        for r in resultados[:15]:
-            recursos_html = "<br>".join([f"▫️ {d}" for d in r['detalhes']])
-            st.markdown(f"""
-                <div class="item-card">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <h3 style="margin:0;">💎 {r['nome']}</h3>
-                        <span class="lucro-valor">+{r['lucro']:,} silver ({r['pct']}%)</span>
-                    </div>
-                    <hr>
-                    <div style="display: flex; gap: 40px;">
+            # Esta linha precisa de 4 espaços a mais que o 'if'
+            st.error("Nenhum lucro real encontrado (dados bugados foram filtrados).")
+        else:
+            # O 'else' precisa estar alinhado exatamente com o 'if'
+            resultados.sort(key=lambda x: x["lucro"], reverse=True)
+            for res in resultados[:20]:
+                # Usando 'mats' que é como definimos na lista de resultados
+                st.markdown(f"""
+                <div style="background-color: #1e1e1e; padding: 15px; border-radius: 10px; border: 1px solid #444; margin-bottom: 20px;">
+                    <div style="color: #00ffcc; font-size: 1.2em; font-weight: bold;">💎 {res['nome'].upper()} (T{tier}.{encanto})</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
                         <div>
-                            <p>🛒 <b>Venda BM:</b> <span class="venda-valor">{r['venda']:,}</span> <small>({r['horas_bm']}h atrás)</small></p>
-                            <p>📉 <b>Custo Craft:</b> <span class="custo-valor">{r['custo']:,}</span></p>
-                            <p>🏗️ <b>Local Bônus:</b> {r['bonus']}</p>
+                            <p style="color: white;">✅ <b>Lucro:</b> <span style="color: #00ff00;">{res['lucro']:,} silver</span></p>
+                            <p style="color: white;">🛒 <b>Venda:</b> {res['venda']:,} silver</p>
+                            <p style="color: white;">📈 <b>ROI:</b> {res['roi']:.1f}%</p>
                         </div>
-                        <div class="recurso-texto">
-                            <b>Composição (Melhores Preços):</b><br>
-                            {recursos_html}
+                        <div>
+                            <p style="color: white;">🔨 <b>Onde Craftar:</b> <span style="color: #ffaa00;">{res['cidade_craft']}</span></p>
+                            <p style="color: white;">🏛️ <b>Onde Vender:</b> <span style="color: #ffaa00;">{res['cidade_venda']}</span></p>
+                            <p style="color: white;">🕒 <b>Atualizado há:</b> {res['tempo']}</p>
                         </div>
+                    </div>
+                    <div style="margin-top: 10px; border-top: 1px dashed #444; padding-top: 10px;">
+                        <ul style="color: #ddd; font-size: 0.9em;">{res['mats']}</ul>
                     </div>
                 </div>
-            """, unsafe_allow_html=True)
+                """, unsafe_allow_html=True)
 
 st.divider()
 st.caption("Dados via Albion Data Project. Cálculos incluem taxa de venda BM (6.5%) e taxa de uso de estação (estimada).")
