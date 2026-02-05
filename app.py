@@ -3,6 +3,40 @@ import requests
 import json
 from datetime import datetime, timezone
 
+# 1. Função para carregar e validar a chave
+def validar_chave(chave_digitada):
+    try:
+        with open('keys.json', 'r') as f:
+            chaves = json.load(f)
+        
+        if chave_digitada in chaves:
+            dados = chaves[chave_digitada]
+            if dados.get("ativa") == True:
+                return True, dados.get("cliente")
+        return False, None
+    except Exception as e:
+        st.error(f"Erro ao ler banco de chaves: {e}")
+        return False, None
+
+# 2. Inicializa o estado de login se não existir
+if 'autenticado' not in st.session_state:
+    st.session_state['autenticado'] = False
+
+# 3. Interface de Login
+if not st.session_state['autenticado']:
+    st.title("🔑 Acesso ao Radar Craft")
+    chave_input = st.text_input("Digite sua chave de acesso:", type="password")
+    
+    if st.button("Entrar"):
+        sucesso, cliente = validar_chave(chave_input)
+        if sucesso:
+            st.session_state['autenticado'] = True
+            st.session_state['cliente_nome'] = cliente
+            st.rerun() # Recarrega o app já autenticado
+        else:
+            st.error("Chave inválida ou expirada.")
+    
+    st.stop() # PARA a execução aqui se não estiver autenticado
 # --- 1. CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(page_title="Radar Craft Albion", layout="wide")
 
