@@ -9,34 +9,25 @@ st.set_page_config("Radar Craft Albion", layout="wide", page_icon="⚔️")
 # ================= CUSTOM CSS (VISUAL) =================
 st.markdown("""
 <style>
-    /* REMOVER FAIXA BRANCA DO TOPO */
     header {visibility: hidden;}
     .main .block-container {
         padding-top: 0rem;
         padding-bottom: 0rem;
     }
-
-    /* FUNDO DA APLICAÇÃO */
     .stApp {
         background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)), 
-                    url("https://i.imgur.com/kVAiMjD.png"); /* <--- SEU LINK ATUAL */
+                    url("https://i.imgur.com/kVAiMjD.png");
         background-size: cover;
         background-attachment: fixed;
     }
-
-    /* BARRA LATERAL */
     [data-testid="stSidebar"] {
         background-color: rgba(15, 17, 23, 0.95) !important;
         border-right: 1px solid #3e4149;
     }
-
-    /* TÍTULOS E TEXTOS */
     h1, h2, h3, label, .stMarkdown {
         color: #ffffff !important;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
-
-    /* CARD DE RESULTADO PERSONALIZADO */
     .item-card-custom { 
         background-color: rgba(255, 255, 255, 0.05) !important;
         backdrop-filter: blur(12px);
@@ -48,8 +39,6 @@ st.markdown("""
         box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         color: white !important;
     }
-
-    /* INPUTS E BOTÕES */
     .stButton>button {
         width: 100%;
         background-color: #2ecc71 !important;
@@ -66,30 +55,22 @@ def verificar_chave(chave_usuario):
     try:
         with open("keys.json", "r") as f:
             keys_db = json.load(f)
-        
         if chave_usuario in keys_db:
             dados = keys_db[chave_usuario]
-            if not dados["ativa"]:
-                return False, "Esta chave foi desativada."
-            
+            if not dados["ativa"]: return False, "Esta chave foi desativada."
             if dados["expira"] != "null":
                 data_expira = datetime.strptime(dados["expira"], "%Y-%m-%d").date()
-                if datetime.now().date() > data_expira:
-                    return False, "Esta chave expirou."
-            
+                if datetime.now().date() > data_expira: return False, "Esta chave expirou."
             return True, dados["cliente"]
         return False, "Chave inválida."
-    except Exception as e:
-        return False, f"Erro ao acessar keys.json: {e}"
+    except Exception as e: return False, f"Erro ao acessar keys.json: {e}"
 
 if "autenticado" not in st.session_state:
     st.session_state.autenticado = False
 
 if not st.session_state.autenticado:
     st.title("🛡️ Radar Craft - Acesso Restrito")
-    
     col1, col2 = st.columns([1, 1])
-
     with col1:
         st.markdown("### Já possui acesso?")
         key_input = st.text_input("Insira sua Chave:", type="password")
@@ -99,26 +80,10 @@ if not st.session_state.autenticado:
                 st.session_state.autenticado = True
                 st.session_state.cliente = mensagem
                 st.rerun()
-            else:
-                st.error(mensagem)
-
+            else: st.error(mensagem)
     with col2:
         st.markdown("### Adquirir Nova Chave")
-        st.write("Tenha acesso a todas as rotas de lucro do Albion Online por um preço acessível.")
-        
-        # CARD DE PREÇO
-        st.markdown("""
-        <div style="background: rgba(46, 204, 113, 0.1); padding: 20px; border-radius: 10px; border: 1px solid #2ecc71; text-align: center;">
-            <h2 style="margin:0; color: #2ecc71;">R$ 15,00</h2>
-            <p style="color: white;">Acesso Mensal (30 dias)</p>
-            <a href="https://wa.me/5521983042557?text=Olá! Gostaria de comprar uma key para o Radar Craft Albion." target="_blank" style="text-decoration: none;">
-                <div style="background-color: #25d366; color: white; padding: 12px; border-radius: 5px; font-weight: bold; margin-top: 10px;">
-                    🟢 COMPRAR VIA WHATSAPP
-                </div>
-            </a>
-        </div>
-        """, unsafe_allow_html=True)
-
+        st.markdown("""<div style="background: rgba(46, 204, 113, 0.1); padding: 20px; border-radius: 10px; border: 1px solid #2ecc71; text-align: center;"><h2 style="margin:0; color: #2ecc71;">R$ 15,00</h2><p style="color: white;">Acesso Mensal (30 dias)</p><a href="https://wa.me/5521983042557?text=Olá! Gostaria de comprar uma key para o Radar Craft Albion." target="_blank" style="text-decoration: none;"><div style="background-color: #25d366; color: white; padding: 12px; border-radius: 5px; font-weight: bold; margin-top: 10px;">🟢 COMPRAR VIA WHATSAPP</div></a></div>""", unsafe_allow_html=True)
     st.stop()
 
 # ================= CONFIG DE DADOS =================
@@ -338,7 +303,6 @@ ITENS_DB = {
     "ARCHA FRATURADA": ["2H_SPEAR_CRYSTAL", "Tábuas de Pinho", 12, "Barra de Aço", 20, "QUESTITEM_TOKEN_CRYSTAL_SPEAR", 1]
 }
 
-# ================= FILTROS =================
 FILTROS = {
     "armadura_placa": lambda k, v: "ARMOR_PLATE" in v[0],
     "armadura_couro": lambda k, v: "ARMOR_LEATHER" in v[0],
@@ -373,8 +337,7 @@ def ids_recurso_variantes(tier, nome, enc):
 def identificar_cidade_bonus(nome_item):
     for cidade, sufixos in BONUS_CIDADE.items():
         for s in sufixos:
-            if s in ITENS_DB[nome_item][0]:
-                return f"{cidade}"
+            if s in ITENS_DB[nome_item][0]: return f"{cidade}"
     return "Caerleon"
 
 # ================= INTERFACE SIDEBAR =================
@@ -393,10 +356,6 @@ st.title("⚔️ Radar Craft — Royal Cities + Black Market")
 if btn:
     filtro = FILTROS[categoria]
     itens = {k: v for k, v in ITENS_DB.items() if filtro(k, v)}
-
-    if not itens:
-        st.error("Nenhum item encontrado.")
-        st.stop()
 
     ids = set()
     for d in itens.values():
@@ -436,7 +395,7 @@ if btn:
         item_id = id_item(tier, d[0], encanto)
         if item_id not in precos_itens: continue
 
-        custo = 0
+        custo_bruto = 0
         detalhes = []
         valid_craft = True
 
@@ -446,7 +405,7 @@ if btn:
             for rid in ids_recurso_variantes(tier, recurso, encanto):
                 if rid in precos_recursos:
                     info = precos_recursos[rid]
-                    custo += info["price"] * qtd * quantidade
+                    custo_bruto += info["price"] * qtd * quantidade
                     detalhes.append(f"{qtd * quantidade}x {recurso}: {info['price']:,} ({info['city']})")
                     found = True
                     break
@@ -459,28 +418,26 @@ if btn:
         if d[5]:
             art = f"T{tier}_{d[5]}"
             if art in precos_recursos:
-                custo += precos_recursos[art]["price"] * d[6] * quantidade
-                detalhes.append(f"Artefato: {precos_recursos[art]['price']:,} ({precos_recursos[art]['city']})")
+                custo_bruto += precos_recursos[art]["price"] * d[6] * quantidade
+                detalhes.append(f"Artefato: {precos_recursos[art]['price']:,}")
             else: continue
 
-        custo_final = int(custo * 0.752)
-        venda = precos_itens[item_id]["price"] * quantidade
-        lucro = int((venda * 0.935) - custo_final)
+        # --- CÁLCULOS FINAIS PARA BATER COM A FOTO ---
+        custo_final = int(custo_bruto * 0.752) # Aplica o RRR de 24.8%
+        venda_bruta = precos_itens[item_id]["price"] * quantidade
+        venda_liquida = int(venda_bruta * 0.935) # Desconta 6.5% de taxas do BM
+        lucro = venda_liquida - custo_final
 
         if lucro > 0:
-            resultados.append((nome, lucro, venda, custo_final, detalhes, precos_itens[item_id]["horas"]))
+            resultados.append((nome, lucro, venda_bruta, custo_final, detalhes, precos_itens[item_id]["horas"]))
 
     resultados.sort(key=lambda x: x[1], reverse=True)
 
     if not resultados:
-        st.warning("❌ Nenhum lucro encontrado para os filtros atuais.")
+        st.warning("❌ Nenhum lucro encontrado.")
     else:
-        st.subheader(f"📊 Resultados para {categoria.upper()} T{tier}.{encanto}")
-        
         for nome, lucro, venda, custo, detalhes, h_venda in resultados[:20]:
             perc_lucro = (lucro / custo) * 100 if custo > 0 else 0
-            cidade_foco = identificar_cidade_bonus(nome)
-
             st.markdown(f"""
             <div class="item-card-custom">
                 <div style="font-weight: bold; font-size: 1.2rem; margin-bottom: 10px; color: #2ecc71;">
@@ -491,13 +448,10 @@ if btn:
                     <br><b>Investimento:</b> {custo:,} | <b>Venda BM:</b> {venda:,}
                 </div>
                 <div style="font-size: 0.95rem; color: #cbd5e1; margin-bottom: 10px;">
-                    📍 <b>Foco Craft:</b> {cidade_foco} | 🕒 <b>Atualizado:</b> {h_venda}h atrás
+                    📍 <b>Foco:</b> {identificar_cidade_bonus(nome)} | 🕒 <b>Atualizado:</b> {h_venda}h atrás
                 </div>
                 <div style="background: rgba(0,0,0,0.4); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); font-size: 0.9rem;">
-                    📦 <b>Detalhamento de Compras:</b> <br> {" | ".join(detalhes)}
+                    📦 <b>Compras:</b> {" | ".join(detalhes)}
                 </div>
             </div>
             """, unsafe_allow_html=True)
-
-st.markdown("---")
-st.caption("Radar Craft Albion - Desenvolvido para análise de mercado via Albion Online Data Project")
