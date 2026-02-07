@@ -418,36 +418,64 @@ if btn:
 
     for p in data:
         pid = p["item_id"]
-        if p["city"] == "Black Market":
+        city = p["city"]
+        
+        # --- LÓGICA PARA ITENS PRONTOS (ONDE VENDER) ---
+        # Se for Black Market, usamos o Buy Price Max
+        if city == "Black Market":
             price = p["buy_price_max"]
-            if price > 0:
-                horas = calcular_horas(p["buy_price_max_date"])
-                if pid not in precos_itens or price > precos_itens[pid]["price"]:
-                    precos_itens[pid] = {"price": price, "horas": horas}
+            tipo_venda = "BM"
+            data_venda = p["buy_price_max_date"]
+            taxa = 0.935 # Taxa de 6.5%
+        # Se for Cidade Real, usamos o Sell Price Min
         else:
             price = p["sell_price_min"]
-            if price > 0:
-                horas = calcular_horas(p["sell_price_min_date"])
-                if pid not in precos_recursos or price < precos_recursos[pid]["price"]:
-                    precos_recursos[pid] = {"price": price, "city": p["city"], "horas": horas}
+            tipo_venda = city
+            data_venda = p["sell_price_min_date"]
+            taxa = 0.895 # Taxa de 10.5% (Mercado + Anúncio)
 
+        if price > 0:
+            horas = calcular_horas(data_venda)
+            valor_liquido = price * taxa
+            
+            # Só atualiza se o valor líquido (pós-taxa) for melhor que o já encontrado
+            if pid not in precos_itens or valor_liquido > (precos_itens[pid]["price"] * precos_itens[pid]["taxa"]):
+                precos_itens[pid] = {
+                    "price": price, 
+                    "horas": horas, 
+                    "city": tipo_venda, 
+                    "taxa": taxa
+                }
+
+        # --- LÓGICA PARA RECURSOS (ONDE COMPRAR) ---
+        # (Mantemos apenas cidades reais para compra de insumos)
+        if city != "Black Market":
+            r_price = p["sell_price_min"]
+            if r_price > 0:
+                r_horas = calcular_horas(p["sell_price_min_date"])
+                if pid not in precos_recursos or r_price < precos_recursos[pid]["price"]:
+                    precos_recursos[pid] = {"price": r_price, "city": city, "horas": r_horas}
+
+    # ================= CÁLCULO DE LUCRO =================
     resultados = []
     for nome, d in itens.items():
         item_id = id_item(tier, d[0], encanto)
         if item_id not in precos_itens: continue
 
+        info_venda = precos_itens[item_id]
         custo = 0
         detalhes = []
         valid_craft = True
 
+        # Cálculo de Recursos
         for recurso, qtd in [(d[1], d[2]), (d[3], d[4])]:
             if not recurso: continue
             found = False
             for rid in ids_recurso_variantes(tier, recurso, encanto):
                 if rid in precos_recursos:
-                    info = precos_recursos[rid]
-                    custo += info["price"] * qtd * quantidade
-                    detalhes.append(f"{qtd * quantidade}x {recurso}: {info['price']:,} ({info['city']})")
+                    info_r = precos_recursos[rid]
+                    custo += info_r["price"] * qtd * quantidade
+                    detalhes.append(f"{qtd * quantidade}x {recurso}: {info_r['price']:,} ({info_r['city']})")
                     found = True
                     break
             if not found:
@@ -456,31 +484,31 @@ if btn:
         
         if not valid_craft: continue
 
+        # Cálculo de Artefatos
         if d[5]:
             art = f"T{tier}_{d[5]}"
             if art in precos_recursos:
                 custo += precos_recursos[art]["price"] * d[6] * quantidade
-                detalhes.append(f"Artefato: {precos_recursos[art]['price']:,} ({precos_recursos[art]['city']})")
+                detalhes.append(f"Art: {precos_recursos[art]['price']:,} ({precos_recursos[art]['city']})")
             else: continue
 
         custo_final = int(custo)
-        venda = precos_itens[item_id]["price"] * quantidade
-        lucro = int((venda * 0.935) - custo_final)
+        venda_bruta = info_venda["price"] * quantidade
+        lucro = int((venda_bruta * info_venda["taxa"]) - custo_final)
 
         if lucro > 0:
-            resultados.append((nome, lucro, venda, custo_final, detalhes, precos_itens[item_id]["horas"]))
+            resultados.append((nome, lucro, venda_bruta, custo_final, detalhes, info_venda["horas"], info_venda["city"]))
 
     resultados.sort(key=lambda x: x[1], reverse=True)
 
+    # ================= EXIBIÇÃO =================
     if not resultados:
-        st.warning("❌ Nenhum lucro encontrado para os filtros atuais.")
+        st.warning("❌ Nenhum lucro encontrado.")
     else:
-        st.subheader(f"📊 Resultados para {categoria.upper()} T{tier}.{encanto}")
-        
-        for nome, lucro, venda, custo, detalhes, h_venda in resultados[:20]:
-            perc_lucro = (lucro / custo) * 100 if custo > 0 else 0
-            cidade_foco = identificar_cidade_bonus(nome)
-
+        st.subheader(f"📊 Melhores Oportunidades (Royal + BM) T{tier}.{encanto}")
+        for nome, lucro, venda, custo, detalhes, h_venda, onde_vender in resultados[:20]:
+            perc_lucro = (lucro / custo) * 100
+            
             st.markdown(f"""
             <div class="item-card-custom">
                 <div style="font-weight: bold; font-size: 1.2rem; margin-bottom: 10px; color: #2ecc71;">
@@ -488,13 +516,13 @@ if btn:
                 </div>
                 <div style="font-size: 1.05rem; margin-bottom: 8px;">
                     <span style="color: #2ecc71; font-weight: bold; font-size: 1.2rem;">💰 Lucro: {lucro:,} ({perc_lucro:.2f}%)</span> 
-                    <br><b>Investimento:</b> {custo:,} | <b>Venda BM:</b> {venda:,}
+                    <br><b>Investimento:</b> {custo:,} | <b>Venda em {onde_vender}:</b> {venda:,}
                 </div>
                 <div style="font-size: 0.95rem; color: #cbd5e1; margin-bottom: 10px;">
-                    📍 <b>Foco Craft:</b> {cidade_foco} | 🕒 <b>Atualizado:</b> {h_venda}h atrás
+                    🕒 <b>Atualizado:</b> {h_venda}h atrás
                 </div>
                 <div style="background: rgba(0,0,0,0.4); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); font-size: 0.9rem;">
-                    📦 <b>Detalhamento de Compras:</b> <br> {" | ".join(detalhes)}
+                    📦 <b>Insumos:</b> {" | ".join(detalhes)}
                 </div>
             </div>
             """, unsafe_allow_html=True)
