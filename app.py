@@ -463,7 +463,7 @@ if btn:
                 detalhes.append(f"Artefato: {precos_recursos[art]['price']:,} ({precos_recursos[art]['city']})")
             else: continue
 
-        custo_final = int(custo * 0.752)
+        custo_final = int(custo)
         venda = precos_itens[item_id]["price"] * quantidade
         lucro = int((venda * 0.935) - custo_final)
 
