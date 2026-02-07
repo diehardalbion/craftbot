@@ -481,6 +481,12 @@ if btn:
         lucro_real = int((total_venda * 0.935) - custo_materiais)
         
         if lucro_real > 0:
+            # --- TRAVA DE SEGURANÇA PARA CIDADES REAIS ---
+            # Se não for no Black Market e o lucro for maior que 40%, 
+            # é provável que o preço esteja inflado ou sem estoque.
+            if venda_info["city"] != "Black Market" and (lucro_real/custo_materiais)*100 > 40:
+                continue 
+            
             final_list.append({
                 "n": nome, "l": lucro_real, "p": (lucro_real/custo_materiais)*100,
                 "v": total_venda, "c": custo_materiais, "cid": venda_info["city"],
