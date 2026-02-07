@@ -305,6 +305,15 @@ def get_bm_price(item_id):
     except:
         pass
     return 0
+    def get_market_price(item_id):
+    try:
+        url = f"{API_URL}{item_id}?locations=Caerleon,FortSterling,Thetford,Lymhurst,Bridgewatch,Martlock"
+        data = requests.get(url, timeout=10).json()
+        prices = [p["sell_price_min"] for p in data if p["sell_price_min"] > 0]
+        return min(prices) if prices else 0
+    except:
+        return 0
+
 
 def calcular_horas(data_iso):
     try:
@@ -380,7 +389,7 @@ if btn:
     total_itens = len(itens)
     for i, (nome, d) in enumerate(itens.items()):
         item_id = id_item(tier, d[0], encanto)
-        preco_venda_bm = get_historical_price(item_id) 
+        preco_venda_bm = get_bm_price(item_id) 
         my_bar.progress((i + 1) / total_itens, text=f"Analisando: {nome}")
 
         if preco_venda_bm <= 0: continue
@@ -409,7 +418,7 @@ if btn:
         # Cálculo de Artefatos (Se houver)
         if d[5]:
             art_id = f"T{tier}_{d[5]}"
-            preco_artefato = get_historical_price(art_id, location="Caerleon,FortSterling,Thetford,Lymhurst,Bridgewatch,Martlock")
+            preco_artefato = get_market_price(art_id, location="Caerleon,FortSterling,Thetford,Lymhurst,Bridgewatch,Martlock")
             if preco_artefato > 0:
                 qtd_art = d[6] * quantidade
                 custo += preco_artefato * qtd_art
