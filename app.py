@@ -419,9 +419,9 @@ if btn:
     for p in data:
         pid = p["item_id"]
         if p["city"] == "Black Market":
-            price = p["buy_price_max"]
+            price = p["sell_price_max"]
             if price > 0:
-                horas = calcular_horas(p["buy_price_max_date"])
+                horas = calcular_horas(p["sell_price_max_date"])
                 if pid not in precos_itens or price > precos_itens[pid]["price"]:
                     precos_itens[pid] = {"price": price, "horas": horas}
         else:
