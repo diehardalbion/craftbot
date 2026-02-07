@@ -432,7 +432,7 @@ if btn:
             horas = calcular_horas(date)
 
             # ignora preços antigos (fantasmas)
-            if horas > 24:
+            if horas > 72:
                 continue
 
             if pid not in precos_itens or price > precos_itens[pid]["price"]:
