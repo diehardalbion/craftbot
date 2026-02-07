@@ -407,7 +407,8 @@ if btn:
         if d[5]: ids.add(f"T{tier}_{d[5]}")
 
     try:
-        response = requests.get(f"{API_URL}{','.join(ids)}?locations={','.join(CIDADES)}", timeout=20)
+        # ALTERADO: Adicionado &qualities=1 para filtrar apenas itens de qualidade Normal
+        response = requests.get(f"{API_URL}{','.join(ids)}?locations={','.join(CIDADES)}&qualities=1", timeout=20)
         data = response.json()
     except:
         st.error("Erro ao conectar com a API.")
@@ -466,6 +467,13 @@ if btn:
         custo_final = int(custo)
         venda = precos_itens[item_id]["price"] * quantidade
         lucro = int((venda * 0.935) - custo_final)
+
+        # --- LOGICA DE LIMPEZA DE DADOS IRREAIS ---
+        perc_lucro = (lucro / custo_final) * 100 if custo_final > 0 else 0
+        
+        # Filtro de segurança: Lucros acima de 100% no BM geralmente são erros de cache
+        if perc_lucro > 100 and tier >= 6:
+            continue
 
         if lucro > 0:
             resultados.append((nome, lucro, venda, custo_final, detalhes, precos_itens[item_id]["horas"]))
