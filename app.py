@@ -420,24 +420,26 @@ if btn:
         pid = p["item_id"]
         cidade = p["city"]
         
-        # Lógica para Itens (Venda)
-        if cidade == "Black Market":
-            price = p["buy_price_max"]
-            date = p["buy_price_max_date"]
-        else:
-            price = p["sell_price_min"]
-            date = p["sell_price_min_date"]
+        # Pega o melhor preço disponível (venda ou compra dependendo do local)
+        # Se for BM, olhamos buy_price_max. Se for cidade, sell_price_min.
+        v_price = p["buy_price_max"] if cidade == "Black Market" else p["sell_price_min"]
+        v_date = p["buy_price_max_date"] if cidade == "Black Market" else p["sell_price_min_date"]
 
-        if price > 0:
-            horas = calcular_horas(date)
-            # Se for recurso (ID base), guarda o menor preço de compra
-            if "CLOTH" in pid or "LEATHER" in pid or "METALBAR" in pid or "PLANKS" in pid or "ARTEFACT" in pid or "QUESTITEM" in pid:
-                if pid not in precos_recursos or price < precos_recursos[pid]["price"]:
-                    precos_recursos[pid] = {"price": price, "city": cidade, "horas": horas}
+        # Se o preço for 0, tentamos o preço alternativo (venda mínima no BM ou compra máxima na cidade)
+        if v_price == 0:
+            v_price = p["sell_price_min"] if cidade == "Black Market" else p["buy_price_max"]
+            v_date = p["sell_price_min_date"] if cidade == "Black Market" else p["buy_price_max_date"]
+
+        if v_price > 0:
+            horas = calcular_horas(v_date)
+            # FILTRO DE RECURSOS E ARTEFATOS
+            if any(x in pid for x in ["CLOTH", "LEATHER", "METALBAR", "PLANKS", "ARTEFACT", "QUESTITEM"]):
+                if pid not in precos_recursos or v_price < precos_recursos[pid]["price"]:
+                    precos_recursos[pid] = {"price": v_price, "city": cidade, "horas": horas}
             else:
-                # Se for o item pronto, guarda o melhor preço de venda e a cidade correspondente
-                if pid not in precos_venda or price > precos_venda[pid]["price"]:
-                    precos_venda[pid] = {"price": price, "city": cidade, "horas": horas}
+                # FILTRO DE ITENS PRONTOS
+                if pid not in precos_venda or v_price > precos_venda[pid]["price"]:
+                    precos_venda[pid] = {"price": v_price, "city": cidade, "horas": horas}
 
     resultados = []
     for nome, d in itens.items():
