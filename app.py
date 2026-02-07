@@ -34,8 +34,7 @@ st.markdown("""
         border-radius: 12px; 
         padding: 20px; 
         margin-bottom: 20px; 
-        border: 1px solid rgba(46, 204, 113, 0.2);
-        border-left: 8px solid #2ecc71;
+        border: 1px solid rgba(255, 255, 255, 0.1);
         box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         color: white !important;
     }
@@ -93,7 +92,7 @@ if not st.session_state.autenticado:
             <p style="color: white;">Acesso Mensal (30 dias)</p>
             <a href="https://wa.me/5521983042557?text=Olá! Gostaria de comprar uma key para o Radar Craft Albion." target="_blank" style="text-decoration: none;">
                 <div style="background-color: #25d366; color: white; padding: 12px; border-radius: 5px; font-weight: bold; margin-top: 10px;">
-                    128182; COMPRAR VIA WHATSAPP
+                    COMPRAR VIA WHATSAPP
                 </div>
             </a>
         </div>
@@ -116,7 +115,6 @@ BONUS_CIDADE = {
 }
 
 ITENS_DB = {
-    # ... (Manti todo o seu dicionário ITENS_DB aqui, ele é longo e não foi alterado)
     "TOMO DE FEITIÇOS": ["OFF_BOOK", "Tecido Fino", 4, "Couro Trabalhado", 4, None, 0],
     "OLHO DOS SEGREDOS": ["OFF_ORB_HELL", "Tecido Fino", 4, "Couro Trabalhado", 4, "ARTEFACT_OFF_ORB_HELL", 1],
     "MUISEC": ["OFF_LAMP_HELL", "Tecido Fino", 4, "Couro Trabalhado", 4, "ARTEFACT_OFF_LAMP_HELL", 1],
@@ -298,7 +296,6 @@ FILTROS = {
 
 # ================= FUNÇÕES =================
 def get_historical_price(item_id, location="Black Market"):
-    """ Busca a média de preço das últimas 24h para evitar dados de 999h """
     try:
         url = f"{HISTORY_URL}{item_id}?locations={location}&timescale=24"
         resp = requests.get(url, timeout=10).json()
@@ -425,26 +422,33 @@ if btn:
         venda_total = int(preco_venda_bm * quantidade)
         lucro = int((venda_total * 0.935) - custo_final)
 
-        if lucro > 0:
-            resultados.append((nome, lucro, venda_total, custo_final, detalhes, "Média 24h"))
+        # MUDANÇA 2: Removido o filtro de lucro > 0 para mostrar mais itens na lista
+        resultados.append((nome, lucro, venda_total, custo_final, detalhes, "Média 24h"))
 
     my_bar.empty()
+    
+    # Ordenar por lucro (maior para o menor)
     resultados.sort(key=lambda x: x[1], reverse=True)
 
     if not resultados:
         st.warning("❌ Nenhum lucro encontrado para os filtros atuais.")
     else:
         st.subheader(f"📊 Resultados para {categoria.upper()} T{tier}.{encanto}")
-        for nome, lucro, venda, custo, detalhes, h_venda in resultados[:20]:
+        # MUDANÇA 3: Aumentado o limite de visualização para 50 itens
+        for nome, lucro, venda, custo, detalhes, h_venda in resultados[:50]:
             perc_lucro = (lucro / custo) * 100 if custo > 0 else 0
             cidade_foco = identificar_cidade_bonus(nome)
+            
+            # MUDANÇA 4: Cor dinâmica baseada no lucro (Verde para lucro, Vermelho para prejuízo)
+            cor_destaque = "#2ecc71" if lucro > 0 else "#e74c3c"
+            
             st.markdown(f"""
-            <div class="item-card-custom">
-                <div style="font-weight: bold; font-size: 1.2rem; margin-bottom: 10px; color: #2ecc71;">
+            <div class="item-card-custom" style="border-left: 8px solid {cor_destaque};">
+                <div style="font-weight: bold; font-size: 1.2rem; margin-bottom: 10px; color: {cor_destaque};">
                     ⚔️ {nome} [T{tier}.{encanto}] x{quantidade}
                 </div>
                 <div style="font-size: 1.05rem; margin-bottom: 8px;">
-                    <span style="color: #2ecc71; font-weight: bold; font-size: 1.2rem;">💰 Lucro Real: {lucro:,} ({perc_lucro:.2f}%)</span> 
+                    <span style="color: {cor_destaque}; font-weight: bold; font-size: 1.2rem;">💰 Lucro Estimado: {lucro:,} ({perc_lucro:.2f}%)</span> 
                     <br><b>Investimento:</b> {custo:,} | <b>Venda Estimada (BM):</b> {venda:,}
                 </div>
                 <div style="font-size: 0.95rem; color: #cbd5e1; margin-bottom: 10px;">
