@@ -354,9 +354,10 @@ if btn:
     itens = {k: v for k, v in ITENS_DB.items() if filtro(k, v)}
 
     if not itens:
-        st.error("Nenhum item encontrado.")
+        st.error("Nenhum item encontrado nesta categoria.")
         st.stop()
 
+    # Coleta de IDs de recursos para a API
     ids_para_recursos = set()
     for d in itens.values():
         for r in ids_recurso_variantes(tier, d[1], encanto): ids_para_recursos.add(r)
@@ -367,9 +368,10 @@ if btn:
         response = requests.get(f"{API_URL}{','.join(ids_para_recursos)}?locations=Thetford,FortSterling,Martlock,Lymhurst,Bridgewatch,Caerleon", timeout=20)
         data_recursos = response.json()
     except:
-        st.error("Erro ao conectar com a API de recursos.")
+        st.error("Erro ao conectar com a API de recursos. Tente novamente.")
         st.stop()
 
+    # Processamento de preços de recursos
     precos_recursos = {}
     for p in data_recursos:
         pid = p["item_id"]
@@ -379,13 +381,13 @@ if btn:
                 precos_recursos[pid] = {"price": price, "city": p["city"]}
 
     resultados = []
-    progress_text = "Analisando Lucratividade..."
+    progress_text = "Analisando Mercado e Calculando Lucros..."
     my_bar = st.progress(0, text=progress_text)
     
     total_itens = len(itens)
     for i, (nome, d) in enumerate(itens.items()):
         item_id = id_item(tier, d[0], encanto)
-        preco_venda_bm = get_historical_price(item_id) # Agora busca preço atual primeiro
+        preco_venda_bm = get_historical_price(item_id) 
         my_bar.progress((i + 1) / total_itens, text=f"Analisando: {nome}")
 
         if preco_venda_bm <= 0: continue
@@ -394,6 +396,7 @@ if btn:
         detalhes = []
         valid_craft = True
 
+        # Cálculo de Recursos Base
         for recurso, qtd in [(d[1], d[2]), (d[3], d[4])]:
             if not recurso or qtd == 0: continue
             found = False
@@ -410,14 +413,14 @@ if btn:
         
         if not valid_craft: continue
 
+        # Cálculo de Artefatos (Se houver)
         if d[5]:
             art_id = f"T{tier}_{d[5]}"
-            # Artefatos também tentam buscar preço atual
             preco_artefato = get_historical_price(art_id, location="Caerleon,FortSterling,Thetford,Lymhurst,Bridgewatch,Martlock")
             if preco_artefato > 0:
                 qtd_art = d[6] * quantidade
                 custo += preco_artefato * qtd_art
-                detalhes.append(f"{qtd_art}x Artefato: {preco_artefato:,.0f}")
+                detalhes.append(f"{qtd_art}x Artefato: {preco_artefato:,.0f} (Média Market)")
             else: 
                 valid_craft = False
 
@@ -427,22 +430,20 @@ if btn:
         venda_total = int(preco_venda_bm * quantidade)
         lucro = int((venda_total * 0.935) - custo_final)
 
-        # MUDANÇA 2: Mostrar todos os itens idependente de lucro
         resultados.append((nome, lucro, venda_total, custo_final, detalhes, "Market Atual/24h"))
 
     my_bar.empty()
+    # Ordenar pelo maior lucro
     resultados.sort(key=lambda x: x[1], reverse=True)
 
     if not resultados:
-        st.warning("❌ Dados insuficientes na API para estes itens.")
+        st.warning("⚠️ A API não retornou preços recentes para os itens desta categoria no Black Market.")
     else:
-        st.subheader(f"📊 Resultados para {categoria.upper()} T{tier}.{encanto}")
-        # MUDANÇA 3: Aumentado para 50
-        for nome, lucro, venda, custo, detalhes, h_venda in resultados[:50]:
+        st.subheader(f"📊 {len(resultados)} Itens Encontrados - {categoria.upper()} T{tier}.{encanto}")
+        
+        for nome, lucro, venda, custo, detalhes, h_venda in resultados:
             perc_lucro = (lucro / custo) * 100 if custo > 0 else 0
             cidade_foco = identificar_cidade_bonus(nome)
-            
-            # MUDANÇA 4: Cores dinâmicas
             cor_destaque = "#2ecc71" if lucro > 0 else "#e74c3c"
             
             st.markdown(f"""
