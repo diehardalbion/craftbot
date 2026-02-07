@@ -298,17 +298,16 @@ FILTROS = {
 # MUDANÇA 1 IMPLEMENTADA: Prioriza preço de venda direto se histórico estiver defasado
 def get_historical_price(item_id, location="Black Market"):
     try:
-        # Primeiro tentamos pegar o preço de venda mínimo ATUAL
+        # Para o BM, precisamos do buy_price_max (o valor mais alto que o NPC está oferecendo)
         url_atual = f"{API_URL}{item_id}?locations={location}"
         resp_atual = requests.get(url_atual, timeout=10).json()
-        if resp_atual and resp_atual[0]["sell_price_min"] > 0:
-            return resp_atual[0]["sell_price_min"]
-            
-        # Se não tiver preço atual, recorremos ao histórico das últimas 24h
-        url_hist = f"{HISTORY_URL}{item_id}?locations={location}&timescale=24"
-        resp_hist = requests.get(url_hist, timeout=10).json()
-        if resp_hist and "data" in resp_hist[0] and len(resp_hist[0]["data"]) > 0:
-            return resp_hist[0]["data"][-1]["avg_price"]
+        
+        if resp_atual:
+            # Se for Black Market, usamos buy_price_max. Se for cidade real, sell_price_min.
+            if location == "Black Market":
+                return resp_atual[0]["buy_price_max"] 
+            else:
+                return resp_atual[0]["sell_price_min"]
     except:
         return 0
     return 0
