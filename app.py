@@ -417,7 +417,7 @@ if btn:
     precos_recursos = {}
 
     for p in data:
-    pid = p["item_id"]
+        pid = p["item_id"]
 
     # ================= BLACK MARKET =================
     if p["city"] == "Black Market":
