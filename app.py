@@ -423,8 +423,8 @@ if btn:
 
         # ================= BLACK MARKET =================
         if p.get("city") == "BlackMarket":
-            price = p.get("buy_price_avg")
-            date = p.get("buy_price_avg_date")
+            price = p.get("sell_price_min")
+            date = p.get("sell_price_min_date")
 
             if not price or not date:
                 continue
