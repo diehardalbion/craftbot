@@ -417,38 +417,39 @@ if btn:
     precos_recursos = {}
 
     for p in data:
-    pid = p["item_id"]
+        pid = p["item_id"]
 
-    # ================= BLACK MARKET =================
-    if p["city"] == "Black Market":
-        price = p["buy_price_avg"]
+        # ================= BLACK MARKET =================
+        if p["city"] == "Black Market":
+            price = p["buy_price_avg"]
 
-        if price > 0:
-            horas = calcular_horas(p["buy_price_avg_date"])
+            if price > 0:
+                horas = calcular_horas(p["buy_price_avg_date"])
 
-            # ignora preços antigos (fantasmas)
-            if horas > 24:
-                continue
+                # ignora preços antigos (fantasmas)
+                if horas > 24:
+                    continue
 
-            if pid not in precos_itens or price > precos_itens[pid]["price"]:
-                precos_itens[pid] = {
-                    "price": price,
-                    "horas": horas
-                }
+                if pid not in precos_itens or price > precos_itens[pid]["price"]:
+                    precos_itens[pid] = {
+                        "price": price,
+                        "horas": horas
+                    }
 
-    # ================= ROYAL CITIES (COMPRA DE RECURSOS) =================
-    else:
-        price = p["sell_price_min"]
+        # ================= ROYAL CITIES (COMPRA DE RECURSOS) =================
+        else:
+            price = p["sell_price_min"]
 
-        if price > 0:
-            horas = calcular_horas(p["sell_price_min_date"])
+            if price > 0:
+                horas = calcular_horas(p["sell_price_min_date"])
 
-            if pid not in precos_recursos or price < precos_recursos[pid]["price"]:
-                precos_recursos[pid] = {
-                    "price": price,
-                    "city": p["city"],
-                    "horas": horas
-                }
+                if pid not in precos_recursos or price < precos_recursos[pid]["price"]:
+                    precos_recursos[pid] = {
+                        "price": price,
+                        "city": p["city"],
+                        "horas": horas
+                    }
+
 
     resultados = []
     for nome, d in itens.items():
