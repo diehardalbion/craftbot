@@ -302,41 +302,23 @@ def get_bm_price(item_id):
         data = requests.get(url, timeout=10).json()
         if data:
             return data[0]["buy_price_max"]
-    except:
-        pass
+    except Exception as e:
+        return 0
     return 0
-    def get_market_price(item_id):
+
+
+def get_market_price(item_id):
     try:
         url = f"{API_URL}{item_id}?locations=Caerleon,FortSterling,Thetford,Lymhurst,Bridgewatch,Martlock"
         data = requests.get(url, timeout=10).json()
-        prices = [p["sell_price_min"] for p in data if p["sell_price_min"] > 0]
+        prices = [
+            p["sell_price_min"]
+            for p in data
+            if p.get("sell_price_min", 0) > 0
+        ]
         return min(prices) if prices else 0
-    except:
+    except Exception as e:
         return 0
-
-
-def calcular_horas(data_iso):
-    try:
-        data_api = datetime.fromisoformat(data_iso.replace("Z", "+00:00"))
-        data_agora = datetime.now(timezone.utc)
-        diff = data_agora.replace(tzinfo=None) - data_api.replace(tzinfo=None)
-        return int(diff.total_seconds() / 3600)
-    except: return 999
-
-def id_item(tier, base, enc):
-    return f"T{tier}_{base}@{enc}" if enc > 0 else f"T{tier}_{base}"
-
-def ids_recurso_variantes(tier, nome, enc):
-    base = f"T{tier}_{RECURSO_MAP[nome]}"
-    if enc > 0: return [f"{base}@{enc}", f"{base}_LEVEL{enc}@{enc}"]
-    return [base]
-
-def identificar_cidade_bonus(nome_item):
-    for cidade, sufixos in BONUS_CIDADE.items():
-        for s in sufixos:
-            if s in ITENS_DB[nome_item][0]:
-                return f"{cidade}"
-    return "Caerleon"
 
 # ================= INTERFACE SIDEBAR =================
 with st.sidebar:
