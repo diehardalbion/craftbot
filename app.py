@@ -295,13 +295,20 @@ FILTROS = {
 }
 
 # ================= FUNÇÕES =================
+# MUDANÇA 1 IMPLEMENTADA: Prioriza preço de venda direto se histórico estiver defasado
 def get_historical_price(item_id, location="Black Market"):
     try:
-        url = f"{HISTORY_URL}{item_id}?locations={location}&timescale=24"
-        resp = requests.get(url, timeout=10).json()
-        if resp and "data" in resp[0] and len(resp[0]["data"]) > 0:
-            recent_data = resp[0]["data"]
-            return recent_data[-1]["avg_price"]
+        # Primeiro tentamos pegar o preço de venda mínimo ATUAL
+        url_atual = f"{API_URL}{item_id}?locations={location}"
+        resp_atual = requests.get(url_atual, timeout=10).json()
+        if resp_atual and resp_atual[0]["sell_price_min"] > 0:
+            return resp_atual[0]["sell_price_min"]
+            
+        # Se não tiver preço atual, recorremos ao histórico das últimas 24h
+        url_hist = f"{HISTORY_URL}{item_id}?locations={location}&timescale=24"
+        resp_hist = requests.get(url_hist, timeout=10).json()
+        if resp_hist and "data" in resp_hist[0] and len(resp_hist[0]["data"]) > 0:
+            return resp_hist[0]["data"][-1]["avg_price"]
     except:
         return 0
     return 0
@@ -372,13 +379,13 @@ if btn:
                 precos_recursos[pid] = {"price": price, "city": p["city"]}
 
     resultados = []
-    progress_text = "Analisando Lucratividade (Buscando Histórico)..."
+    progress_text = "Analisando Lucratividade..."
     my_bar = st.progress(0, text=progress_text)
     
     total_itens = len(itens)
     for i, (nome, d) in enumerate(itens.items()):
         item_id = id_item(tier, d[0], encanto)
-        preco_venda_bm = get_historical_price(item_id)
+        preco_venda_bm = get_historical_price(item_id) # Agora busca preço atual primeiro
         my_bar.progress((i + 1) / total_itens, text=f"Analisando: {nome}")
 
         if preco_venda_bm <= 0: continue
@@ -387,7 +394,6 @@ if btn:
         detalhes = []
         valid_craft = True
 
-        # Recursos Base
         for recurso, qtd in [(d[1], d[2]), (d[3], d[4])]:
             if not recurso or qtd == 0: continue
             found = False
@@ -404,15 +410,14 @@ if btn:
         
         if not valid_craft: continue
 
-        # Artefatos via Histórico
         if d[5]:
             art_id = f"T{tier}_{d[5]}"
+            # Artefatos também tentam buscar preço atual
             preco_artefato = get_historical_price(art_id, location="Caerleon,FortSterling,Thetford,Lymhurst,Bridgewatch,Martlock")
-            
             if preco_artefato > 0:
                 qtd_art = d[6] * quantidade
                 custo += preco_artefato * qtd_art
-                detalhes.append(f"{qtd_art}x Artefato: {preco_artefato:,.0f} (Média Market)")
+                detalhes.append(f"{qtd_art}x Artefato: {preco_artefato:,.0f}")
             else: 
                 valid_craft = False
 
@@ -422,24 +427,22 @@ if btn:
         venda_total = int(preco_venda_bm * quantidade)
         lucro = int((venda_total * 0.935) - custo_final)
 
-        # MUDANÇA 2: Removido o filtro de lucro > 0 para mostrar mais itens na lista
-        resultados.append((nome, lucro, venda_total, custo_final, detalhes, "Média 24h"))
+        # MUDANÇA 2: Mostrar todos os itens idependente de lucro
+        resultados.append((nome, lucro, venda_total, custo_final, detalhes, "Market Atual/24h"))
 
     my_bar.empty()
-    
-    # Ordenar por lucro (maior para o menor)
     resultados.sort(key=lambda x: x[1], reverse=True)
 
     if not resultados:
-        st.warning("❌ Nenhum lucro encontrado para os filtros atuais.")
+        st.warning("❌ Dados insuficientes na API para estes itens.")
     else:
         st.subheader(f"📊 Resultados para {categoria.upper()} T{tier}.{encanto}")
-        # MUDANÇA 3: Aumentado o limite de visualização para 50 itens
+        # MUDANÇA 3: Aumentado para 50
         for nome, lucro, venda, custo, detalhes, h_venda in resultados[:50]:
             perc_lucro = (lucro / custo) * 100 if custo > 0 else 0
             cidade_foco = identificar_cidade_bonus(nome)
             
-            # MUDANÇA 4: Cor dinâmica baseada no lucro (Verde para lucro, Vermelho para prejuízo)
+            # MUDANÇA 4: Cores dinâmicas
             cor_destaque = "#2ecc71" if lucro > 0 else "#e74c3c"
             
             st.markdown(f"""
