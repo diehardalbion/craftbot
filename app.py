@@ -423,7 +423,7 @@ if btn:
             if price > 0:
                 horas = calcular_horas(p["buy_price_avg_date"])
                 if horas > 24:
-     continue
+                continue
                 if pid not in precos_itens or price > precos_itens[pid]["price"]:
                     precos_itens[pid] = {"price": price, "horas": horas}
         else:
