@@ -296,29 +296,45 @@ FILTROS = {
 
 # ================= FUNÇÕES =================
 # MUDANÇA 1 IMPLEMENTADA: Prioriza preço de venda direto se histórico estiver defasado
-def get_bm_price(item_id):
+def get_historical_price(item_id, location="Black Market"):
     try:
-        url = f"{API_URL}{item_id}?locations=Black Market"
-        data = requests.get(url, timeout=10).json()
-        if data:
-            return data[0]["buy_price_max"]
-    except Exception as e:
+        # Primeiro tentamos pegar o preço de venda mínimo ATUAL
+        url_atual = f"{API_URL}{item_id}?locations={location}"
+        resp_atual = requests.get(url_atual, timeout=10).json()
+        if resp_atual and resp_atual[0]["sell_price_min"] > 0:
+            return resp_atual[0]["sell_price_min"]
+            
+        # Se não tiver preço atual, recorremos ao histórico das últimas 24h
+        url_hist = f"{HISTORY_URL}{item_id}?locations={location}&timescale=24"
+        resp_hist = requests.get(url_hist, timeout=10).json()
+        if resp_hist and "data" in resp_hist[0] and len(resp_hist[0]["data"]) > 0:
+            return resp_hist[0]["data"][-1]["avg_price"]
+    except:
         return 0
     return 0
 
-
-def get_market_price(item_id):
+def calcular_horas(data_iso):
     try:
-        url = f"{API_URL}{item_id}?locations=Caerleon,FortSterling,Thetford,Lymhurst,Bridgewatch,Martlock"
-        data = requests.get(url, timeout=10).json()
-        prices = [
-            p["sell_price_min"]
-            for p in data
-            if p.get("sell_price_min", 0) > 0
-        ]
-        return min(prices) if prices else 0
-    except Exception as e:
-        return 0
+        data_api = datetime.fromisoformat(data_iso.replace("Z", "+00:00"))
+        data_agora = datetime.now(timezone.utc)
+        diff = data_agora.replace(tzinfo=None) - data_api.replace(tzinfo=None)
+        return int(diff.total_seconds() / 3600)
+    except: return 999
+
+def id_item(tier, base, enc):
+    return f"T{tier}_{base}@{enc}" if enc > 0 else f"T{tier}_{base}"
+
+def ids_recurso_variantes(tier, nome, enc):
+    base = f"T{tier}_{RECURSO_MAP[nome]}"
+    if enc > 0: return [f"{base}@{enc}", f"{base}_LEVEL{enc}@{enc}"]
+    return [base]
+
+def identificar_cidade_bonus(nome_item):
+    for cidade, sufixos in BONUS_CIDADE.items():
+        for s in sufixos:
+            if s in ITENS_DB[nome_item][0]:
+                return f"{cidade}"
+    return "Caerleon"
 
 # ================= INTERFACE SIDEBAR =================
 with st.sidebar:
@@ -371,7 +387,7 @@ if btn:
     total_itens = len(itens)
     for i, (nome, d) in enumerate(itens.items()):
         item_id = id_item(tier, d[0], encanto)
-        preco_venda_bm = get_bm_price(item_id) 
+        preco_venda_bm = get_historical_price(item_id) 
         my_bar.progress((i + 1) / total_itens, text=f"Analisando: {nome}")
 
         if preco_venda_bm <= 0: continue
@@ -400,7 +416,7 @@ if btn:
         # Cálculo de Artefatos (Se houver)
         if d[5]:
             art_id = f"T{tier}_{d[5]}"
-            preco_artefato = get_market_price(art_id, location="Caerleon,FortSterling,Thetford,Lymhurst,Bridgewatch,Martlock")
+            preco_artefato = get_historical_price(art_id, location="Caerleon,FortSterling,Thetford,Lymhurst,Bridgewatch,Martlock")
             if preco_artefato > 0:
                 qtd_art = d[6] * quantidade
                 custo += preco_artefato * qtd_art
