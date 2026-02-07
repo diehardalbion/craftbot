@@ -346,7 +346,7 @@ with st.sidebar:
     st.markdown("---")
     btn = st.button("🚀 ESCANEAR MERCADO")
 
-st.title("⚔️ Radar Craft — Royal Cities + Black Market")
+st.title("⚔️ Radar Craft — Black Market")
 
 # ================= EXECUÇÃO =================
 if btn:
