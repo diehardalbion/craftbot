@@ -19,7 +19,7 @@ st.markdown("""
     /* FUNDO DA APLICAÇÃO */
     .stApp {
         background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)), 
-                    url("https://i.imgur.com/kVAiMjD.png");
+                    url("https://i.imgur.com/kVAiMjD.png"); /* <--- SEU LINK ATUAL */
         background-size: cover;
         background-attachment: fixed;
     }
@@ -106,6 +106,7 @@ if not st.session_state.autenticado:
         st.markdown("### Adquirir Nova Chave")
         st.write("Tenha acesso a todas as rotas de lucro do Albion Online por um preço acessível.")
         
+        # CARD DE PREÇO
         st.markdown("""
         <div style="background: rgba(46, 204, 113, 0.1); padding: 20px; border-radius: 10px; border: 1px solid #2ecc71; text-align: center;">
             <h2 style="margin:0; color: #2ecc71;">R$ 15,00</h2>
@@ -388,117 +389,115 @@ with st.sidebar:
 
 st.title("⚔️ Radar Craft — Royal Cities + Black Market")
 
-# ================= EXECUÇÃO (VERSÃO CORRIGIDA) =================
+# ================= EXECUÇÃO =================
 if btn:
-    filtro_selecionado = FILTROS[categoria]
-    itens_para_escanear = {k: v for k, v in ITENS_DB.items() if filtro_selecionado(k, v)}
+    filtro = FILTROS[categoria]
+    itens = {k: v for k, v in ITENS_DB.items() if filtro(k, v)}
 
-    if not itens_para_escanear:
-        st.error(f"Nenhum item mapeado para a categoria: {categoria}")
+    if not itens:
+        st.error("Nenhum item encontrado.")
         st.stop()
 
-    # Monta lista de IDs para a API (Normalizando tudo)
-    ids_requisicao = set()
-    for info in itens_para_escanear.values():
-        base_id = info[0]
-        # ID do Item pronto
-        ids_requisicao.add(f"T{tier}_{base_id}{'@'+str(encanto) if encanto > 0 else ''}")
-        
-        # IDs dos Recursos (Tenta todas as variações possíveis para não vir vazio)
-        for recurso_nome in [info[1], info[3]]:
-            if recurso_nome and recurso_nome in RECURSO_MAP:
-                r_code = RECURSO_MAP[recurso_nome]
-                ids_requisicao.add(f"T{tier}_{r_code}")
-                ids_requisicao.add(f"T{tier}_{r_code}_LEVEL0") # Algumas vezes a API pede assim
-                if encanto > 0:
-                    ids_requisicao.add(f"T{tier}_{r_code}@{encanto}")
-                    ids_requisicao.add(f"T{tier}_{r_code}_LEVEL{encanto}@{encanto}")
-        
-        # Artefato
-        if info[5]:
-            ids_requisicao.add(f"T{tier}_{info[5]}")
+    ids = set()
+    for d in itens.values():
+        ids.add(id_item(tier, d[0], encanto))
+        for r in ids_recurso_variantes(tier, d[1], encanto): ids.add(r)
+        if d[3]:
+            for r in ids_recurso_variantes(tier, d[3], encanto): ids.add(r)
+        if d[5]: ids.add(f"T{tier}_{d[5]}")
 
     try:
-        # Puxa tudo da API de uma vez
-        url = f"{API_URL}{','.join(ids_requisicao)}?locations={','.join(CIDADES)}&qualities=1,2,3"
-        dados_api = requests.get(url, timeout=25).json()
+        response = requests.get(f"{API_URL}{','.join(ids)}?locations={','.join(CIDADES)}", timeout=20)
+        data = response.json()
     except:
-        st.error("Falha na API. Tente novamente em instantes.")
+        st.error("Erro ao conectar com a API.")
         st.stop()
 
-    # Dicionários de Preços
-    precos_brutos = {}
-    
-    for p in dados_api:
-        pid = p["item_id"]
-        cid = p["city"]
-        # Pega o melhor preço (Compra se for BM, Venda se for Cidade)
-        p_venda = p["buy_price_max"] if cid == "Black Market" else p["sell_price_min"]
-        
-        if p_venda > 0:
-            if pid not in precos_brutos or p_venda > precos_brutos[pid]["price"]:
-                data_v = p["buy_price_max_date"] if cid == "Black Market" else p["sell_price_min_date"]
-                precos_brutos[pid] = {"price": p_venda, "city": cid, "date": data_v}
+    precos_itens = {}
+    precos_recursos = {}
 
-    # Loop de Cálculo de Lucro
-    final_list = []
-    for nome, d in itens_para_escanear.items():
-        id_final = f"T{tier}_{d[0]}{'@'+str(encanto) if encanto > 0 else ''}"
+    for p in data:
+        pid = p["item_id"]
+        if p["city"] == "Black Market":
+            price = p["buy_price_max"]
+            if price > 0:
+                horas = calcular_horas(p["buy_price_max_date"])
+                if pid not in precos_itens or price > precos_itens[pid]["price"]:
+                    precos_itens[pid] = {"price": price, "horas": horas}
+        else:
+            price = p["sell_price_min"]
+            if price > 0:
+                horas = calcular_horas(p["sell_price_min_date"])
+                if pid not in precos_recursos or price < precos_recursos[pid]["price"]:
+                    precos_recursos[pid] = {"price": price, "city": p["city"], "horas": horas}
+
+    resultados = []
+    for nome, d in itens.items():
+        item_id = id_item(tier, d[0], encanto)
+        if item_id not in precos_itens: continue
+
+        custo = 0
+        detalhes = []
+        valid_craft = True
+
+        for recurso, qtd in [(d[1], d[2]), (d[3], d[4])]:
+            if not recurso: continue
+            found = False
+            for rid in ids_recurso_variantes(tier, recurso, encanto):
+                if rid in precos_recursos:
+                    info = precos_recursos[rid]
+                    custo += info["price"] * qtd * quantidade
+                    detalhes.append(f"{qtd * quantidade}x {recurso}: {info['price']:,} ({info['city']})")
+                    found = True
+                    break
+            if not found:
+                valid_craft = False
+                break
         
-        if id_final not in precos_brutos: continue
-        
-        custo_materiais = 0
-        falta_dado = False
-        
-        # Calcular custo de cada recurso
-        for rec_nome, qtd in [(d[1], d[2]), (d[3], d[4])]:
-            if not rec_nome or qtd == 0: continue
-            cod = RECURSO_MAP[rec_nome]
-            
-            # Busca o preço do recurso (encantado ou plano)
-            r_id = f"T{tier}_{cod}{'@'+str(encanto) if encanto > 0 else ''}"
-            r_id_alt = f"T{tier}_{cod}"
-            
-            p_rec = precos_brutos.get(r_id) or precos_brutos.get(r_id_alt)
-            
-            if p_rec:
-                custo_materiais += p_rec["price"] * qtd * quantidade
-            else:
-                falta_dado = True; break
-        
-        if falta_dado: continue
-        
-        # Artefato
+        if not valid_craft: continue
+
         if d[5]:
-            art_id = f"T{tier}_{d[5]}"
-            if art_id in precos_brutos:
-                custo_materiais += precos_brutos[art_id]["price"] * d[6] * quantidade
+            art = f"T{tier}_{d[5]}"
+            if art in precos_recursos:
+                custo += precos_recursos[art]["price"] * d[6] * quantidade
+                detalhes.append(f"Artefato: {precos_recursos[art]['price']:,} ({precos_recursos[art]['city']})")
             else: continue
 
-        # Resultado Final
-        venda_info = precos_brutos[id_final]
-        total_venda = venda_info["price"] * quantidade
-        lucro_real = int((total_venda * 0.935) - custo_materiais)
-        
-        if lucro_real > 0:
-            # --- TRAVA DE SEGURANÇA PARA CIDADES REAIS ---
-            # Se não for no Black Market e o lucro for maior que 40%, 
-            # é provável que o preço esteja inflado ou sem estoque.
-            if venda_info["city"] != "Black Market" and (lucro_real/custo_materiais)*100 > 40:
-                continue 
-            
-            final_list.append({
-                "n": nome, "l": lucro_real, "p": (lucro_real/custo_materiais)*100,
-                "v": total_venda, "c": custo_materiais, "cid": venda_info["city"],
-                "h": calcular_horas(venda_info["date"])
-            })
+        custo_final = int(custo * 0.752)
+        venda = precos_itens[item_id]["price"] * quantidade
+        lucro = int((venda * 0.935) - custo_final)
 
-    # Exibição (Mesmo estilo que você já usa)
-    if not final_list:
-        st.warning(f"Sem dados de lucro para {categoria} T{tier}.{encanto} no momento.")
+        if lucro > 0:
+            resultados.append((nome, lucro, venda, custo_final, detalhes, precos_itens[item_id]["horas"]))
+
+    resultados.sort(key=lambda x: x[1], reverse=True)
+
+    if not resultados:
+        st.warning("❌ Nenhum lucro encontrado para os filtros atuais.")
     else:
-        final_list.sort(key=lambda x: x["l"], reverse=True)
-        for r in final_list[:15]:
-            st.success(f"**{r['n']}** | Lucro: {r['l']:,} ({r['p']:.1f}%) | Destino: {r['cid']}")
+        st.subheader(f"📊 Resultados para {categoria.upper()} T{tier}.{encanto}")
+        
+        for nome, lucro, venda, custo, detalhes, h_venda in resultados[:20]:
+            perc_lucro = (lucro / custo) * 100 if custo > 0 else 0
+            cidade_foco = identificar_cidade_bonus(nome)
+
+            st.markdown(f"""
+            <div class="item-card-custom">
+                <div style="font-weight: bold; font-size: 1.2rem; margin-bottom: 10px; color: #2ecc71;">
+                    ⚔️ {nome} [T{tier}.{encanto}] x{quantidade}
+                </div>
+                <div style="font-size: 1.05rem; margin-bottom: 8px;">
+                    <span style="color: #2ecc71; font-weight: bold; font-size: 1.2rem;">💰 Lucro: {lucro:,} ({perc_lucro:.2f}%)</span> 
+                    <br><b>Investimento:</b> {custo:,} | <b>Venda BM:</b> {venda:,}
+                </div>
+                <div style="font-size: 0.95rem; color: #cbd5e1; margin-bottom: 10px;">
+                    📍 <b>Foco Craft:</b> {cidade_foco} | 🕒 <b>Atualizado:</b> {h_venda}h atrás
+                </div>
+                <div style="background: rgba(0,0,0,0.4); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); font-size: 0.9rem;">
+                    📦 <b>Detalhamento de Compras:</b> <br> {" | ".join(detalhes)}
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
 st.markdown("---")
 st.caption("Radar Craft Albion - Desenvolvido para análise de mercado via Albion Online Data Project")
