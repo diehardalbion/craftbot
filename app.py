@@ -4,59 +4,63 @@ import json
 from datetime import datetime, timezone
 
 # ================= CONFIGURAÇÃO DA PÁGINA =================
-st.set_page_config("Radar Craft Albion", layout="wide", page_icon="⚔️")
+st.set_page_config(page_title="Radar Craft Albion", layout="wide", page_icon="⚔️")
 
 # ================= CUSTOM CSS (VISUAL) =================
 st.markdown("""
 <style>
-    /* REMOVER FAIXA BRANCA DO TOPO */
+    /* REMOVER FAIXA BRANCA E AJUSTAR PADDING */
     header {visibility: hidden;}
     .main .block-container {
-        padding-top: 0rem;
-        padding-bottom: 0rem;
+        padding-top: 2rem;
+        padding-bottom: 2rem;
     }
 
     /* FUNDO DA APLICAÇÃO */
     .stApp {
-        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)), 
-                    url("https://i.imgur.com/kVAiMjD.png"); /* <--- SEU LINK ATUAL */
+        background: linear-gradient(rgba(10, 10, 15, 0.85), rgba(10, 10, 15, 0.95)), 
+                    url("https://i.imgur.com/kVAiMjD.png");
         background-size: cover;
         background-attachment: fixed;
     }
 
     /* BARRA LATERAL */
     [data-testid="stSidebar"] {
-        background-color: rgba(15, 17, 23, 0.95) !important;
-        border-right: 1px solid #3e4149;
+        background-color: rgba(20, 23, 33, 0.98) !important;
+        border-right: 1px solid #2ecc71;
     }
 
-    /* TÍTULOS E TEXTOS */
-    h1, h2, h3, label, .stMarkdown {
-        color: #ffffff !important;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-
-    /* CARD DE RESULTADO PERSONALIZADO */
+    /* CARD DE RESULTADO MELHORADO */
     .item-card-custom { 
-        background-color: rgba(255, 255, 255, 0.05) !important;
-        backdrop-filter: blur(12px);
+        background-color: rgba(30, 34, 45, 0.7) !important;
+        backdrop-filter: blur(10px);
         border-radius: 12px; 
-        padding: 20px; 
-        margin-bottom: 20px; 
-        border: 1px solid rgba(46, 204, 113, 0.2);
-        border-left: 8px solid #2ecc71;
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-        color: white !important;
+        padding: 22px; 
+        margin-bottom: 18px; 
+        border: 1px solid rgba(46, 204, 113, 0.3);
+        border-left: 6px solid #2ecc71;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        transition: transform 0.2s;
+    }
+    .item-card-custom:hover {
+        transform: translateY(-2px);
+        border-color: #2ecc71;
     }
 
-    /* INPUTS E BOTÕES */
+    /* BOTÕES */
     .stButton>button {
         width: 100%;
         background-color: #2ecc71 !important;
         color: white !important;
         font-weight: bold;
+        border-radius: 8px;
         border: none;
-        padding: 0.5rem;
+        padding: 0.6rem;
+        transition: 0.3s;
+    }
+    .stButton>button:hover {
+        background-color: #27ae60 !important;
+        box-shadow: 0 0 15px rgba(46, 204, 113, 0.4);
     }
 </style>
 """, unsafe_allow_html=True)
@@ -79,19 +83,20 @@ def verificar_chave(chave_usuario):
             
             return True, dados["cliente"]
         return False, "Chave inválida."
+    except FileNotFoundError:
+        return False, "Arquivo de chaves não encontrado."
     except Exception as e:
-        return False, f"Erro ao acessar keys.json: {e}"
+        return False, f"Erro: {e}"
 
 if "autenticado" not in st.session_state:
     st.session_state.autenticado = False
 
 if not st.session_state.autenticado:
     st.title("🛡️ Radar Craft - Acesso Restrito")
-    
     col1, col2 = st.columns([1, 1])
 
     with col1:
-        st.markdown("### Já possui acesso?")
+        st.markdown("### 🔑 Acesso")
         key_input = st.text_input("Insira sua Chave:", type="password")
         if st.button("LIBERAR ACESSO"):
             sucesso, mensagem = verificar_chave(key_input)
@@ -103,39 +108,35 @@ if not st.session_state.autenticado:
                 st.error(mensagem)
 
     with col2:
-        st.markdown("### Adquirir Nova Chave")
-        st.write("Tenha acesso a todas as rotas de lucro do Albion Online por um preço acessível.")
-        
-        # CARD DE PREÇO
-        st.markdown("""
-        <div style="background: rgba(46, 204, 113, 0.1); padding: 20px; border-radius: 10px; border: 1px solid #2ecc71; text-align: center;">
+        st.markdown("### 💎 Adquirir Acesso")
+        st.markdown(f"""
+        <div style="background: rgba(46, 204, 113, 0.1); padding: 25px; border-radius: 12px; border: 1px solid #2ecc71; text-align: center;">
             <h2 style="margin:0; color: #2ecc71;">R$ 15,00</h2>
-            <p style="color: white;">Acesso Mensal (30 dias)</p>
+            <p style="color: white; font-size: 1.1rem;">Acesso Mensal (30 dias)</p>
             <a href="https://wa.me/5521983042557?text=Olá! Gostaria de comprar uma key para o Radar Craft Albion." target="_blank" style="text-decoration: none;">
-                <div style="background-color: #25d366; color: white; padding: 12px; border-radius: 5px; font-weight: bold; margin-top: 10px;">
+                <div style="background-color: #25d366; color: white; padding: 14px; border-radius: 8px; font-weight: bold; margin-top: 15px;">
                     🟢 COMPRAR VIA WHATSAPP
                 </div>
             </a>
         </div>
         """, unsafe_allow_html=True)
-
     st.stop()
 
 # ================= CONFIG DE DADOS =================
 API_URL = "https://west.albion-online-data.com/api/v2/stats/prices/"
 CIDADES = ["Martlock", "Thetford", "FortSterling", "Lymhurst", "Bridgewatch", "Brecilien", "Caerleon", "Black Market"]
 RECURSO_MAP = {"Tecido Fino": "CLOTH", "Couro Trabalhado": "LEATHER", "Barra de Aço": "METALBAR", "Tábuas de Pinho": "PLANKS"}
+
 BONUS_CIDADE = {
-    "Martlock": ["AXE", "QUARTERSTAFF", "FROSTSTAFF", "SHOES_PLATE", "OFF_"],
-    "Bridgewatch": ["CROSSBOW", "DAGGER", "CURSEDSTAFF", "ARMOR_PLATE", "SHOES_CLOTH"],
-    "Lymhurst": ["SWORD", "BOW", "ARCANESTAFF", "HEAD_LEATHER", "SHOES_LEATHER"],
-    "Fort Sterling": ["HAMMER", "SPEAR", "HOLYSTAFF", "HEAD_PLATE", "ARMOR_CLOTH"],
-    "Thetford": ["MACE", "NATURESTAFF", "FIRESTAFF", "ARMOR_LEATHER", "HEAD_CLOTH"],
+    "Martlock": ["AXE", "QUARTERSTAFF", "FROSTSTAFF", "SHOES_PLATE"],
+    "Bridgewatch": ["CROSSBOW", "DAGGER", "CURSEDSTAFF", "ARMOR_PLATE"],
+    "Lymhurst": ["SWORD", "BOW", "ARCANESTAFF", "HEAD_LEATHER"],
+    "Fort Sterling": ["HAMMER", "SPEAR", "HOLYSTAFF", "HEAD_PLATE"],
+    "Thetford": ["MACE", "NATURESTAFF", "FIRESTAFF", "ARMOR_LEATHER"],
     "Caerleon": ["KNUCKLES", "SHAPESHIFTER"],
-    "Brecilien": ["CAPE", "BAG"]
 }
 
-# ================= ITENS_DB =================
+# (O dicionário ITENS_DB permanece igual ao seu, por ser a base de dados do jogo)
 ITENS_DB = {
     # --- OFF-HANDS E TOCHAS ---
     "TOMO DE FEITIÇOS": ["OFF_BOOK", "Tecido Fino", 4, "Couro Trabalhado", 4, None, 0],
@@ -338,7 +339,6 @@ ITENS_DB = {
     "ARCHA FRATURADA": ["2H_SPEAR_CRYSTAL", "Tábuas de Pinho", 12, "Barra de Aço", 20, "QUESTITEM_TOKEN_CRYSTAL_SPEAR", 1]
 }
 
-# ================= FILTROS =================
 FILTROS = {
     "armadura_placa": lambda k, v: "ARMOR_PLATE" in v[0],
     "armadura_couro": lambda k, v: "ARMOR_LEATHER" in v[0],
@@ -353,12 +353,11 @@ FILTROS = {
     "secundarias": lambda k, v: v[0].startswith("OFF_"),
 }
 
-# ================= FUNÇÕES =================
+# ================= FUNÇÕES AUXILIARES =================
 def calcular_horas(data_iso):
     try:
         data_api = datetime.fromisoformat(data_iso.replace("Z", "+00:00"))
-        data_agora = datetime.now(timezone.utc)
-        diff = data_agora.replace(tzinfo=None) - data_api.replace(tzinfo=None)
+        diff = datetime.now(timezone.utc) - data_api
         return int(diff.total_seconds() / 3600)
     except: return 999
 
@@ -366,138 +365,145 @@ def id_item(tier, base, enc):
     return f"T{tier}_{base}@{enc}" if enc > 0 else f"T{tier}_{base}"
 
 def ids_recurso_variantes(tier, nome, enc):
+    if not nome: return []
     base = f"T{tier}_{RECURSO_MAP[nome]}"
-    if enc > 0: return [f"{base}@{enc}", f"{base}_LEVEL{enc}@{enc}"]
-    return [base]
+    return [f"{base}@{enc}", f"{base}_LEVEL{enc}@{enc}"] if enc > 0 else [base]
 
 def identificar_cidade_bonus(nome_item):
-    for cidade, sufixos in BONUS_CIDADE.items():
-        for s in sufixos:
-            if s in ITENS_DB[nome_item][0]:
-                return f"{cidade}"
+    item_cod = ITENS_DB[nome_item][0]
+    for cidade, tags in BONUS_CIDADE.items():
+        if any(tag in item_cod for tag in tags):
+            return cidade
     return "Caerleon"
 
 # ================= INTERFACE SIDEBAR =================
 with st.sidebar:
-    st.markdown("### ⚙️ Configurações")
-    categoria = st.selectbox("Categoria", list(FILTROS.keys()))
-    tier = st.number_input("Tier", 4, 8, 4)
-    encanto = st.number_input("Encanto", 0, 4, 0)
-    quantidade = st.number_input("Quantidade", 1, 999, 1)
+    st.image("https://i.imgur.com/kVAiMjD.png", width=100)
+    st.markdown(f"**Usuário:** {st.session_state.get('cliente', 'Visitante')}")
     st.markdown("---")
-    btn = st.button("🚀 ESCANEAR MERCADO")
+    categoria = st.selectbox("Categoria de Item", list(FILTROS.keys()))
+    tier = st.slider("Tier do Item", 4, 8, 4)
+    encanto = st.slider("Encantamento", 0, 4, 0)
+    quantidade = st.number_input("Qtd. para Craft", 1, 999, 10)
+    st.markdown("---")
+    btn = st.button("🚀 ESCANEAR OPORTUNIDADES")
 
-st.title("⚔️ Radar Craft — Royal Cities + Black Market")
-
-# ================= EXECUÇÃO =================
+# ================= EXECUÇÃO DO SCAN =================
 if btn:
-    filtro = FILTROS[categoria]
-    itens = {k: v for k, v in ITENS_DB.items() if filtro(k, v)}
+    with st.spinner('Consultando Albion Data Project...'):
+        filtro_fn = FILTROS[categoria]
+        itens_filtrados = {k: v for k, v in ITENS_DB.items() if filtro_fn(k, v)}
 
-    if not itens:
-        st.error("Nenhum item encontrado.")
-        st.stop()
+        if not itens_filtrados:
+            st.warning("Nenhum item cadastrado nesta categoria.")
+            st.stop()
 
-    ids = set()
-    for d in itens.values():
-        ids.add(id_item(tier, d[0], encanto))
-        for r in ids_recurso_variantes(tier, d[1], encanto): ids.add(r)
-        if d[3]:
-            for r in ids_recurso_variantes(tier, d[3], encanto): ids.add(r)
-        if d[5]: ids.add(f"T{tier}_{d[5]}")
+        # Coleta de IDs para a API
+        todos_ids = set()
+        for d in itens_filtrados.values():
+            todos_ids.add(id_item(tier, d[0], encanto))
+            for r in ids_recurso_variantes(tier, d[1], encanto): todos_ids.add(r)
+            if d[3]:
+                for r in ids_recurso_variantes(tier, d[3], encanto): todos_ids.add(r)
+            if d[5]: todos_ids.add(f"T{tier}_{d[5]}")
 
-    try:
-        response = requests.get(f"{API_URL}{','.join(ids)}?locations={','.join(CIDADES)}", timeout=20)
-        data = response.json()
-    except:
-        st.error("Erro ao conectar com a API.")
-        st.stop()
+        try:
+            url = f"{API_URL}{','.join(todos_ids)}?locations={','.join(CIDADES)}"
+            data = requests.get(url, timeout=15).json()
+        except Exception:
+            st.error("Falha na conexão com a API de dados.")
+            st.stop()
 
-    precos_itens = {}
-    precos_recursos = {}
+        # Processamento de Preços
+        precos_venda = {} # Black Market
+        precos_compra = {} # Royal Cities
 
-    for p in data:
-        pid = p["item_id"]
-        if p["city"] == "Black Market":
-            price = p["buy_price_max"]
-            if price > 0:
-                horas = calcular_horas(p["buy_price_max_date"])
-                if pid not in precos_itens or price > precos_itens[pid]["price"]:
-                    precos_itens[pid] = {"price": price, "horas": horas}
+        for p in data:
+            pid, cidade, preco = p["item_id"], p["city"], p["buy_price_max"] if p["city"] == "Black Market" else p["sell_price_min"]
+            if preco <= 0: continue
+            
+            data_preco = p["buy_price_max_date"] if cidade == "Black Market" else p["sell_price_min_date"]
+            h = calcular_horas(data_preco)
+
+            if cidade == "Black Market":
+                if pid not in precos_venda or preco > precos_venda[pid]["price"]:
+                    precos_venda[pid] = {"price": preco, "horas": h}
+            else:
+                if pid not in precos_compra or preco < precos_compra[pid]["price"]:
+                    precos_compra[pid] = {"price": preco, "city": cidade, "horas": h}
+
+        # Cálculo de Lucro
+        resultados = []
+        for nome, d in itens_filtrados.items():
+            item_id = id_item(tier, d[0], encanto)
+            if item_id not in precos_venda: continue
+
+            custo_total = 0
+            detalhes = []
+            erro_recurso = False
+
+            # Validar e somar recursos
+            for recurso_nome, qtd in [(d[1], d[2]), (d[3], d[4])]:
+                if not recurso_nome: continue
+                r_ids = ids_recurso_variantes(tier, recurso_nome, encanto)
+                melhor_preco = min([precos_compra[rid]["price"] for rid in r_ids if rid in precos_compra] or [0])
+                
+                if melhor_preco > 0:
+                    custo_total += melhor_preco * qtd * quantidade
+                    cidade_r = next(precos_compra[rid]["city"] for rid in r_ids if rid in precos_compra)
+                    detalhes.append(f"{qtd*quantidade}x {recurso_nome} ({cidade_r})")
+                else:
+                    erro_recurso = True; break
+            
+            if erro_recurso: continue
+
+            # Adicionar Artefato se houver
+            if d[5]:
+                art_id = f"T{tier}_{d[5]}"
+                if art_id in precos_compra:
+                    custo_total += precos_compra[art_id]["price"] * d[6] * quantidade
+                    detalhes.append(f"Artefato ({precos_compra[art_id]['city']})")
+                else: continue
+
+            # Cálculos Finais (Taxa de 8% BM + Taxa Craft Aproximada)
+            investimento = int(custo_total)
+            venda_bruta = precos_venda[item_id]["price"] * quantidade
+            receita_liquida = int(venda_bruta * 0.92) # -8% Taxa BM
+            lucro = receita_liquida - investimento
+
+            if lucro > 0:
+                resultados.append({
+                    "nome": nome, "lucro": lucro, "venda": venda_bruta, 
+                    "custo": investimento, "detalhes": detalhes, 
+                    "horas": precos_venda[item_id]["horas"],
+                    "perc": (lucro/investimento)*100
+                })
+
+        # Mostrar Resultados
+        if not resultados:
+            st.info("Nenhuma rota lucrativa encontrada para este Tier/Encanto no momento.")
         else:
-            price = p["sell_price_min"]
-            if price > 0:
-                horas = calcular_horas(p["sell_price_min_date"])
-                if pid not in precos_recursos or price < precos_recursos[pid]["price"]:
-                    precos_recursos[pid] = {"price": price, "city": p["city"], "horas": horas}
-
-    resultados = []
-    for nome, d in itens.items():
-        item_id = id_item(tier, d[0], encanto)
-        if item_id not in precos_itens: continue
-
-        custo = 0
-        detalhes = []
-        valid_craft = True
-
-        for recurso, qtd in [(d[1], d[2]), (d[3], d[4])]:
-            if not recurso: continue
-            found = False
-            for rid in ids_recurso_variantes(tier, recurso, encanto):
-                if rid in precos_recursos:
-                    info = precos_recursos[rid]
-                    custo += info["price"] * qtd * quantidade
-                    detalhes.append(f"{qtd * quantidade}x {recurso}: {info['price']:,} ({info['city']})")
-                    found = True
-                    break
-            if not found:
-                valid_craft = False
-                break
-        
-        if not valid_craft: continue
-
-        if d[5]:
-            art = f"T{tier}_{d[5]}"
-            if art in precos_recursos:
-                custo += precos_recursos[art]["price"] * d[6] * quantidade
-                detalhes.append(f"Artefato: {precos_recursos[art]['price']:,} ({precos_recursos[art]['city']})")
-            else: continue
-
-        custo_final = int(custo * 0.752)
-        venda = precos_itens[item_id]["price"] * quantidade
-        lucro = int((venda * 0.935) - custo_final)
-
-        if lucro > 0:
-            resultados.append((nome, lucro, venda, custo_final, detalhes, precos_itens[item_id]["horas"]))
-
-    resultados.sort(key=lambda x: x[1], reverse=True)
-
-    if not resultados:
-        st.warning("❌ Nenhum lucro encontrado para os filtros atuais.")
-    else:
-        st.subheader(f"📊 Resultados para {categoria.upper()} T{tier}.{encanto}")
-        
-        for nome, lucro, venda, custo, detalhes, h_venda in resultados[:20]:
-            perc_lucro = (lucro / custo) * 100 if custo > 0 else 0
-            cidade_foco = identificar_cidade_bonus(nome)
-
-            st.markdown(f"""
-            <div class="item-card-custom">
-                <div style="font-weight: bold; font-size: 1.2rem; margin-bottom: 10px; color: #2ecc71;">
-                    ⚔️ {nome} [T{tier}.{encanto}] x{quantidade}
-                </div>
-                <div style="font-size: 1.05rem; margin-bottom: 8px;">
-                    <span style="color: #2ecc71; font-weight: bold; font-size: 1.2rem;">💰 Lucro: {lucro:,} ({perc_lucro:.2f}%)</span> 
-                    <br><b>Investimento:</b> {custo:,} | <b>Venda BM:</b> {venda:,}
-                </div>
-                <div style="font-size: 0.95rem; color: #cbd5e1; margin-bottom: 10px;">
-                    📍 <b>Foco Craft:</b> {cidade_foco} | 🕒 <b>Atualizado:</b> {h_venda}h atrás
-                </div>
-                <div style="background: rgba(0,0,0,0.4); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); font-size: 0.9rem;">
-                    📦 <b>Detalhamento de Compras:</b> <br> {" | ".join(detalhes)}
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
+            resultados.sort(key=lambda x: x["lucro"], reverse=True)
+            st.subheader(f"📊 Melhores Oportunidades: {categoria}")
+            
+            for res in resultados[:15]:
+                with st.container():
+                    st.markdown(f"""
+                    <div class="item-card-custom">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="font-size: 1.3rem; font-weight: bold; color: #fff;">⚔️ {res['nome']} <small>[T{tier}.{encanto}]</small></span>
+                            <span style="color: #2ecc71; font-weight: bold; font-size: 1.4rem;">+ {res['lucro']:,} silver</span>
+                        </div>
+                        <div style="margin: 10px 0; color: #bdc3c7;">
+                            <b>Rentabilidade:</b> {res['perc']:.1f}% | <b>Venda no BM:</b> {res['venda']:,} <br>
+                            <b>Investimento:</b> {res['custo']:,} | <b>Cidade Bônus:</b> {identificar_cidade_bonus(res['nome'])}
+                        </div>
+                        <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; font-size: 0.85rem;">
+                            📦 <b>Materiais:</b> {" | ".join(res['detalhes'])} <br>
+                            🕒 <b>Preço atualizado há:</b> {res['horas']}h
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
 
 st.markdown("---")
-st.caption("Radar Craft Albion - Desenvolvido para análise de mercado via Albion Online Data Project")
+st.caption("Radar Craft Albion v2.0 - Dados providos pelo Albion Online Data Project")
