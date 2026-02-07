@@ -6,124 +6,55 @@ from datetime import datetime, timezone
 # ================= CONFIGURAÇÃO DA PÁGINA =================
 st.set_page_config("Radar Craft Albion", layout="wide", page_icon="⚔️")
 
-# ================= CUSTOM CSS (VISUAL) =================
+# ================= CUSTOM CSS =================
 st.markdown("""
 <style>
-    /* REMOVER FAIXA BRANCA DO TOPO */
-    header {visibility: hidden;}
-    .main .block-container {
-        padding-top: 0rem;
-        padding-bottom: 0rem;
-    }
-
-    /* FUNDO DA APLICAÇÃO */
-    .stApp {
-        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)), 
-                    url("https://i.imgur.com/kVAiMjD.png"); /* <--- SEU LINK ATUAL */
-        background-size: cover;
-        background-attachment: fixed;
-    }
-
-    /* BARRA LATERAL */
-    [data-testid="stSidebar"] {
-        background-color: rgba(15, 17, 23, 0.95) !important;
-        border-right: 1px solid #3e4149;
-    }
-
-    /* TÍTULOS E TEXTOS */
-    h1, h2, h3, label, .stMarkdown {
-        color: #ffffff !important;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-
-    /* CARD DE RESULTADO PERSONALIZADO */
-    .item-card-custom { 
-        background-color: rgba(255, 255, 255, 0.05) !important;
-        backdrop-filter: blur(12px);
-        border-radius: 12px; 
-        padding: 20px; 
-        margin-bottom: 20px; 
-        border: 1px solid rgba(46, 204, 113, 0.2);
-        border-left: 8px solid #2ecc71;
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-        color: white !important;
-    }
-
-    /* INPUTS E BOTÕES */
-    .stButton>button {
-        width: 100%;
-        background-color: #2ecc71 !important;
-        color: white !important;
-        font-weight: bold;
-        border: none;
-        padding: 0.5rem;
-    }
+header {visibility: hidden;}
+.main .block-container {padding-top: 0rem;}
+.stApp {
+    background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.8)),
+    url("https://i.imgur.com/kVAiMjD.png");
+    background-size: cover;
+    background-attachment: fixed;
+}
 </style>
 """, unsafe_allow_html=True)
 
-# ================= SISTEMA DE LOGIN / KEYS =================
+# ================= LOGIN =================
 def verificar_chave(chave_usuario):
     try:
         with open("keys.json", "r") as f:
             keys_db = json.load(f)
-        
         if chave_usuario in keys_db:
             dados = keys_db[chave_usuario]
             if not dados["ativa"]:
-                return False, "Esta chave foi desativada."
-            
+                return False, "Chave desativada"
             if dados["expira"] != "null":
-                data_expira = datetime.strptime(dados["expira"], "%Y-%m-%d").date()
-                if datetime.now().date() > data_expira:
-                    return False, "Esta chave expirou."
-            
+                if datetime.now().date() > datetime.strptime(dados["expira"], "%Y-%m-%d").date():
+                    return False, "Chave expirada"
             return True, dados["cliente"]
-        return False, "Chave inválida."
+        return False, "Chave inválida"
     except Exception as e:
-        return False, f"Erro ao acessar keys.json: {e}"
+        return False, str(e)
 
 if "autenticado" not in st.session_state:
     st.session_state.autenticado = False
 
 if not st.session_state.autenticado:
-    st.title("🛡️ Radar Craft - Acesso Restrito")
-    
-    col1, col2 = st.columns([1, 1])
-
-    with col1:
-        st.markdown("### Já possui acesso?")
-        key_input = st.text_input("Insira sua Chave:", type="password")
-        if st.button("LIBERAR ACESSO"):
-            sucesso, mensagem = verificar_chave(key_input)
-            if sucesso:
-                st.session_state.autenticado = True
-                st.session_state.cliente = mensagem
-                st.rerun()
-            else:
-                st.error(mensagem)
-
-    with col2:
-        st.markdown("### Adquirir Nova Chave")
-        st.write("Tenha acesso a todas as rotas de lucro do Albion Online por um preço acessível.")
-        
-        # CARD DE PREÇO
-        st.markdown("""
-        <div style="background: rgba(46, 204, 113, 0.1); padding: 20px; border-radius: 10px; border: 1px solid #2ecc71; text-align: center;">
-            <h2 style="margin:0; color: #2ecc71;">R$ 15,00</h2>
-            <p style="color: white;">Acesso Mensal (30 dias)</p>
-            <a href="https://wa.me/5521983042557?text=Olá! Gostaria de comprar uma key para o Radar Craft Albion." target="_blank" style="text-decoration: none;">
-                <div style="background-color: #25d366; color: white; padding: 12px; border-radius: 5px; font-weight: bold; margin-top: 10px;">
-                    🟢 COMPRAR VIA WHATSAPP
-                </div>
-            </a>
-        </div>
-        """, unsafe_allow_html=True)
-
+    key = st.text_input("Chave", type="password")
+    if st.button("Entrar"):
+        ok, msg = verificar_chave(key)
+        if ok:
+            st.session_state.autenticado = True
+            st.rerun()
+        else:
+            st.error(msg)
     st.stop()
 
 # ================= CONFIG DE DADOS =================
-API_URL = "https://west.albion-online-data.com/api/v2/stats/history/"
-CIDADES = ["Martlock", "Thetford", "FortSterling", "Lymhurst", "Bridgewatch", "Brecilien", "Caerleon", "Black Market"]
+API_PRICE = "https://west.albion-online-data.com/api/v2/stats/prices/"
+API_HIST = "https://west.albion-online-data.com/api/v2/stats/history/"
+CIDADES = ["Martlock","Thetford","FortSterling","Lymhurst","Bridgewatch","Brecilien","Caerleon","Black Market"]
 RECURSO_MAP = {"Tecido Fino": "CLOTH", "Couro Trabalhado": "LEATHER", "Barra de Aço": "METALBAR", "Tábuas de Pinho": "PLANKS"}
 BONUS_CIDADE = {
     "Martlock": ["AXE", "QUARTERSTAFF", "FROSTSTAFF", "SHOES_PLATE", "OFF_"],
@@ -356,38 +287,86 @@ FILTROS = {
 # ================= FUNÇÕES =================
 def calcular_horas(data_iso):
     try:
-        data_api = datetime.fromisoformat(data_iso.replace("Z", "+00:00"))
-        data_agora = datetime.now(timezone.utc)
-        diff = data_agora.replace(tzinfo=None) - data_api.replace(tzinfo=None)
-        return int(diff.total_seconds() / 3600)
-    except: return 999
+        dt = datetime.fromisoformat(data_iso.replace("Z","+00:00"))
+        return int((datetime.now(timezone.utc)-dt).total_seconds()/3600)
+    except:
+        return 999
 
-def id_item(tier, base, enc):
-    return f"T{tier}_{base}@{enc}" if enc > 0 else f"T{tier}_{base}"
+def validar_bm_historico(item_id):
+    try:
+        r = requests.get(API_HIST, params={
+            "item_ids": item_id,
+            "locations": "Black Market",
+            "time-scale": 24
+        }, timeout=10)
+        data = r.json()
+        if not data or not data[0]["data"]:
+            return None
 
-def ids_recurso_variantes(tier, nome, enc):
-    base = f"T{tier}_{RECURSO_MAP[nome]}"
-    if enc > 0: return [f"{base}@{enc}", f"{base}_LEVEL{enc}@{enc}"]
-    return [base]
+        total = sum(d["item_count"] for d in data[0]["data"])
+        if total < 5:
+            return None
 
-def identificar_cidade_bonus(nome_item):
-    for cidade, sufixos in BONUS_CIDADE.items():
-        for s in sufixos:
-            if s in ITENS_DB[nome_item][0]:
-                return f"{cidade}"
-    return "Caerleon"
+        avg = sum(d["avg_price"]*d["item_count"] for d in data[0]["data"]) / total
+        return int(avg)
+    except:
+        return None
 
 # ================= INTERFACE SIDEBAR =================
-with st.sidebar:
-    st.markdown("### ⚙️ Configurações")
-    categoria = st.selectbox("Categoria", list(FILTROS.keys()))
-    tier = st.number_input("Tier", 4, 8, 4)
-    encanto = st.number_input("Encanto", 0, 4, 0)
-    quantidade = st.number_input("Quantidade", 1, 999, 1)
-    st.markdown("---")
-    btn = st.button("🚀 ESCANEAR MERCADO")
+categoria = st.selectbox("Categoria", list(FILTROS.keys()))
+tier = st.number_input("Tier", 4, 8, 4)
+encanto = st.number_input("Encanto", 0, 4, 0)
+quantidade = st.number_input("Quantidade", 1, 999, 1)
 
-st.title("⚔️ Radar Craft — Royal Cities + Black Market")
+if st.button("ESCANEAR"):
+    filtro = FILTROS[categoria]
+    itens = {k:v for k,v in ITENS_DB.items() if filtro(k,v)}
+
+    ids = set()
+    for d in itens.values():
+        ids.add(f"T{tier}_{d[0]}" + (f"@{encanto}" if encanto>0 else ""))
+
+    r = requests.get(API_PRICE + ",".join(ids), params={"locations": ",".join(CIDADES)}, timeout=20)
+    data = r.json()
+
+    precos_bm = {}
+    for p in data:
+        if p["city"] == "Black Market" and p["sell_price_min"] > 0:
+            hist_price = validar_bm_historico(p["item_id"])
+            if hist_price:
+                precos_bm[p["item_id"]] = hist_price
+
+    resultados = []
+    for nome,d in itens.items():
+        item_id = f"T{tier}_{d[0]}" + (f"@{encanto}" if encanto>0 else "")
+        if item_id not in precos_bm:
+            continue
+
+        venda = precos_bm[item_id] * quantidade
+        custo = 0
+        valido = True
+
+        for recurso,qtd in [(d[1],d[2]),(d[3],d[4])]:
+            if not recurso: continue
+            r_id = f"T{tier}_{RECURSO_MAP[recurso]}"
+            r_price = next((x["sell_price_min"] for x in data if x["item_id"]==r_id and x["sell_price_min"]>0), None)
+            if not r_price:
+                valido = False
+                break
+            custo += r_price*qtd*quantidade
+
+        if not valido:
+            continue
+
+        lucro = int(venda*0.935 - custo)
+        if lucro > 0:
+            resultados.append((nome,lucro,venda,custo))
+
+    if not resultados:
+        st.warning("❌ Nenhum lucro encontrado.")
+    else:
+        for n,l,v,c in sorted(resultados,key=lambda x:x[1],reverse=True)[:20]:
+            st.success(f"{n} | Lucro: {l:,} | Venda BM: {v:,} | Custo: {c:,}")
 
 # ================= EXECUÇÃO =================
 if btn:
