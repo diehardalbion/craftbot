@@ -416,20 +416,42 @@ if btn:
     precos_itens = {}
     precos_recursos = {}
 
-    for p in data:
-        pid = p["item_id"]
-        if p["city"] == "Black Market":
-            price = p["sell_price_min"]
-            if price > 0:
-                horas = calcular_horas(p["sell_price_min_date"])
-                if pid not in precos_itens or price > precos_itens[pid]["price"]:
-                    precos_itens[pid] = {"price": price, "horas": horas}
-        else:
-            price = p["sell_price_min"]
-            if price > 0:
-                horas = calcular_horas(p["sell_price_min_date"])
-                if pid not in precos_recursos or price < precos_recursos[pid]["price"]:
-                    precos_recursos[pid] = {"price": price, "city": p["city"], "horas": horas}
+for p in data:
+    pid = p.get("item_id")
+    city = p.get("city")
+
+    if not pid or not city:
+        continue
+
+    # ================= BLACK MARKET =================
+    if city == "Black Market":
+        price = p.get("buy_price_avg", 0)
+        date = p.get("buy_price_avg_date")
+
+        if price > 0 and date:
+            horas = calcular_horas(date)
+
+            if pid not in precos_itens or price > precos_itens[pid]["price"]:
+                precos_itens[pid] = {
+                    "price": price,
+                    "horas": horas
+                }
+
+    # ================= ROYAL CITIES =================
+    else:
+        price = p.get("sell_price_min", 0)
+        date = p.get("sell_price_min_date")
+
+        if price > 0 and date:
+            horas = calcular_horas(date)
+
+            if pid not in precos_recursos or price < precos_recursos[pid]["price"]:
+                precos_recursos[pid] = {
+                    "price": price,
+                    "city": city,
+                    "horas": horas
+                }
+
 
     resultados = []
     for nome, d in itens.items():
