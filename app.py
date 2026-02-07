@@ -436,6 +436,20 @@ if btn:
                     "horas": horas
                 }
 
+    # ================= ROYAL CITIES (COMPRA DE RECURSOS) =================
+    else:
+        price = p["sell_price_min"]
+
+        if price > 0:
+            horas = calcular_horas(p["sell_price_min_date"])
+
+            if pid not in precos_recursos or price < precos_recursos[pid]["price"]:
+                precos_recursos[pid] = {
+                    "price": price,
+                    "city": p["city"],
+                    "horas": horas
+                }
+
     resultados = []
     for nome, d in itens.items():
         item_id = id_item(tier, d[0], encanto)
