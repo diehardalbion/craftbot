@@ -407,7 +407,7 @@ if btn:
         if d[5]: ids.add(f"T{tier}_{d[5]}")
 
     try:
-        # ALTERADO: Adicionado &qualities=1 para filtrar apenas itens de qualidade Normal
+        response = requests.get(f"{API_URL}{','.join(ids)}?locations={','.join(CIDADES)}&qualities=1,2,3", timeout=20)
         response = requests.get(f"{API_URL}{','.join(ids)}?locations={','.join(CIDADES)}&qualities=1", timeout=20)
         data = response.json()
     except:
@@ -471,7 +471,7 @@ if btn:
         # --- LOGICA DE LIMPEZA DE DADOS IRREAIS ---
         perc_lucro = (lucro / custo_final) * 100 if custo_final > 0 else 0
         
-        # Filtro de segurança: Lucros acima de 100% no BM geralmente são erros de cache
+        # Se o lucro for maior que 100% no T6+, o script ignora (limpeza de cache/bug)
         if perc_lucro > 100 and tier >= 6:
             continue
 
