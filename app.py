@@ -437,7 +437,7 @@ if btn:
                 detalhes.append(f"Artefato: {precos_recursos[art]['price']:,} ({precos_recursos[art]['city']})")
             else: continue
 
-        custo_final = int(custo * 0.752)
+        custo_final = int(custo)
         venda_total = int(preco_venda_bm * quantidade)
         lucro = int((venda_total * 0.935) - custo_final) # 6.5% de taxa no BM (2.5% + 4% se não tiver premium)
 
