@@ -425,8 +425,8 @@ if btn:
 
         # ================= BLACK MARKET =================
         if city == "Black Market":
-            price = p.get("buy_price_avg", 0)
-            date = p.get("buy_price_avg_date")
+            price = p.get("sell_price_min", 0)
+            date = p.get("sell_price_min_date")
 
             if price > 0 and date:
                 horas = calcular_horas(date)
