@@ -388,133 +388,130 @@ with st.sidebar:
 
 st.title("⚔️ Radar Craft — Royal Cities + Black Market")
 
-# ================= EXECUÇÃO =================
+# ================= EXECUÇÃO (VERSÃO CORRIGIDA) =================
 if btn:
     filtro = FILTROS[categoria]
-    itens = {k: v for k, v in ITENS_DB.items() if filtro(k, v)}
+    itens_filtrados = {k: v for k, v in ITENS_DB.items() if filtro(k, v)}
 
-    if not itens:
-        st.error("Nenhum item encontrado.")
+    if not itens_filtrados:
+        st.error("Nenhum item encontrado na categoria.")
         st.stop()
 
-    ids = set()
-    for d in itens.values():
-        ids.add(id_item(tier, d[0], encanto))
-        for r in ids_recurso_variantes(tier, d[1], encanto): ids.add(r)
-        if d[3]:
-            for r in ids_recurso_variantes(tier, d[3], encanto): ids.add(r)
-        if d[5]: ids.add(f"T{tier}_{d[5]}")
+    # Gerar lista de IDs para chamar a API
+    ids_para_api = set()
+    for d in itens_filtrados.values():
+        ids_para_api.add(id_item(tier, d[0], encanto))
+        # Adiciona recursos base e encantados
+        ids_para_api.update(ids_recurso_variantes(tier, d[1], encanto))
+        if d[3]: ids_para_api.update(ids_recurso_variantes(tier, d[3], encanto))
+        if d[5]: ids_para_api.add(f"T{tier}_{d[5]}")
 
     try:
-        # Pega qualidades 1, 2 e 3 para ter mais dados, mas manter a trava de lucro contra bugs
-        response = requests.get(f"{API_URL}{','.join(ids)}?locations={','.join(CIDADES)}&qualities=1,2,3", timeout=20)
+        # Chamada com qualidades amplas para garantir que venha DADO
+        url_final = f"{API_URL}{','.join(ids_para_api)}?locations={','.join(CIDADES)}&qualities=1,2,3,4,5"
+        response = requests.get(url_final, timeout=20)
         data = response.json()
     except:
-        st.error("Erro ao conectar com a API.")
+        st.error("Erro de conexão. Verifique sua internet.")
         st.stop()
 
-    precos_venda = {} # Onde vamos guardar o melhor preço de cada item (Independente da cidade)
+    precos_venda = {}
     precos_recursos = {}
 
+    # PROCESSAMENTO DE DADOS (MAIS FLEXÍVEL)
     for p in data:
         pid = p["item_id"]
         cidade = p["city"]
         
-        # Pega o melhor preço disponível (venda ou compra dependendo do local)
-        # Se for BM, olhamos buy_price_max. Se for cidade, sell_price_min.
-        v_price = p["buy_price_max"] if cidade == "Black Market" else p["sell_price_min"]
-        v_date = p["buy_price_max_date"] if cidade == "Black Market" else p["sell_price_min_date"]
-
-        # Se o preço for 0, tentamos o preço alternativo (venda mínima no BM ou compra máxima na cidade)
-        if v_price == 0:
-            v_price = p["sell_price_min"] if cidade == "Black Market" else p["buy_price_max"]
-            v_date = p["sell_price_min_date"] if cidade == "Black Market" else p["buy_price_max_date"]
+        # Define preço de venda (BM foca em compra, Cidades focam em venda)
+        if cidade == "Black Market":
+            v_price = p["buy_price_max"] if p["buy_price_max"] > 0 else p["sell_price_min"]
+            v_date = p["buy_price_max_date"] if p["buy_price_max"] > 0 else p["sell_price_min_date"]
+        else:
+            v_price = p["sell_price_min"] if p["sell_price_min"] > 0 else p["buy_price_max"]
+            v_date = p["sell_price_min_date"] if p["sell_price_min"] > 0 else p["buy_price_max_date"]
 
         if v_price > 0:
             horas = calcular_horas(v_date)
-            # FILTRO DE RECURSOS E ARTEFATOS
+            # Se for ingrediente (Recurso ou Artefato)
             if any(x in pid for x in ["CLOTH", "LEATHER", "METALBAR", "PLANKS", "ARTEFACT", "QUESTITEM"]):
                 if pid not in precos_recursos or v_price < precos_recursos[pid]["price"]:
-                    precos_recursos[pid] = {"price": v_price, "city": cidade, "horas": horas}
+                    precos_recursos[pid] = {"price": v_price, "city": cidade}
             else:
-                # FILTRO DE ITENS PRONTOS
+                # Se for o equipamento pronto
                 if pid not in precos_venda or v_price > precos_venda[pid]["price"]:
                     precos_venda[pid] = {"price": v_price, "city": cidade, "horas": horas}
 
     resultados = []
-    for nome, d in itens.items():
+    for nome, d in itens_filtrados.items():
         item_id = id_item(tier, d[0], encanto)
-        if item_id not in precos_venda: continue
-
-        custo = 0
-        detalhes = []
-        valid_craft = True
-
-        for recurso, qtd in [(d[1], d[2]), (d[3], d[4])]:
-            if not recurso: continue
-            found = False
-            for rid in ids_recurso_variantes(tier, recurso, encanto):
-                if rid in precos_recursos:
-                    info = precos_recursos[rid]
-                    custo += info["price"] * qtd * quantidade
-                    detalhes.append(f"{qtd * quantidade}x {recurso}: {info['price']:,} ({info['city']})")
-                    found = True
-                    break
-            if not found:
-                valid_craft = False
-                break
         
-        if not valid_craft: continue
-
-        if d[5]:
-            art = f"T{tier}_{d[5]}"
-            if art in precos_recursos:
-                custo += precos_recursos[art]["price"] * d[6] * quantidade
-                detalhes.append(f"Artefato: {precos_recursos[art]['price']:,} ({precos_recursos[art]['city']})")
-            else: continue
-
-        custo_final = int(custo)
-        info_venda = precos_venda[item_id]
-        venda_bruta = info_venda["price"] * quantidade
-        cidade_venda = info_venda["city"]
-        
-        # Cálculo de lucro considerando a taxa (Caerleon/Reais = 6.5% com premium, BM = tbm 6.5%)
-        lucro = int((venda_bruta * 0.935) - custo_final)
-        perc_lucro = (lucro / custo_final) * 100 if custo_final > 0 else 0
-
-        # Trava de segurança para ignorar preços bugados (10 milhões etc) no BM ou Royal
-        if perc_lucro > 100 and tier >= 6:
+        # Se não tem preço de venda para o item, pula
+        if item_id not in precos_venda:
             continue
 
-        if lucro > 0:
-            resultados.append((nome, lucro, venda_bruta, custo_final, detalhes, info_venda["horas"], cidade_venda))
+        custo_total = 0
+        possui_recursos = True
+        detalhes_compra = []
 
-    resultados.sort(key=lambda x: x[1], reverse=True)
+        # Cálculo de Recursos 1 e 2
+        for rec_nome, qtd in [(d[1], d[2]), (d[3], d[4])]:
+            if not rec_nome or qtd == 0: continue
+            
+            melhor_preco_rec = None
+            for rid in ids_recurso_variantes(tier, rec_nome, encanto):
+                if rid in precos_recursos:
+                    p_rec = precos_recursos[rid]["price"]
+                    if melhor_preco_rec is None or p_rec < melhor_preco_rec:
+                        melhor_preco_rec = p_rec
+            
+            if melhor_preco_rec:
+                custo_total += melhor_preco_rec * qtd * quantidade
+                detalhes_compra.append(f"{qtd*quantidade}x {rec_nome}")
+            else:
+                possui_recursos = False; break
 
+        # Cálculo de Artefatos
+        if possui_recursos and d[5]:
+            art_id = f"T{tier}_{d[5]}"
+            if art_id in precos_recursos:
+                custo_total += precos_recursos[art_id]["price"] * d[6] * quantidade
+                detalhes_compra.append("Artefato")
+            else:
+                possui_recursos = False
+
+        if possui_recursos:
+            venda_info = precos_venda[item_id]
+            venda_total = venda_info["price"] * quantidade
+            # Lucro com taxa de 6.5%
+            lucro_liquido = int((venda_total * 0.935) - custo_total)
+            
+            # FILTRO DE SEGURANÇA (Se o lucro for ridículo de alto, acima de 500%, ignoramos erro de API)
+            perc = (lucro_liquido / custo_total) * 100 if custo_total > 0 else 0
+            if lucro_liquido > 0 and perc < 500:
+                resultados.append({
+                    "nome": nome,
+                    "lucro": lucro_liquido,
+                    "perc": perc,
+                    "venda": venda_total,
+                    "custo": custo_total,
+                    "cidade": venda_info["city"],
+                    "horas": venda_info["horas"],
+                    "detalhes": detalhes_compra
+                })
+
+    # EXIBIÇÃO
     if not resultados:
-        st.warning("❌ Nenhum lucro encontrado para os filtros atuais.")
+        st.warning("Nenhum item lucrativo encontrado. Tente outro Tier ou categoria.")
     else:
-        st.subheader(f"📊 Resultados para {categoria.upper()} T{tier}.{encanto}")
-        
-        for nome, lucro, venda, custo, detalhes, h_venda, cid_venda in resultados[:20]:
-            perc_lucro = (lucro / custo) * 100 if custo > 0 else 0
-            cidade_foco = identificar_cidade_bonus(nome)
-
+        resultados.sort(key=lambda x: x["lucro"], reverse=True)
+        for res in resultados[:15]:
             st.markdown(f"""
             <div class="item-card-custom">
-                <div style="font-weight: bold; font-size: 1.2rem; margin-bottom: 10px; color: #2ecc71;">
-                    ⚔️ {nome} [T{tier}.{encanto}] x{quantidade}
-                </div>
-                <div style="font-size: 1.05rem; margin-bottom: 8px;">
-                    <span style="color: #2ecc71; font-weight: bold; font-size: 1.2rem;">💰 Lucro: {lucro:,} ({perc_lucro:.2f}%)</span> 
-                    <br><b>Investimento:</b> {custo:,} | <b>Venda em {cid_venda}:</b> {venda:,}
-                </div>
-                <div style="font-size: 0.95rem; color: #cbd5e1; margin-bottom: 10px;">
-                    📍 <b>Foco Craft:</b> {cidade_foco} | 🕒 <b>Atualizado:</b> {h_venda}h atrás
-                </div>
-                <div style="background: rgba(0,0,0,0.4); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); font-size: 0.9rem;">
-                    📦 <b>Detalhamento de Compras:</b> <br> {" | ".join(detalhes)}
-                </div>
+                <div style="color: #2ecc71; font-weight: bold; font-size: 1.2rem;">⚔️ {res['nome']} (T{tier}.{encanto})</div>
+                <div style="font-size: 1.1rem;">💰 Lucro: <b>{res['lucro']:,}</b> ({res['perc']:.1f}%)</div>
+                <div>📍 Venda em: <b>{res['cidade']}</b> | 🕒 {res['horas']}h atrás</div>
+                <div style="font-size: 0.8rem; opacity: 0.8;">Custo: {res['custo']:,} | Venda: {res['venda']:,}</div>
             </div>
             """, unsafe_allow_html=True)
 
