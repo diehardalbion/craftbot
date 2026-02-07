@@ -423,7 +423,7 @@ if btn:
 
         if not valid_craft: continue
 
-        custo_final = int(custo)
+        custo_final = int(custo * 0.752)
         venda_total = int(preco_venda_bm * quantidade)
         lucro = int((venda_total * 0.935) - custo_final)
 
