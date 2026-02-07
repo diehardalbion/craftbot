@@ -296,21 +296,14 @@ FILTROS = {
 
 # ================= FUNÇÕES =================
 # MUDANÇA 1 IMPLEMENTADA: Prioriza preço de venda direto se histórico estiver defasado
-def get_historical_price(item_id, location="Black Market"):
+def get_bm_price(item_id):
     try:
-        # Primeiro tentamos pegar o preço de venda mínimo ATUAL
-        url_atual = f"{API_URL}{item_id}?locations={location}"
-        resp_atual = requests.get(url_atual, timeout=10).json()
-        if resp_atual and resp_atual[0]["sell_price_min"] > 0:
-            return resp_atual[0]["sell_price_min"]
-            
-        # Se não tiver preço atual, recorremos ao histórico das últimas 24h
-        url_hist = f"{HISTORY_URL}{item_id}?locations={location}&timescale=24"
-        resp_hist = requests.get(url_hist, timeout=10).json()
-        if resp_hist and "data" in resp_hist[0] and len(resp_hist[0]["data"]) > 0:
-            return resp_hist[0]["data"][-1]["avg_price"]
+        url = f"{API_URL}{item_id}?locations=Black Market"
+        data = requests.get(url, timeout=10).json()
+        if data:
+            return data[0]["buy_price_max"]
     except:
-        return 0
+        pass
     return 0
 
 def calcular_horas(data_iso):
