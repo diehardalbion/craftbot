@@ -417,48 +417,19 @@ if btn:
     precos_recursos = {}
 
     for p in data:
-        pid = p.get("item_id")
-        if not pid:
-            continue
-
-        # ================= BLACK MARKET =================
-        if p.get("city") == "Caerleon":
-            price = p.get("sell_price_min")
-            date = p.get("sell_price_min_date")
-
-            if not price or not date:
-                continue
-
-            horas = calcular_horas(date)
-
-            # ignora preços antigos (fantasmas)
-            if horas > 72:
-                continue
-
-            if pid not in precos_itens or price > precos_itens[pid]["price"]:
-                precos_itens[pid] = {
-                    "price": price,
-                    "horas": horas
-                }
-
-        # ================= ROYAL CITIES (COMPRA DE RECURSOS) =================
+        pid = p["item_id"]
+        if p["city"] == "Black Market":
+            price = p["buy_price_max"]
+            if price > 0:
+                horas = calcular_horas(p["buy_price_max_date"])
+                if pid not in precos_itens or price > precos_itens[pid]["price"]:
+                    precos_itens[pid] = {"price": price, "horas": horas}
         else:
-            price = p.get("sell_price_min")
-            date = p.get("sell_price_min_date")
-
-            if not price or not date:
-                continue
-
-            horas = calcular_horas(date)
-
-            if pid not in precos_recursos or price < precos_recursos[pid]["price"]:
-                precos_recursos[pid] = {
-                    "price": price,
-                    "city": p.get("city"),
-                    "horas": horas
-                }
-
-
+            price = p["sell_price_min"]
+            if price > 0:
+                horas = calcular_horas(p["sell_price_min_date"])
+                if pid not in precos_recursos or price < precos_recursos[pid]["price"]:
+                    precos_recursos[pid] = {"price": price, "city": p["city"], "horas": horas}
 
     resultados = []
     for nome, d in itens.items():
