@@ -417,7 +417,7 @@ if btn:
     precos_recursos = {}
 
     for p in data:
-        pid = p["item_id"]
+    pid = p["item_id"]
 
     # ================= BLACK MARKET =================
     if p["city"] == "Black Market":
@@ -430,7 +430,6 @@ if btn:
             if horas > 24:
                 continue
 
-            # mantém o maior preço médio válido
             if pid not in precos_itens or price > precos_itens[pid]["price"]:
                 precos_itens[pid] = {
                     "price": price,
