@@ -422,7 +422,7 @@ if btn:
             continue
 
         # ================= BLACK MARKET =================
-        if p.get("city") == "Black Market":
+        if p.get("city") == "BlackMarket":
             price = p.get("buy_price_avg")
             date = p.get("buy_price_avg_date")
 
