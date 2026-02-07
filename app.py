@@ -19,7 +19,7 @@ st.markdown("""
     /* FUNDO DA APLICAÇÃO */
     .stApp {
         background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)), 
-                    url("https://i.imgur.com/kVAiMjD.png"); /* <--- SEU LINK ATUAL */
+                    url("https://i.imgur.com/kVAiMjD.png");
         background-size: cover;
         background-attachment: fixed;
     }
@@ -106,7 +106,6 @@ if not st.session_state.autenticado:
         st.markdown("### Adquirir Nova Chave")
         st.write("Tenha acesso a todas as rotas de lucro do Albion Online por um preço acessível.")
         
-        # CARD DE PREÇO
         st.markdown("""
         <div style="background: rgba(46, 204, 113, 0.1); padding: 20px; border-radius: 10px; border: 1px solid #2ecc71; text-align: center;">
             <h2 style="margin:0; color: #2ecc71;">R$ 15,00</h2>
@@ -407,35 +406,43 @@ if btn:
         if d[5]: ids.add(f"T{tier}_{d[5]}")
 
     try:
+        # Pega qualidades 1, 2 e 3 para ter mais dados, mas manter a trava de lucro contra bugs
         response = requests.get(f"{API_URL}{','.join(ids)}?locations={','.join(CIDADES)}&qualities=1,2,3", timeout=20)
-        response = requests.get(f"{API_URL}{','.join(ids)}?locations={','.join(CIDADES)}&qualities=1", timeout=20)
         data = response.json()
     except:
         st.error("Erro ao conectar com a API.")
         st.stop()
 
-    precos_itens = {}
+    precos_venda = {} # Onde vamos guardar o melhor preço de cada item (Independente da cidade)
     precos_recursos = {}
 
     for p in data:
         pid = p["item_id"]
-        if p["city"] == "Black Market":
+        cidade = p["city"]
+        
+        # Lógica para Itens (Venda)
+        if cidade == "Black Market":
             price = p["buy_price_max"]
-            if price > 0:
-                horas = calcular_horas(p["buy_price_max_date"])
-                if pid not in precos_itens or price > precos_itens[pid]["price"]:
-                    precos_itens[pid] = {"price": price, "horas": horas}
+            date = p["buy_price_max_date"]
         else:
             price = p["sell_price_min"]
-            if price > 0:
-                horas = calcular_horas(p["sell_price_min_date"])
+            date = p["sell_price_min_date"]
+
+        if price > 0:
+            horas = calcular_horas(date)
+            # Se for recurso (ID base), guarda o menor preço de compra
+            if "CLOTH" in pid or "LEATHER" in pid or "METALBAR" in pid or "PLANKS" in pid or "ARTEFACT" in pid or "QUESTITEM" in pid:
                 if pid not in precos_recursos or price < precos_recursos[pid]["price"]:
-                    precos_recursos[pid] = {"price": price, "city": p["city"], "horas": horas}
+                    precos_recursos[pid] = {"price": price, "city": cidade, "horas": horas}
+            else:
+                # Se for o item pronto, guarda o melhor preço de venda e a cidade correspondente
+                if pid not in precos_venda or price > precos_venda[pid]["price"]:
+                    precos_venda[pid] = {"price": price, "city": cidade, "horas": horas}
 
     resultados = []
     for nome, d in itens.items():
         item_id = id_item(tier, d[0], encanto)
-        if item_id not in precos_itens: continue
+        if item_id not in precos_venda: continue
 
         custo = 0
         detalhes = []
@@ -465,18 +472,20 @@ if btn:
             else: continue
 
         custo_final = int(custo)
-        venda = precos_itens[item_id]["price"] * quantidade
-        lucro = int((venda * 0.935) - custo_final)
-
-        # --- LOGICA DE LIMPEZA DE DADOS IRREAIS ---
-        perc_lucro = (lucro / custo_final) * 100 if custo_final > 0 else 0
+        info_venda = precos_venda[item_id]
+        venda_bruta = info_venda["price"] * quantidade
+        cidade_venda = info_venda["city"]
         
-        # Se o lucro for maior que 100% no T6+, o script ignora (limpeza de cache/bug)
+        # Cálculo de lucro considerando a taxa (Caerleon/Reais = 6.5% com premium, BM = tbm 6.5%)
+        lucro = int((venda_bruta * 0.935) - custo_final)
+        perc_lucro = (lucro / custo_final) * 100 if custo_final > 0 else 0
+
+        # Trava de segurança para ignorar preços bugados (10 milhões etc) no BM ou Royal
         if perc_lucro > 100 and tier >= 6:
             continue
 
         if lucro > 0:
-            resultados.append((nome, lucro, venda, custo_final, detalhes, precos_itens[item_id]["horas"]))
+            resultados.append((nome, lucro, venda_bruta, custo_final, detalhes, info_venda["horas"], cidade_venda))
 
     resultados.sort(key=lambda x: x[1], reverse=True)
 
@@ -485,7 +494,7 @@ if btn:
     else:
         st.subheader(f"📊 Resultados para {categoria.upper()} T{tier}.{encanto}")
         
-        for nome, lucro, venda, custo, detalhes, h_venda in resultados[:20]:
+        for nome, lucro, venda, custo, detalhes, h_venda, cid_venda in resultados[:20]:
             perc_lucro = (lucro / custo) * 100 if custo > 0 else 0
             cidade_foco = identificar_cidade_bonus(nome)
 
@@ -496,7 +505,7 @@ if btn:
                 </div>
                 <div style="font-size: 1.05rem; margin-bottom: 8px;">
                     <span style="color: #2ecc71; font-weight: bold; font-size: 1.2rem;">💰 Lucro: {lucro:,} ({perc_lucro:.2f}%)</span> 
-                    <br><b>Investimento:</b> {custo:,} | <b>Venda BM:</b> {venda:,}
+                    <br><b>Investimento:</b> {custo:,} | <b>Venda em {cid_venda}:</b> {venda:,}
                 </div>
                 <div style="font-size: 0.95rem; color: #cbd5e1; margin-bottom: 10px;">
                     📍 <b>Foco Craft:</b> {cidade_foco} | 🕒 <b>Atualizado:</b> {h_venda}h atrás
