@@ -494,8 +494,5 @@ if btn:
         final_list.sort(key=lambda x: x["l"], reverse=True)
         for r in final_list[:15]:
             st.success(f"**{r['n']}** | Lucro: {r['l']:,} ({r['p']:.1f}%) | Destino: {r['cid']}")
-            </div>
-            """, unsafe_allow_html=True)
-
 st.markdown("---")
 st.caption("Radar Craft Albion - Desenvolvido para análise de mercado via Albion Online Data Project")
