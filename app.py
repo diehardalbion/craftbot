@@ -358,10 +358,8 @@ if btn:
         for r in ids_recurso_variantes(tier, d[1], encanto): ids_para_recursos.add(r)
         if d[3]:
             for r in ids_recurso_variantes(tier, d[3], encanto): ids_para_recursos.add(r)
-        # Atenção: não adicionamos o artefato no lote de preços comuns se vamos buscar no histórico
 
     try:
-        # Puxa recursos e artefatos comuns (sem ser histórico aqui ainda para velocidade)
         response = requests.get(f"{API_URL}{','.join(ids_para_recursos)}?locations=Thetford,FortSterling,Martlock,Lymhurst,Bridgewatch,Caerleon", timeout=20)
         data_recursos = response.json()
     except:
@@ -377,16 +375,12 @@ if btn:
                 precos_recursos[pid] = {"price": price, "city": p["city"]}
 
     resultados = []
-    
-    # Barra de progresso para histórico
     progress_text = "Analisando Lucratividade (Buscando Histórico)..."
     my_bar = st.progress(0, text=progress_text)
     
     total_itens = len(itens)
     for i, (nome, d) in enumerate(itens.items()):
         item_id = id_item(tier, d[0], encanto)
-        
-        # BUSCA HISTÓRICA PARA O ITEM (Black Market)
         preco_venda_bm = get_historical_price(item_id)
         my_bar.progress((i + 1) / total_itens, text=f"Analisando: {nome}")
 
@@ -396,9 +390,9 @@ if btn:
         detalhes = []
         valid_craft = True
 
-        # Recursos (Preço atual das cidades)
+        # Recursos Base
         for recurso, qtd in [(d[1], d[2]), (d[3], d[4])]:
-            if not recurso: continue
+            if not recurso or qtd == 0: continue
             found = False
             for rid in ids_recurso_variantes(tier, recurso, encanto):
                 if rid in precos_recursos:
@@ -413,23 +407,23 @@ if btn:
         
         if not valid_craft: continue
 
-        # ARTEFATO (Mudança aqui: Buscar preço via histórico para não zerar)
+        # Artefatos via Histórico
         if d[5]:
             art_id = f"T{tier}_{d[5]}"
-            # Buscamos a média histórica do artefato em Caerleon ou cidades principais
             preco_artefato = get_historical_price(art_id, location="Caerleon,FortSterling,Thetford,Lymhurst,Bridgewatch,Martlock")
             
             if preco_artefato > 0:
-                custo += preco_artefato * d[6] * quantidade
-                detalhes.append(f"Artefato (Histórico): {preco_artefato:,.0f}")
+                qtd_art = d[6] * quantidade
+                custo += preco_artefato * qtd_art
+                detalhes.append(f"{qtd_art}x Artefato: {preco_artefato:,.0f} (Média Market)")
             else: 
-                valid_craft = False # Se nem no histórico tiver preço de artefato, desconsidera
+                valid_craft = False
 
         if not valid_craft: continue
 
         custo_final = int(custo)
         venda_total = int(preco_venda_bm * quantidade)
-        lucro = int((venda_total * 0.935) - custo_final) # 6.5% de taxa no BM
+        lucro = int((venda_total * 0.935) - custo_final)
 
         if lucro > 0:
             resultados.append((nome, lucro, venda_total, custo_final, detalhes, "Média 24h"))
