@@ -390,103 +390,110 @@ st.title("⚔️ Radar Craft — Royal Cities + Black Market")
 
 # ================= EXECUÇÃO (VERSÃO CORRIGIDA) =================
 if btn:
-    filtro = FILTROS[categoria]
-    itens_filtrados = {k: v for k, v in ITENS_DB.items() if filtro(k, v)}
+    filtro_selecionado = FILTROS[categoria]
+    itens_para_escanear = {k: v for k, v in ITENS_DB.items() if filtro_selecionado(k, v)}
 
-    # 1. Gerar lista massiva de IDs (Base e Variações de nomes da API)
-    ids_para_api = set()
-    for d in itens_filtrados.values():
-        ids_para_api.add(id_item(tier, d[0], encanto))
-        # Adiciona todas as formas possíveis que a API registra recursos
-        for r_nome in [d[1], d[3]]:
-            if r_nome:
-                base = f"T{tier}_{RECURSO_MAP[r_nome]}"
-                ids_para_api.add(base)
-                ids_para_api.add(f"{base}_LEVEL0")
-                if encanto > 0:
-                    ids_para_api.add(f"{base}@{encanto}")
-                    ids_para_api.add(f"{base}_LEVEL{encanto}@{encanto}")
-        if d[5]: 
-            ids_para_api.add(f"T{tier}_{d[5]}")
-
-    try:
-        # Chamada com todas as qualidades possíveis
-        url_final = f"{API_URL}{','.join(ids_para_api)}?locations={','.join(CIDADES)}&qualities=1,2,3,4,5"
-        data = requests.get(url_final, timeout=20).json()
-    except:
-        st.error("Erro ao falar com a API.")
+    if not itens_para_escanear:
+        st.error(f"Nenhum item mapeado para a categoria: {categoria}")
         st.stop()
 
-    precos_venda = {}
-    precos_recursos = {}
+    # Monta lista de IDs para a API (Normalizando tudo)
+    ids_requisicao = set()
+    for info in itens_para_escanear.values():
+        base_id = info[0]
+        # ID do Item pronto
+        ids_requisicao.add(f"T{tier}_{base_id}{'@'+str(encanto) if encanto > 0 else ''}")
+        
+        # IDs dos Recursos (Tenta todas as variações possíveis para não vir vazio)
+        for recurso_nome in [info[1], info[3]]:
+            if recurso_nome and recurso_nome in RECURSO_MAP:
+                r_code = RECURSO_MAP[recurso_nome]
+                ids_requisicao.add(f"T{tier}_{r_code}")
+                ids_requisicao.add(f"T{tier}_{r_code}_LEVEL0") # Algumas vezes a API pede assim
+                if encanto > 0:
+                    ids_requisicao.add(f"T{tier}_{r_code}@{encanto}")
+                    ids_requisicao.add(f"T{tier}_{r_code}_LEVEL{encanto}@{encanto}")
+        
+        # Artefato
+        if info[5]:
+            ids_requisicao.add(f"T{tier}_{info[5]}")
 
-    # 2. Mapear TUDO que a API mandou
-    for p in data:
+    try:
+        # Puxa tudo da API de uma vez
+        url = f"{API_URL}{','.join(ids_requisicao)}?locations={','.join(CIDADES)}&qualities=1,2,3"
+        dados_api = requests.get(url, timeout=25).json()
+    except:
+        st.error("Falha na API. Tente novamente em instantes.")
+        st.stop()
+
+    # Dicionários de Preços
+    precos_brutos = {}
+    
+    for p in dados_api:
         pid = p["item_id"]
-        cidade = p["city"]
-        # Pega o melhor valor disponível (Compra ou Venda)
-        precos = [p["buy_price_max"], p["sell_price_min"]]
-        val = max(precos) if cidade == "Black Market" else min([x for x in precos if x > 0] or [0])
+        cid = p["city"]
+        # Pega o melhor preço (Compra se for BM, Venda se for Cidade)
+        p_venda = p["buy_price_max"] if cid == "Black Market" else p["sell_price_min"]
         
-        if val > 0:
-            # Se for recurso/artefato
-            if any(x in pid for x in ["CLOTH", "LEATHER", "METALBAR", "PLANKS", "ARTEFACT", "QUESTITEM"]):
-                # Guardamos pelo nome base simplificado para o craft achar fácil
-                nome_limpo = pid.split('@')[0].replace("_LEVEL0", "").replace(f"_LEVEL{encanto}", "")
-                if nome_limpo not in precos_recursos or val < precos_recursos[nome_limpo]:
-                    precos_recursos[nome_limpo] = val
+        if p_venda > 0:
+            if pid not in precos_brutos or p_venda > precos_brutos[pid]["price"]:
+                data_v = p["buy_price_max_date"] if cid == "Black Market" else p["sell_price_min_date"]
+                precos_brutos[pid] = {"price": p_venda, "city": cid, "date": data_v}
+
+    # Loop de Cálculo de Lucro
+    final_list = []
+    for nome, d in itens_para_escanear.items():
+        id_final = f"T{tier}_{d[0]}{'@'+str(encanto) if encanto > 0 else ''}"
+        
+        if id_final not in precos_brutos: continue
+        
+        custo_materiais = 0
+        falta_dado = False
+        
+        # Calcular custo de cada recurso
+        for rec_nome, qtd in [(d[1], d[2]), (d[3], d[4])]:
+            if not rec_nome or qtd == 0: continue
+            cod = RECURSO_MAP[rec_nome]
+            
+            # Busca o preço do recurso (encantado ou plano)
+            r_id = f"T{tier}_{cod}{'@'+str(encanto) if encanto > 0 else ''}"
+            r_id_alt = f"T{tier}_{cod}"
+            
+            p_rec = precos_brutos.get(r_id) or precos_brutos.get(r_id_alt)
+            
+            if p_rec:
+                custo_materiais += p_rec["price"] * qtd * quantidade
             else:
-                # Se for item pronto
-                if pid not in precos_venda or val > precos_venda[pid]["price"]:
-                    precos_venda[pid] = {"price": val, "city": cidade, "date": p["sell_price_min_date"] or p["buy_price_max_date"]}
-
-    # 3. Calcular Lucro
-    resultados = []
-    for nome, d in itens_filtrados.items():
-        item_id = id_item(tier, d[0], encanto)
-        if item_id not in precos_venda: continue
-
-        custo_total = 0
-        recursos_encontrados = 0
+                falta_dado = True; break
         
-        for r_nome, qtd in [(d[1], d[2]), (d[3], d[4])]:
-            if not r_nome or qtd == 0: continue
-            
-            # Tenta achar o recurso de qualquer jeito (com ou sem @)
-            r_id_normal = f"T{tier}_{RECURSO_MAP[r_nome]}"
-            r_id_encanto = f"T{tier}_{RECURSO_MAP[r_nome]}@{encanto}"
-            
-            preco_rec = precos_recursos.get(r_id_encanto) or precos_recursos.get(r_id_normal)
-            
-            if preco_rec:
-                custo_total += preco_rec * qtd * quantidade
-                recursos_encontrados += 1
+        if falta_dado: continue
         
-        # Se encontrou pelo menos o recurso principal, a gente calcula
-        if recursos_encontrados > 0:
-            venda_info = precos_venda[item_id]
-            venda_total = venda_info["price"] * quantidade
-            lucro = int((venda_total * 0.935) - custo_total)
-            
-            # Se o lucro for real, adiciona na lista
-            if lucro > 0:
-                resultados.append({
-                    "nome": nome, "lucro": lucro, "perc": (lucro/custo_total)*100, 
-                    "venda": venda_total, "custo": custo_total, 
-                    "cid": venda_info["city"], "h": calcular_horas(venda_info["date"])
-                })
+        # Artefato
+        if d[5]:
+            art_id = f"T{tier}_{d[5]}"
+            if art_id in precos_brutos:
+                custo_materiais += precos_brutos[art_id]["price"] * d[6] * quantidade
+            else: continue
 
-    # 4. Mostrar Resultados
-    if not resultados:
-        st.warning("A API não tem dados recentes de recursos para este Tier. Tente T4.0 para testar.")
+        # Resultado Final
+        venda_info = precos_brutos[id_final]
+        total_venda = venda_info["price"] * quantidade
+        lucro_real = int((total_venda * 0.935) - custo_materiais)
+        
+        if lucro_real > 0:
+            final_list.append({
+                "n": nome, "l": lucro_real, "p": (lucro_real/custo_materiais)*100,
+                "v": total_venda, "c": custo_materiais, "cid": venda_info["city"],
+                "h": calcular_horas(venda_info["date"])
+            })
+
+    # Exibição (Mesmo estilo que você já usa)
+    if not final_list:
+        st.warning(f"Sem dados de lucro para {categoria} T{tier}.{encanto} no momento.")
     else:
-        resultados.sort(key=lambda x: x["lucro"], reverse=True)
-        for r in resultados[:15]:
-            st.markdown(f"""
-            <div class="item-card-custom">
-                <div style="color:#2ecc71; font-weight:bold;">⚔️ {r['nome']}</div>
-                <div style="font-size:1.1rem;">💰 Lucro: <b>{r['lucro']:,}</b> ({r['perc']:.1f}%)</div>
-                <div>📍 Venda em: <b>{r['cid']}</b> | 🕒 {r['h']}h atrás</div>
+        final_list.sort(key=lambda x: x["l"], reverse=True)
+        for r in final_list[:15]:
+            st.success(f"**{r['n']}** | Lucro: {r['l']:,} ({r['p']:.1f}%) | Destino: {r['cid']}")
             </div>
             """, unsafe_allow_html=True)
 
