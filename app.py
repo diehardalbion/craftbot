@@ -369,7 +369,7 @@ if st.button("ESCANEAR"):
             st.success(f"{n} | Lucro: {l:,} | Venda BM: {v:,} | Custo: {c:,}")
 
 # ================= EXECUÇÃO =================
-if btn:
+if st.button("ESCANEAR"):
     filtro = FILTROS[categoria]
     itens = {k: v for k, v in ITENS_DB.items() if filtro(k, v)}
 
