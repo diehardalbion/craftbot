@@ -422,7 +422,7 @@ if btn:
             continue
 
         # ================= BLACK MARKET =================
-        if p.get("city") == "BlackMarket":
+        if p.get("city") == "Caerleon":
             price = p.get("sell_price_min")
             date = p.get("sell_price_min_date")
 
