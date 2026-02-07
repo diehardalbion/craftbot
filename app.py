@@ -446,36 +446,33 @@ if btn:
         item_id = id_item(tier, d[0], encanto)
         if item_id not in precos_venda: continue
 
-        custo_craft = 0
-        erro_recurso = False
+        custo_total = 0
+        recursos_encontrados = 0
         
-        # Soma recursos
         for r_nome, qtd in [(d[1], d[2]), (d[3], d[4])]:
             if not r_nome or qtd == 0: continue
-            r_id_busca = f"T{tier}_{RECURSO_MAP[r_nome]}"
-            if r_id_busca in precos_recursos:
-                custo_craft += precos_recursos[r_id_busca] * qtd * quantidade
-            else:
-                erro_recurso = True; break
+            
+            # Tenta achar o recurso de qualquer jeito (com ou sem @)
+            r_id_normal = f"T{tier}_{RECURSO_MAP[r_nome]}"
+            r_id_encanto = f"T{tier}_{RECURSO_MAP[r_nome]}@{encanto}"
+            
+            preco_rec = precos_recursos.get(r_id_encanto) or precos_recursos.get(r_id_normal)
+            
+            if preco_rec:
+                custo_total += preco_rec * qtd * quantidade
+                recursos_encontrados += 1
         
-        # Soma artefato
-        if not erro_recurso and d[5]:
-            art_id = f"T{tier}_{d[5]}"
-            if art_id in precos_recursos:
-                custo_craft += precos_recursos[art_id] * d[6] * quantidade
-            else: erro_recurso = True
-
-        if not erro_recurso:
+        # Se encontrou pelo menos o recurso principal, a gente calcula
+        if recursos_encontrados > 0:
             venda_info = precos_venda[item_id]
             venda_total = venda_info["price"] * quantidade
-            lucro = int((venda_total * 0.935) - custo_craft)
-            perc = (lucro / custo_craft) * 100 if custo_craft > 0 else 0
-
-            # Filtro final: Lucro positivo e menor que 500% (evita bugs de 10kk)
-            if lucro > 0 and perc < 500:
+            lucro = int((venda_total * 0.935) - custo_total)
+            
+            # Se o lucro for real, adiciona na lista
+            if lucro > 0:
                 resultados.append({
-                    "nome": nome, "lucro": lucro, "perc": perc, 
-                    "venda": venda_total, "custo": custo_craft, 
+                    "nome": nome, "lucro": lucro, "perc": (lucro/custo_total)*100, 
+                    "venda": venda_total, "custo": custo_total, 
                     "cid": venda_info["city"], "h": calcular_horas(venda_info["date"])
                 })
 
