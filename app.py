@@ -298,29 +298,37 @@ FILTROS = {
 # MUDANÇA 1 IMPLEMENTADA: Prioriza preço de venda direto se histórico estiver defasado
 def get_historical_price(item_id, location="Black Market"):
     try:
-        # 1. Buscamos o preço de mercado atual
-        url = f"{API_URL}{item_id}?locations={location}"
-        data = requests.get(url, timeout=10).json()
+        # 1️⃣ Tenta preço atual primeiro (sempre prioridade)
+        url_atual = f"{API_URL}{item_id}?locations={location}"
+        resp_atual = requests.get(url_atual, timeout=10).json()
+        if resp_atual and resp_atual[0]["sell_price_max"] > 0:
+            return resp_atual[0]["sell_price_min"]
 
-        if data:
-            entry = data[0]
-            # Se for Black Market, tentamos pegar o maior valor entre o preço de compra 
-            # e o histórico recente, para não pegar o valor de "reset" (2k)
-            if "Black Market" in entry.get('city', ''):
-                buy_price = entry.get('buy_price_max', 0)
-                sell_price = entry.get('sell_price_min', 0)
-                
-                # No BM, se o Buy Price está muito baixo (resetado), 
-                # o Sell Price costuma guardar o valor real que os players estão pedindo.
-                # Vamos pegar o maior entre os dois para ter uma estimativa real de venda.
-                return max(buy_price, sell_price) if buy_price > 0 or sell_price > 0 else 0
-            else:
-                # Para Artefatos e Cidades normais, o preço de venda mínimo é o que importa
-                return entry.get('sell_price_min', 0)
+        # 2️⃣ Histórico das últimas 24h
+        url_hist = f"{HISTORY_URL}{item_id}?locations={location}&timescale=24"
+        resp_hist = requests.get(url_hist, timeout=10).json()
+
+        if not resp_hist or "data" not in resp_hist[0]:
+            return 0
+
+        # 3️⃣ Filtra preços válidos
+        prices = [
+            d["avg_price"]
+            for d in resp_hist[0]["data"]
+            if d["avg_price"] > 0 and d["item_count"] >= 3
+        ]
+
+        if not prices:
+            return 0
+
+        # 4️⃣ Usa mediana (não média!)
+        prices.sort()
+        mid = len(prices) // 2
+        return prices[mid]
 
     except:
         return 0
-    return 0
+
 def calcular_horas(data_iso):
     try:
         data_api = datetime.fromisoformat(data_iso.replace("Z", "+00:00"))
