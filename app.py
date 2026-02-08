@@ -298,33 +298,35 @@ FILTROS = {
 # MUDANÇA 1 IMPLEMENTADA: Prioriza preço de venda direto se histórico estiver defasado
 def get_historical_price(item_id, location="Black Market"):
     try:
-        # 1️⃣ Tenta o Histórico de 24h para pegar o PICO (Máximo que o NPC pagou)
-        url_hist = f"{HISTORY_URL}{item_id}?locations={location}&timescale=24"
-        resp_hist = requests.get(url_hist, timeout=10).json()
+        # 1. Buscamos no endpoint de PREÇOS (que é mais estável que o histórico)
+        # Pedimos o dado de todas as cidades se for artefato, ou só BM se for o item
+        url = f"{API_URL}{item_id}?locations={location}"
+        response = requests.get(url, timeout=10)
+        data = response.json()
 
-        if resp_hist and "data" in resp_hist[0] and resp_hist[0]["data"]:
-            dados = [d for d in resp_hist[0]["data"] if d["item_count"] > 0]
-            if dados:
-                # Retorna o maior preço registrado nas últimas 24h
-                return max(d["max_price"] for d in dados)
+        if data:
+            for entry in data:
+                # Se estivermos olhando o Black Market, o preço real é o 'buy_price_max'
+                if "Black Market" in entry['city']:
+                    if entry['buy_price_max'] > 0:
+                        return entry['buy_price_max']
+                
+                # Se estivermos olhando cidades normais (para Artefatos)
+                else:
+                    if entry['sell_price_min'] > 0:
+                        return entry['sell_price_min']
 
-        # 2️⃣ Se o histórico falhar, tenta o Preço de Compra Atual (Buy Order)
-        url_atual = f"{API_URL}{item_id}?locations={location}"
-        resp_atual = requests.get(url_atual, timeout=10).json()
-        
-        if resp_atual:
-            if location == "Black Market" and resp_atual[0]["buy_price_max"] > 0:
-                return resp_atual[0]["buy_price_max"]
-            elif resp_atual[0]["sell_price_min"] > 0:
-                return resp_atual[0]["sell_price_min"]
+        # 2. Se o passo acima falhar, tentamos uma última vez sem especificar localização
+        # para ver se a API tem qualquer dado global recente
+        url_global = f"{API_URL}{item_id}"
+        data_global = requests.get(url_global, timeout=10).json()
+        if data_global:
+            # Pegamos o maior preço de compra disponível em qualquer lugar
+            precos = [d['buy_price_max'] for d in data_global if d['buy_price_max'] > 0]
+            if precos:
+                return max(precos)
 
-        # 3️⃣ Última tentativa: Média do histórico (mesmo que antiga)
-        if resp_hist and "data" in resp_hist[0] and resp_hist[0]["data"]:
-            medias = [d["avg_price"] for d in resp_hist[0]["data"] if d["avg_price"] > 0]
-            if medias:
-                return medias[-1]
-
-    except Exception as e:
+    except:
         return 0
     return 0
 def calcular_horas(data_iso):
