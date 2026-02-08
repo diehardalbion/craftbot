@@ -298,30 +298,20 @@ FILTROS = {
 # MUDANÇA 1 IMPLEMENTADA: Prioriza preço de venda direto se histórico estiver defasado
 def get_historical_price(item_id, location="Black Market"):
     try:
-        # 1️⃣ Tenta o preço de COMPRA (Buy Price) - É o que o BM paga no momento
-        url_atual = f"{API_URL}{item_id}?locations={location}"
-        resp_atual = requests.get(url_atual, timeout=10).json()
-        
-        if resp_atual:
-            # Se for no Black Market, o preço real é o 'buy_price_max'
-            # Se for em cidades comuns (artefatos), usamos 'sell_price_min'
-            if location == "Black Market":
-                price = resp_atual[0]["buy_price_max"]
-            else:
-                price = resp_atual[0]["sell_price_min"]
-                
-            if price > 0:
-                return price
-
-        # 2️⃣ Fallback: Se o preço atual falhar, pega a média das últimas 24h
+        # Focamos no Histórico porque ele mostra o que o JOGO pagou de verdade
         url_hist = f"{HISTORY_URL}{item_id}?locations={location}&timescale=24"
         resp_hist = requests.get(url_hist, timeout=10).json()
 
-        if resp_hist and "data" in resp_hist[0]:
+        if resp_hist and "data" in resp_hist[0] and resp_hist[0]["data"]:
             dados = resp_hist[0]["data"]
-            if dados:
-                # Pega o preço médio do registro mais recente (última hora com venda)
-                return dados[-1]["avg_price"]
+            
+            # Filtramos apenas os registros onde o JOGO (NPC) realmente comprou itens
+            vendas_reais = [d["avg_price"] for d in dados if d["item_count"] > 0]
+            
+            if vendas_reais:
+                # Retornamos a média das últimas horas para saber o valor "justo" que o jogo paga
+                # Isso evita que o bot te dê o preço de 2k (quando reseta) ou 94k (oferta de player)
+                return sum(vendas_reais[-5:]) / len(vendas_reais[-5:])
 
         return 0
     except:
