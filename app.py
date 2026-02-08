@@ -296,24 +296,23 @@ FILTROS = {
 
 # ================= FUNÇÕES =================
 # MUDANÇA 1 IMPLEMENTADA: Prioriza preço de venda direto se histórico estiver defasado
-def get_historical_price(item_id, location="Black Market"):
+def get_historical_price(item_id, location="Black Market", force_history=False):
     try:
-        url = f"{API_URL}{item_id}?locations={location}"
-        resp = requests.get(url, timeout=10).json()
+        if not force_history:
+            url = f"{API_URL}{item_id}?locations={location}"
+            resp = requests.get(url, timeout=10).json()
 
-        if resp:
-            data = resp[0]
-            price = data["sell_price_min"]
-            date = data["sell_price_min_date"]
+            if resp:
+                data = resp[0]
+                price = data["sell_price_min"]
+                date = data["sell_price_min_date"]
 
-            if price > 0 and date:
-                horas = calcular_horas(date)
+                if price > 0 and date:
+                    horas = calcular_horas(date)
+                    if horas <= 2:
+                        return price
 
-                # ✅ Só confia se for recente (até 3h)
-                if horas <= 3:
-                    return price
-
-        # 🔁 Fallback: histórico 24h
+        # 🔁 Histórico 24h
         url_hist = f"{HISTORY_URL}{item_id}?locations={location}&timescale=24"
         hist = requests.get(url_hist, timeout=10).json()
 
