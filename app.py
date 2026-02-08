@@ -296,44 +296,35 @@ FILTROS = {
 
 # ================= FUNÇÕES =================
 # MUDANÇA 1 IMPLEMENTADA: Prioriza preço de venda direto se histórico estiver defasado
-def get_historical_price(item_id, location="Black Market", force_history=False):
+def get_historical_price(item_id, location="Black Market"):
     try:
-        if not force_history:
-            url = f"{API_URL}{item_id}?locations={location}"
-            resp = requests.get(url, timeout=10).json()
-
-            if resp:
-                data = resp[0]
-                price = data["sell_price_min"]
-                date = data["sell_price_min_date"]
-
-                if price > 0 and date:
-                    horas = calcular_horas(date)
-                    if horas <= 2:
-                        return price
-
-        # 🔁 Histórico 24h
+        # 1️⃣ Histórico das últimas 24h (PRIORIDADE REAL)
         url_hist = f"{HISTORY_URL}{item_id}?locations={location}&timescale=24"
-        hist = requests.get(url_hist, timeout=10).json()
+        resp_hist = requests.get(url_hist, timeout=10).json()
 
-        if not hist or "data" not in hist[0]:
-            return 0
+        if resp_hist and "data" in resp_hist[0]:
+            prices = [
+                d["avg_price"]
+                for d in resp_hist[0]["data"]
+                if d["avg_price"] > 0 and d["item_count"] >= 3
+            ]
 
-        prices = [
-            d["avg_price"]
-            for d in hist[0]["data"]
-            if d["avg_price"] > 0 and d["item_count"] >= 2
-        ]
+            if prices:
+                prices.sort()
+                mid = len(prices) // 2
+                return int(prices[mid])
 
-        if not prices:
-            return 0
+        # 2️⃣ Fallback — preço mínimo atual (se NÃO houver histórico)
+        url_atual = f"{API_URL}{item_id}?locations={location}"
+        resp_atual = requests.get(url_atual, timeout=10).json()
 
-        prices.sort()
-        return prices[len(prices) // 2]
+        if resp_atual and resp_atual[0]["sell_price_min"] > 0:
+            return int(resp_atual[0]["sell_price_min"])
+
+        return 0
 
     except:
         return 0
-
 
 def calcular_horas(data_iso):
     try:
