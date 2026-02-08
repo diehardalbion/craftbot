@@ -298,37 +298,34 @@ FILTROS = {
 # MUDANÇA 1 IMPLEMENTADA: Prioriza preço de venda direto se histórico estiver defasado
 def get_historical_price(item_id, location="Black Market"):
     try:
-        # 1️⃣ Tenta preço atual primeiro (sempre prioridade)
+        # 1️⃣ Tenta o preço de COMPRA (Buy Price) - É o que o BM paga no momento
         url_atual = f"{API_URL}{item_id}?locations={location}"
         resp_atual = requests.get(url_atual, timeout=10).json()
-        if resp_atual and resp_atual[0]["sell_price_min"] > 0:
-            return resp_atual[0]["sell_price_min"]
+        
+        if resp_atual:
+            # Se for no Black Market, o preço real é o 'buy_price_max'
+            # Se for em cidades comuns (artefatos), usamos 'sell_price_min'
+            if location == "Black Market":
+                price = resp_atual[0]["buy_price_max"]
+            else:
+                price = resp_atual[0]["sell_price_min"]
+                
+            if price > 0:
+                return price
 
-        # 2️⃣ Histórico das últimas 24h
+        # 2️⃣ Fallback: Se o preço atual falhar, pega a média das últimas 24h
         url_hist = f"{HISTORY_URL}{item_id}?locations={location}&timescale=24"
         resp_hist = requests.get(url_hist, timeout=10).json()
 
-        if not resp_hist or "data" not in resp_hist[0]:
-            return 0
+        if resp_hist and "data" in resp_hist[0]:
+            dados = resp_hist[0]["data"]
+            if dados:
+                # Pega o preço médio do registro mais recente (última hora com venda)
+                return dados[-1]["avg_price"]
 
-        # 3️⃣ Filtra preços válidos
-        prices = [
-            d["avg_price"]
-            for d in resp_hist[0]["data"]
-            if d["avg_price"] > 0 and d["item_count"] >= 3
-        ]
-
-        if not prices:
-            return 0
-
-        # 4️⃣ Usa mediana (não média!)
-        prices.sort()
-        mid = len(prices) // 2
-        return prices[mid]
-
+        return 0
     except:
         return 0
-
 def calcular_horas(data_iso):
     try:
         data_api = datetime.fromisoformat(data_iso.replace("Z", "+00:00"))
