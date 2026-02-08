@@ -298,42 +298,28 @@ FILTROS = {
 # MUDANÇA 1 IMPLEMENTADA: Prioriza preço de venda direto se histórico estiver defasado
 def get_historical_price(item_id, location="Black Market"):
     try:
-        url = f"{API_URL}{item_id}?locations={location}"
-        resp = requests.get(url, timeout=10).json()
+        # 1️⃣ Tenta preço atual primeiro (sempre prioridade)
+        url_atual = f"{API_URL}{item_id}?locations={location}"
+        resp_atual = requests.get(url_atual, timeout=10).json()
+        if resp_atual and resp_atual[0]["sell_price_min"] > 0:
+            return resp_atual[0]["sell_price_min"]
 
-        if resp:
-            data = resp[0]
-            price = data["sell_price_min"]
-            date = data["sell_price_min_date"]
-
-            if price > 0 and date:
-                horas = calcular_horas(date)
-
-                # ✅ Só confia se for recente (até 3h)
-                if horas <= 3:
-                    return price
-
-        # 🔁 Fallback: histórico 24h
+        # 2️⃣ Histórico das últimas 24h
         url_hist = f"{HISTORY_URL}{item_id}?locations={location}&timescale=24"
-        hist = requests.get(url_hist, timeout=10).json()
+        resp_hist = requests.get(url_hist, timeout=10).json()
 
-        if not hist or "data" not in hist[0]:
+        if not resp_hist or "data" not in resp_hist[0]:
             return 0
 
+        # 3️⃣ Filtra preços válidos
         prices = [
             d["avg_price"]
-            for d in hist[0]["data"]
-            if d["avg_price"] > 0 and d["item_count"] >= 2
+            for d in resp_hist[0]["data"]
+            if d["avg_price"] > 0 and d["item_count"] >= 3
         ]
 
         if not prices:
             return 0
-
-        prices.sort()
-        return prices[len(prices) // 2]
-
-    except:
-        return 0
 
         # 4️⃣ Usa mediana (não média!)
         prices.sort()
