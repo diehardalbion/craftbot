@@ -298,28 +298,18 @@ FILTROS = {
 # MUDANÇA 1 IMPLEMENTADA: Prioriza preço de venda direto se histórico estiver defasado
 def get_historical_price(item_id, location="Black Market"):
     try:
-        # 1. Tentamos o preço atual, mas só se ele for muito recente
-        url_atual = f"{API_URL}{item_id}?locations={location}"
-        resp_atual = requests.get(url_atual, timeout=10).json()
-        
-        if resp_atual:
-            data_venda = resp_atual[0]["buy_price_max_date"]
-            # Se o dado tem menos de 30 minutos, ele é muito confiável
-            if calcular_horas(data_venda) < 0.5 and resp_atual[0]["buy_price_max"] > 0:
-                return resp_atual[0]["buy_price_max"]
-
-        # 2. Se o dado atual for velho, usamos a média das vendas REAIS
+        # Pegamos o histórico de 24h
         url_hist = f"{HISTORY_URL}{item_id}?locations={location}&timescale=24"
         resp_hist = requests.get(url_hist, timeout=10).json()
 
-        if resp_hist and "data" in resp_hist[0]:
-            # Filtramos apenas momentos onde o NPC realmente comprou (item_count > 0)
-            dados_reais = [d for d in resp_hist[0]["data"] if d["item_count"] > 0]
+        if resp_hist and "data" in resp_hist[0] and resp_hist[0]["data"]:
+            dados = resp_hist[0]["data"]
+            # Em vez de média, pegamos o MAIOR preço (Pico) que o NPC pagou hoje
+            # Isso chega muito mais perto dos 90k que você vê no jogo
+            picos = [d["max_price"] for d in dados if d["item_count"] > 0]
             
-            if dados_reais:
-                # Pegamos o preço médio do último horário de venda registrado
-                # Isso mostra o valor real que o NPC pagou na última vez que comprou
-                return dados_reais[-1]["avg_price"]
+            if picos:
+                return max(picos) # Retorna o maior valor registrado no dia
 
         return 0
     except:
