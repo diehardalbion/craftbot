@@ -298,22 +298,35 @@ FILTROS = {
 # MUDANÇA 1 IMPLEMENTADA: Prioriza preço de venda direto se histórico estiver defasado
 def get_historical_price(item_id, location="Black Market"):
     try:
-        # Pegamos o histórico de 24h
+        # 1️⃣ Tenta o Histórico de 24h para pegar o PICO (Máximo que o NPC pagou)
         url_hist = f"{HISTORY_URL}{item_id}?locations={location}&timescale=24"
         resp_hist = requests.get(url_hist, timeout=10).json()
 
         if resp_hist and "data" in resp_hist[0] and resp_hist[0]["data"]:
-            dados = resp_hist[0]["data"]
-            # Em vez de média, pegamos o MAIOR preço (Pico) que o NPC pagou hoje
-            # Isso chega muito mais perto dos 90k que você vê no jogo
-            picos = [d["max_price"] for d in dados if d["item_count"] > 0]
-            
-            if picos:
-                return max(picos) # Retorna o maior valor registrado no dia
+            dados = [d for d in resp_hist[0]["data"] if d["item_count"] > 0]
+            if dados:
+                # Retorna o maior preço registrado nas últimas 24h
+                return max(d["max_price"] for d in dados)
 
+        # 2️⃣ Se o histórico falhar, tenta o Preço de Compra Atual (Buy Order)
+        url_atual = f"{API_URL}{item_id}?locations={location}"
+        resp_atual = requests.get(url_atual, timeout=10).json()
+        
+        if resp_atual:
+            if location == "Black Market" and resp_atual[0]["buy_price_max"] > 0:
+                return resp_atual[0]["buy_price_max"]
+            elif resp_atual[0]["sell_price_min"] > 0:
+                return resp_atual[0]["sell_price_min"]
+
+        # 3️⃣ Última tentativa: Média do histórico (mesmo que antiga)
+        if resp_hist and "data" in resp_hist[0] and resp_hist[0]["data"]:
+            medias = [d["avg_price"] for d in resp_hist[0]["data"] if d["avg_price"] > 0]
+            if medias:
+                return medias[-1]
+
+    except Exception as e:
         return 0
-    except:
-        return 0
+    return 0
 def calcular_horas(data_iso):
     try:
         data_api = datetime.fromisoformat(data_iso.replace("Z", "+00:00"))
