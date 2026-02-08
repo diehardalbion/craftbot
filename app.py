@@ -298,33 +298,25 @@ FILTROS = {
 # MUDANÇA 1 IMPLEMENTADA: Prioriza preço de venda direto se histórico estiver defasado
 def get_historical_price(item_id, location="Black Market"):
     try:
-        # 1. Buscamos no endpoint de PREÇOS (que é mais estável que o histórico)
-        # Pedimos o dado de todas as cidades se for artefato, ou só BM se for o item
+        # 1. Buscamos o preço de mercado atual
         url = f"{API_URL}{item_id}?locations={location}"
-        response = requests.get(url, timeout=10)
-        data = response.json()
+        data = requests.get(url, timeout=10).json()
 
         if data:
-            for entry in data:
-                # Se estivermos olhando o Black Market, o preço real é o 'buy_price_max'
-                if "Black Market" in entry['city']:
-                    if entry['buy_price_max'] > 0:
-                        return entry['buy_price_max']
+            entry = data[0]
+            # Se for Black Market, tentamos pegar o maior valor entre o preço de compra 
+            # e o histórico recente, para não pegar o valor de "reset" (2k)
+            if "Black Market" in entry.get('city', ''):
+                buy_price = entry.get('buy_price_max', 0)
+                sell_price = entry.get('sell_price_min', 0)
                 
-                # Se estivermos olhando cidades normais (para Artefatos)
-                else:
-                    if entry['sell_price_min'] > 0:
-                        return entry['sell_price_min']
-
-        # 2. Se o passo acima falhar, tentamos uma última vez sem especificar localização
-        # para ver se a API tem qualquer dado global recente
-        url_global = f"{API_URL}{item_id}"
-        data_global = requests.get(url_global, timeout=10).json()
-        if data_global:
-            # Pegamos o maior preço de compra disponível em qualquer lugar
-            precos = [d['buy_price_max'] for d in data_global if d['buy_price_max'] > 0]
-            if precos:
-                return max(precos)
+                # No BM, se o Buy Price está muito baixo (resetado), 
+                # o Sell Price costuma guardar o valor real que os players estão pedindo.
+                # Vamos pegar o maior entre os dois para ter uma estimativa real de venda.
+                return max(buy_price, sell_price) if buy_price > 0 or sell_price > 0 else 0
+            else:
+                # Para Artefatos e Cidades normais, o preço de venda mínimo é o que importa
+                return entry.get('sell_price_min', 0)
 
     except:
         return 0
