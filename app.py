@@ -300,9 +300,9 @@ def get_historical_price(item_id, location="Black Market"):
     try:
         # 1️⃣ Tenta preço atual primeiro (sempre prioridade)
         url_atual = f"{API_URL}{item_id}?locations={location}"
-        resp_atual = requests.get(url_atual, timeout=10).json()
-        if resp_atual and resp_atual[0]["sell_price_max"] > 0:
-            return resp_atual[0]["sell_price_min"]
+        resp_atual = requests.get(url_atual, timeout=30).json()
+        if resp_atual and resp_atual[0]["sell_price_min"] > 0:
+            return resp_atual[0]["sell_price_max"]
 
         # 2️⃣ Histórico das últimas 24h
         url_hist = f"{HISTORY_URL}{item_id}?locations={location}&timescale=24"
