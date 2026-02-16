@@ -366,6 +366,8 @@ ITENS_DB = {
     "LANÇA TRINA": ["2H_GLAIVE_HELL", "Tábuas de Pinho", 20, "Barra de Aço", 12, "ARTEFACT_2H_TRIDENT_UNDEAD", 1],
     "ALVORADA": ["MAIN_SPEAR_AVALON", "Tábuas de Pinho", 16, "Barra de Aço", 8, "ARTEFACT_MAIN_SPEAR_LANCE_AVALON", 1],
     "ARCHA FRATURADA": ["2H_SPEAR_CRYSTAL", "Tábuas de Pinho", 12, "Barra de Aço", 20, "QUESTITEM_TOKEN_CRYSTAL_SPEAR", 1]
+    # ================= BOLSAS =================
+    "BOLSA": ["BAG", "Tecido Fino", 8, "Couro Trabalhado", 8, None, 0],
 }
 
 # ================= FILTROS CORRIGIDOS =================
@@ -410,6 +412,9 @@ FILTROS = {
 
     # SECUNDÁRIAS
     "secundarias": lambda k, v: v[0].startswith("OFF_"),
+    # BOLSAS
+    "bolsas": lambda k, v: "BAG" in v[0],
+
 }
 
 # Pronto! Agora você pode enviar os itens do Bordão para eu formatar e adicionar na DB.
