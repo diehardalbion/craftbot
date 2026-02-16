@@ -281,16 +281,32 @@ ITENS_DB = {
 
 # ================= FILTROS =================
 FILTROS = {
+    # ARMADURAS
     "armadura_placa": lambda k, v: "ARMOR_PLATE" in v[0],
     "armadura_couro": lambda k, v: "ARMOR_LEATHER" in v[0],
     "armadura_pano": lambda k, v: "ARMOR_CLOTH" in v[0],
+
+    # BOTAS
     "botas_placa": lambda k, v: "SHOES_PLATE" in v[0],
     "botas_couro": lambda k, v: "SHOES_LEATHER" in v[0],
     "botas_pano": lambda k, v: "SHOES_CLOTH" in v[0],
+
+    # CAPACETES
     "capacete_placa": lambda k, v: "HEAD_PLATE" in v[0],
     "capacete_couro": lambda k, v: "HEAD_LEATHER" in v[0],
     "capacete_pano": lambda k, v: "HEAD_CLOTH" in v[0],
-    "armas": lambda k, v: v[0].startswith(("MAIN_", "2H_")),
+
+    # ARMAS DIVIDIDAS
+    "espadas": lambda k, v: "SWORD" in v[0],
+    "machados": lambda k, v: "AXE" in v[0],
+    "mace": lambda k, v: "MACE" in v[0],
+    "martelos": lambda k, v: "HAMMER" in v[0],
+    "lancas": lambda k, v: "SPEAR" in v[0] or "GLAIVE" in v[0],
+    "adagas": lambda k, v: "DAGGER" in v[0],
+    "bestas": lambda k, v: "CROSSBOW" in v[0],
+    "manoplas": lambda k, v: "KNUCKLES" in v[0],
+
+    # SECUNDÁRIAS
     "secundarias": lambda k, v: v[0].startswith("OFF_"),
 }
 
