@@ -306,6 +306,14 @@ FILTROS = {
     "bestas": lambda k, v: "CROSSBOW" in v[0],
     "manoplas": lambda k, v: "KNUCKLES" in v[0],
 
+    # CAJADOS
+    "fogo": lambda k, v: "FIRESTAFF" in v[0],
+    "gelo": lambda k, v: "FROSTSTAFF" in v[0],
+    "arcano": lambda k, v: "ARCANESTAFF" in v[0],
+    "sagrado": lambda k, v: "HOLYSTAFF" in v[0],
+    "natureza": lambda k, v: "NATURESTAFF" in v[0],
+    "amaldiçoado": lambda k, v: "CURSEDSTAFF" in v[0],
+
     # SECUNDÁRIAS
     "secundarias": lambda k, v: v[0].startswith("OFF_"),
 }
