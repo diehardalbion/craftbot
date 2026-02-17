@@ -499,7 +499,12 @@ def id_item(tier, base, enc):
 
 def ids_recurso_variantes(tier, nome, enc):
     base = f"T{tier}_{RECURSO_MAP[nome]}"
-    if enc > 0: return [f"{base}@{enc}", f"{base}_LEVEL{enc}@{enc}"]
+    # Se for .4, usamos o padrão especial da API do Albion
+    if enc == 4: 
+        return [f"{base}_LEVEL4@4"] # Agora gera T8_METALBAR_LEVEL4@4 (CORRETO)
+    # Para os outros (.1, .2, .3), continua o padrão normal
+    if enc > 0:
+        return [f"{base}@{enc}"]
     return [base]
 
 def identificar_cidade_bonus(nome_item):
