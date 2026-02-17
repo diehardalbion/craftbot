@@ -501,12 +501,17 @@ if btn:
     # Coleta de IDs de recursos para a API
     ids_para_recursos = set()
     for d in itens.values():
-        for r in ids_recurso_variantes(tier, d[1], encanto): ids_para_recursos.add(r)
+        for r in ids_recurso_variantes(tier, d[1], encanto):
+            ids_para_recursos.add(r)
         if d[3]:
-            for r in ids_recurso_variantes(tier, d[3], encanto): ids_para_recursos.add(r)
+            for r in ids_recurso_variantes(tier, d[3], encanto):
+                ids_para_recursos.add(r)
 
     try:
-        response = requests.get(f"{API_URL}{','.join(ids_para_recursos)}?locations=Thetford,FortSterling,Martlock,Lymhurst,Bridgewatch,Caerleon", timeout=20)
+        response = requests.get(
+            f"{API_URL}{','.join(ids_para_recursos)}?locations=Thetford,FortSterling,Martlock,Lymhurst,Bridgewatch,Caerleon",
+            timeout=20
+        )
         data_recursos = response.json()
     except:
         st.error("Erro ao conectar com a API de recursos. Tente novamente.")
@@ -524,56 +529,85 @@ if btn:
     resultados = []
     progress_text = "Analisando Mercado e Calculando Lucros..."
     my_bar = st.progress(0, text=progress_text)
-    
+
     total_itens = len(itens)
+
     for i, (nome, d) in enumerate(itens.items()):
         item_id = id_item(tier, d[0], encanto)
-        preco_venda_bm = get_historical_price(item_id) 
+        preco_venda_bm = get_historical_price(item_id)
+
         my_bar.progress((i + 1) / total_itens, text=f"Analisando: {nome}")
 
-        if preco_venda_bm <= 0: continue
+        if preco_venda_bm <= 0:
+            continue
 
         custo = 0
         detalhes = []
         valid_craft = True
 
-        # Cálculo de Recursos Base
+        # ================= CÁLCULO DE RECURSOS BASE =================
         for recurso, qtd in [(d[1], d[2]), (d[3], d[4])]:
-            if not recurso or qtd == 0: continue
+            if not recurso or qtd == 0:
+                continue
+
             found = False
+
             for rid in ids_recurso_variantes(tier, recurso, encanto):
                 if rid in precos_recursos:
                     info = precos_recursos[rid]
+
+                    # 🔥 Nome correto baseado no tier
+                    nome_recurso = NOMES_RECURSOS_TIER.get(recurso, {}).get(tier, recurso)
+
                     custo += info["price"] * qtd * quantidade
-                    detalhes.append(f"{qtd * quantidade}x T{tier}.{encanto} {recurso}: {info['price']:,} ({info['city']})")
+
+                    detalhes.append(
+                        f"{qtd * quantidade}x T{tier}.{encanto} {nome_recurso}: "
+                        f"{info['price']:,} ({info['city']})"
+                    )
+
                     found = True
                     break
+
             if not found:
                 valid_craft = False
                 break
-        
-        if not valid_craft: continue
 
-        # Cálculo de Artefatos (Se houver)
+        if not valid_craft:
+            continue
+
+        # ================= CÁLCULO DE ARTEFATOS =================
         if d[5]:
             art_id = f"T{tier}_{d[5]}"
-            preco_artefato = get_historical_price(art_id, location="Caerleon,FortSterling,Thetford,Lymhurst,Bridgewatch,Martlock")
+            preco_artefato = get_historical_price(
+                art_id,
+                location="Caerleon,FortSterling,Thetford,Lymhurst,Bridgewatch,Martlock"
+            )
+
             if preco_artefato > 0:
                 qtd_art = d[6] * quantidade
                 custo += preco_artefato * qtd_art
-                detalhes.append(f"{qtd_art}x Artefato: {preco_artefato:,.0f} (Média Market)")
-            else: 
+
+                detalhes.append(
+                    f"{qtd_art}x Artefato: "
+                    f"{preco_artefato:,.0f} (Média Market)"
+                )
+            else:
                 valid_craft = False
 
-        if not valid_craft: continue
+        if not valid_craft:
+            continue
 
         custo_final = int(custo)
         venda_total = int(preco_venda_bm * quantidade)
         lucro = int((venda_total * 0.935) - custo_final)
 
-        resultados.append((nome, lucro, venda_total, custo_final, detalhes, "Market Atual/24h"))
+        resultados.append(
+            (nome, lucro, venda_total, custo_final, detalhes, "Market Atual/24h")
+        )
 
     my_bar.empty()
+
     # Ordenar pelo maior lucro
     resultados.sort(key=lambda x: x[1], reverse=True)
 
@@ -581,26 +615,32 @@ if btn:
         st.warning("⚠️ A API não retornou preços recentes para os itens desta categoria no Black Market.")
     else:
         st.subheader(f"📊 {len(resultados)} Itens Encontrados - {categoria.upper()} T{tier}.{encanto}")
-        
+
         for nome, lucro, venda, custo, detalhes, h_venda in resultados:
             perc_lucro = (lucro / custo) * 100 if custo > 0 else 0
             cidade_foco = identificar_cidade_bonus(nome)
             cor_destaque = "#2ecc71" if lucro > 0 else "#e74c3c"
-            
+
             st.markdown(f"""
             <div class="item-card-custom" style="border-left: 8px solid {cor_destaque};">
                 <div style="font-weight: bold; font-size: 1.2rem; margin-bottom: 10px; color: {cor_destaque};">
                     ⚔️ {nome} [T{tier}.{encanto}] x{quantidade}
                 </div>
                 <div style="font-size: 1.05rem; margin-bottom: 8px;">
-                    <span style="color: {cor_destaque}; font-weight: bold; font-size: 1.2rem;">💰 Lucro Estimado: {lucro:,} ({perc_lucro:.2f}%)</span> 
-                    <br><b>Investimento:</b> {custo:,} | <b>Venda Estimada (BM):</b> {venda:,}
+                    <span style="color: {cor_destaque}; font-weight: bold; font-size: 1.2rem;">
+                        💰 Lucro Estimado: {lucro:,} ({perc_lucro:.2f}%)
+                    </span>
+                    <br><b>Investimento:</b> {custo:,} |
+                    <b>Venda Estimada (BM):</b> {venda:,}
                 </div>
                 <div style="font-size: 0.95rem; color: #cbd5e1; margin-bottom: 10px;">
-                    📍 <b>Foco Craft:</b> {cidade_foco} | 🕒 <b>Baseado em:</b> {h_venda}
+                    📍 <b>Foco Craft:</b> {cidade_foco} |
+                    🕒 <b>Baseado em:</b> {h_venda}
                 </div>
-                <div style="background: rgba(0,0,0,0.4); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); font-size: 0.9rem;">
-                    📦 <b>Detalhamento de Compras:</b> <br> {" | ".join(detalhes)}
+                <div style="background: rgba(0,0,0,0.4); padding: 12px; border-radius: 8px;
+                            border: 1px solid rgba(255,255,255,0.1); font-size: 0.9rem;">
+                    📦 <b>Detalhamento de Compras:</b> <br>
+                    {" | ".join(detalhes)}
                 </div>
             </div>
             """, unsafe_allow_html=True)
