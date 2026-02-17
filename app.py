@@ -545,7 +545,7 @@ if btn:
                 if rid in precos_recursos:
                     info = precos_recursos[rid]
                     custo += info["price"] * qtd * quantidade
-                    detalhes.append(f"{qtd * quantidade}x {recurso}: {info['price']:,} ({info['city']})")
+                    detalhes.append(f"{qtd * quantidade}x T{tier}.{encanto} {recurso}: {info['price']:,} ({info['city']})")
                     found = True
                     break
             if not found:
