@@ -495,14 +495,13 @@ def calcular_horas(data_iso):
     except: return 999
 
 def id_item(tier, base, enc):
-    return f"T{tier}_{base}@{enc}" if enc > 0 else f"T{tier}_{base}"
-
+    if enc == 0: 
+        return f"T{tier}_{base}" # Se for encanto 0, remove o @0
+    return f"T{tier}_{base}@{enc}"
 def ids_recurso_variantes(tier, nome, enc):
     base = f"T{tier}_{RECURSO_MAP[nome]}"
-    # Se for .4, usamos o padrão especial da API do Albion
     if enc == 4: 
-        return [f"{base}_LEVEL4@4"] # Agora gera T8_METALBAR_LEVEL4@4 (CORRETO)
-    # Para os outros (.1, .2, .3), continua o padrão normal
+        return [f"{base}_LEVEL4@4"] # Correção: O .4 exige esse formato longo.
     if enc > 0:
         return [f"{base}@{enc}"]
     return [base]
