@@ -114,6 +114,38 @@ BONUS_CIDADE = {
     "Brecilien": ["CAPE", "BAG"]
 }
 
+# ================= NOMES CORRETOS POR TIER =================
+NOMES_RECURSOS_TIER = {
+    "Barra de Aço": {
+        4: "Barra de Aço",
+        5: "Barra de Titânio",
+        6: "Barra de Runita",
+        7: "Barra de Meteorito",
+        8: "Barra de Adamante"
+    },
+    "Tábuas de Pinho": {
+        4: "Tábuas de Pinho",
+        5: "Tábuas de Cedro",
+        6: "Tábuas de Carvalho-Sangue",
+        7: "Tábuas de Freixo",
+        8: "Tábuas de Pau-branco"
+    },
+    "Couro Trabalhado": {
+        4: "Couro Trabalhado",
+        5: "Couro Curtido",
+        6: "Couro Endurecido",
+        7: "Couro Reforçado",
+        8: "Couro Fortificado"
+    },
+    "Tecido Fino": {
+        4: "Tecido Fino",
+        5: "Tecido Ornado",
+        6: "Tecido Rico",
+        7: "Tecido Opulento",
+        8: "Tecido Barroco"
+    }
+}
+
 ITENS_DB = {
     # ================= CAJADOS AMALDIÇOADOS (CURSED) =================
     "Cajado Amaldiçoado": ["MAIN_CURSEDSTAFF", "Tábuas de Pinho", 16, "Barra de Aço", 8, None, 0],
