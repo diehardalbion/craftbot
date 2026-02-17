@@ -495,15 +495,11 @@ def calcular_horas(data_iso):
     except: return 999
 
 def id_item(tier, base, enc):
-    if enc == 0: 
-        return f"T{tier}_{base}" # Se for encanto 0, remove o @0
-    return f"T{tier}_{base}@{enc}"
+    return f"T{tier}_{base}@{enc}" if enc > 0 else f"T{tier}_{base}"
+
 def ids_recurso_variantes(tier, nome, enc):
     base = f"T{tier}_{RECURSO_MAP[nome]}"
-    if enc == 4: 
-        return [f"{base}_LEVEL4@4"] # Correção: O .4 exige esse formato longo.
-    if enc > 0:
-        return [f"{base}@{enc}"]
+    if enc > 0: return [f"{base}@{enc}", f"{base}_LEVEL{enc}@{enc}"]
     return [base]
 
 def identificar_cidade_bonus(nome_item):
