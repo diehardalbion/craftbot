@@ -218,17 +218,26 @@ FILTROS = {
 }
 
 # ================= FUNÇÕES =================
+def calcular_horas(data_iso):
+    try:
+        data_api = datetime.fromisoformat(data_iso.replace("Z", "+00:00"))
+        data_agora = datetime.now(timezone.utc)
+        diff = data_agora - data_api
+        total_segundos = int(diff.total_seconds())
+        if total_segundos < 60: return f"{total_segundos}s"
+        if total_segundos < 3600: return f"{total_segundos // 60}m"
+        return f"{total_segundos // 3600}h"
+    except: return "???"
+
 def get_historical_price(item_id, location):
     try:
         # 1️⃣ Busca Média Histórica (24h) para Validação
         url_hist = f"{HISTORY_URL}{item_id}?locations={location}&timescale=24"
         resp_hist = requests.get(url_hist, timeout=10).json()
         avg_price_24h = 0
-        
         if resp_hist and "data" in resp_hist[0] and resp_hist[0]["data"]:
             valid_hist = [d["avg_price"] for d in resp_hist[0]["data"] if d["avg_price"] > 0]
-            if valid_hist:
-                avg_price_24h = sum(valid_hist) / len(valid_hist)
+            if valid_hist: avg_price_24h = sum(valid_hist) / len(valid_hist)
 
         # 2️⃣ Busca Preço Atual
         url_atual = f"{API_URL}{item_id}?locations={location}"
@@ -240,32 +249,28 @@ def get_historical_price(item_id, location):
                 city_req = location.replace(" ", "").lower()
                 
                 if city_api == city_req:
-                    # Se for Black Market, mantém a lógica original
-                    if city_req == "blackmarket":
-                        if entry["sell_price_min"] > 0: return entry["sell_price_min"]
-                    else:
-                        # LÓGICA REFINADA PARA CIDADES REAIS:
-                        sell_min = entry["sell_price_min"]
-                        buy_max = entry["buy_price_max"]
-                        
-                        # Se o preço de venda for absurdo (ex: 999.999), tenta validar com a média histórica
-                        if sell_min >= 999999:
-                            if avg_price_24h > 0 and avg_price_24h < 500000:
-                                return int(avg_price_24h) # Usa média histórica se o atual for absurdo
-                            elif buy_max > 0:
-                                return buy_max # Fallback para ordem de compra se houver
-                            return 0 # Ignora se tudo for absurdo
-                        
-                        # Se o preço de venda for muito maior que a média histórica (outlier), usa a média
-                        if avg_price_24h > 0 and sell_min > (avg_price_24h * 2.5):
-                            return int(avg_price_24h)
-                            
-                        if sell_min > 0: return sell_min
-                        if buy_max > 0: return buy_max
+                    sell_min = entry["sell_price_min"]
+                    buy_max = entry["buy_price_max"]
+                    idade = calcular_horas(entry["sell_price_min_date"])
+                    
+                    # LÓGICA OTIMIZADA:
+                    # Se o preço de venda for absurdo (999.999), tenta a média ou ordem de compra
+                    if sell_min >= 999999:
+                        if avg_price_24h > 0: return int(avg_price_24h), f"Média 24h"
+                        return buy_max, f"Ordem Compra" if buy_max > 0 else (0, "N/A")
+                    
+                    # Prioridade total para o preço de venda se ele existir e não for outlier absurdo
+                    if sell_min > 0:
+                        # Se o preço for muito diferente da média (ex: 5x mais), usa a média por segurança
+                        if avg_price_24h > 0 and sell_min > (avg_price_24h * 5):
+                            return int(avg_price_24h), f"Média ({idade})"
+                        return sell_min, idade
+                    
+                    if buy_max > 0: return buy_max, "Ordem Compra"
 
-        return int(avg_price_24h) if avg_price_24h > 0 else 0
+        return (int(avg_price_24h), "Média 24h") if avg_price_24h > 0 else (0, "N/A")
     except:
-        return 0
+        return 0, "Erro"
 
 def id_item(tier, base, enc):
     return f"T{tier}_{base}@{enc}" if enc > 0 else f"T{tier}_{base}"
@@ -331,7 +336,7 @@ if btn:
 
     for i, (nome, d) in enumerate(itens.items()):
         item_id = id_item(tier, d[0], encanto)
-        preco_venda = get_historical_price(item_id, cidade_venda)
+        preco_venda, idade_venda = get_historical_price(item_id, cidade_venda)
         my_bar.progress((i + 1) / total_itens, text=f"Analisando: {nome}")
         if preco_venda <= 0: continue
 
@@ -352,7 +357,7 @@ if btn:
         if not valid_craft: continue
         if d[5]:
             art_id = f"T{tier}_{d[5]}"
-            p_art = get_historical_price(art_id, "Caerleon,FortSterling,Thetford,Lymhurst,Bridgewatch,Martlock")
+            p_art, _ = get_historical_price(art_id, "Caerleon,FortSterling,Thetford,Lymhurst,Bridgewatch,Martlock")
             if p_art > 0:
                 custo += p_art * d[6] * quantidade
                 detalhes.append(f"{d[6]*quantidade}x Artefato: {int(p_art):,}")
@@ -361,7 +366,7 @@ if btn:
         if not valid_craft: continue
         venda_total = int(preco_venda * quantidade)
         lucro = int((venda_total * taxa) - custo)
-        resultados.append((nome, lucro, venda_total, int(custo), detalhes))
+        resultados.append((nome, lucro, venda_total, int(custo), detalhes, idade_venda))
 
     my_bar.empty()
     resultados.sort(key=lambda x: x[1], reverse=True)
@@ -370,7 +375,7 @@ if btn:
         st.warning(f"⚠️ Sem preços válidos para {cidade_venda}.")
     else:
         st.subheader(f"📊 {len(resultados)} Itens em {cidade_venda}")
-        for nome, lucro, venda, custo, dets in resultados:
+        for nome, lucro, venda, custo, dets, idade in resultados:
             perc = (lucro / custo) * 100 if custo > 0 else 0
             cor = "#2ecc71" if lucro > 0 else "#e74c3c"
             
@@ -381,7 +386,9 @@ if btn:
                     <span style="color: {cor}; font-weight: bold; font-size: 1.2rem;">💰 Lucro: {lucro:,} ({perc:.2f}%)</span><br>
                     <b>Investimento:</b> {custo:,} | <b>Venda ({cidade_venda}):</b> {venda:,}
                 </div>
-                <div style="font-size: 0.95rem; color: #cbd5e1; margin-bottom: 10px;">📍 <b>Foco Craft:</b> {identificar_cidade_bonus(nome)}</div>
+                <div style="font-size: 0.95rem; color: #cbd5e1; margin-bottom: 10px;">
+                    📍 <b>Foco Craft:</b> {identificar_cidade_bonus(nome)} | 🕒 <b>Atualizado há:</b> {idade}
+                </div>
                 <div style="background: rgba(0,0,0,0.4); padding: 10px; border-radius: 8px; font-size: 0.85rem;">
                     {" | ".join(dets)}
                 </div>
@@ -389,4 +396,4 @@ if btn:
             """, unsafe_allow_html=True)
 
 st.markdown("---")
-st.caption("Radar Craft Albion - Análise Multicidades (Validação Anti-Outlier)")
+st.caption("Radar Craft Albion - Análise com Idade de Preço")
