@@ -547,7 +547,7 @@ try:
     data_recursos = response.json()
 except:
     st.error("Erro ao buscar dados da API")
-        st.stop()
+    st.stop()
 
     # Processamento de preços de recursos
     precos_recursos = {}
