@@ -3,31 +3,6 @@ import requests
 import json
 from datetime import datetime, timezone
 
-# ================= LISTA DE CIDADES =================
-CIDADES = [
-    "Martlock",
-    "Thetford",
-    "Fort Sterling",
-    "Lymhurst",
-    "Bridgewatch",
-    "Brecilien",
-    "Caerleon",
-    "BlackMarket"
-]
-
-
-# ================= MAP PARA API =================
-CIDADE_API_MAP = {
-    "Martlock": "Martlock",
-    "Thetford": "Thetford",
-    "Fort Sterling": "FortSterling",
-    "Lymhurst": "Lymhurst",
-    "Bridgewatch": "Bridgewatch",
-    "Brecilien": "Brecilien",
-    "Caerleon": "Caerleon",
-    "Black Market": "BlackMarket"
-}
-
 # ================= CONFIGURAÇÃO DA PÁGINA =================
 st.set_page_config("Radar Craft Albion", layout="wide", page_icon="⚔️")
 
@@ -124,42 +99,11 @@ if not st.session_state.autenticado:
         """, unsafe_allow_html=True)
     st.stop()
 
-st.sidebar.title("⚙️ Configurações")
-
-cidade_escolhida = st.sidebar.selectbox(
-    "Selecione a cidade:",
-    CIDADES,
-    index=CIDADES.index("BlackMarket")  # deixa BM como padrão
-)
-
 # ================= CONFIG DE DADOS =================
 API_URL = "https://west.albion-online-data.com/api/v2/stats/prices/"
 HISTORY_URL = "https://west.albion-online-data.com/api/v2/stats/history/"
-RECURSO_MAP = {
-    # ================= RECURSOS BASE =================
-    "Tecido Fino": "CLOTH",
-    "Couro Trabalhado": "LEATHER",
-    "Barra de Aço": "METALBAR",
-    "Tábuas de Pinho": "PLANKS",
-
-    # ================= CORAÇÕES =================
-    "HEART_MARTLOCK": "HEART_MARTLOCK",
-    "HEART_BRIDGEWATCH": "HEART_BRIDGEWATCH",
-    "HEART_LYMHURST": "HEART_LYMHURST",
-    "HEART_FORTSTERLING": "HEART_FORTSTERLING",
-    "HEART_THETFORD": "HEART_THETFORD",
-    "HEART_CAERLEON": "HEART_CAERLEON",
-    "HEART_BRECILIEN": "HEART_BRECILIEN",
-
-    # ================= CRESTS =================
-    "CREST_MARTLOCK": "CREST_MARTLOCK",
-    "CREST_BRIDGEWATCH": "CREST_BRIDGEWATCH",
-    "CREST_LYMHURST": "CREST_LYMHURST",
-    "CREST_FORTSTERLING": "CREST_FORTSTERLING",
-    "CREST_THETFORD": "CREST_THETFORD",
-    "CREST_CAERLEON": "CREST_CAERLEON",
-    "CREST_BRECILIEN": "CREST_BRECILIEN",
-}
+CIDADES = ["Martlock", "Thetford", "FortSterling", "Lymhurst", "Bridgewatch", "Brecilien", "Caerleon", "Black Market"]
+RECURSO_MAP = {"Tecido Fino": "CLOTH", "Couro Trabalhado": "LEATHER", "Barra de Aço": "METALBAR", "Tábuas de Pinho": "PLANKS"}
 BONUS_CIDADE = {
     "Martlock": ["AXE", "QUARTERSTAFF", "FROSTSTAFF", "SHOES_PLATE", "OFF_"],
     "Bridgewatch": ["CROSSBOW", "DAGGER", "CURSEDSTAFF", "ARMOR_PLATE", "SHOES_CLOTH"],
@@ -203,16 +147,6 @@ NOMES_RECURSOS_TIER = {
 }
 
 ITENS_DB = {
-    # ================= CAPAS DE CIDADE =================
-
-    "Capacapa de Martlock": ["CAPEITEM_FW_MARTLOCK", "Tecido Fino", 16, "HEART_MARTLOCK", 1, "CREST_MARTLOCK", 1],
-    "Capacapa de Bridgewatch": ["CAPEITEM_FW_BRIDGEWATCH", "Tecido Fino", 16, "HEART_BRIDGEWATCH", 1, "CREST_BRIDGEWATCH", 1],
-    "Capacapa de Lymhurst": ["CAPEITEM_FW_LYMHURST", "Tecido Fino", 16, "HEART_LYMHURST", 1, "CREST_LYMHURST", 1],
-    "Capacapa de Fort Sterling": ["CAPEITEM_FW_FORTSTERLING", "Tecido Fino", 16, "HEART_FORTSTERLING", 1, "CREST_FORTSTERLING", 1],
-    "Capacapa de Thetford": ["CAPEITEM_FW_THETFORD", "Tecido Fino", 16, "HEART_THETFORD", 1, "CREST_THETFORD", 1],
-    "Capacapa de Caerleon": ["CAPEITEM_FW_CAERLEON", "Tecido Fino", 16, "HEART_CAERLEON", 1, "CREST_CAERLEON", 1],
-    "Capacapa de Brecilien": ["CAPEITEM_FW_BRECILIEN", "Tecido Fino", 16, "HEART_BRECILIEN", 1, "CREST_BRECILIEN", 1],
-    
     # ================= CAJADOS AMALDIÇOADOS (CURSED) =================
     "Cajado Amaldiçoado": ["MAIN_CURSEDSTAFF", "Tábuas de Pinho", 16, "Barra de Aço", 8, None, 0],
     "Cajado Amaldiçoado Elevado": ["2H_CURSEDSTAFF", "Tábuas de Pinho", 20, "Barra de Aço", 12, None, 0],
@@ -507,9 +441,6 @@ FILTROS = {
     "natureza": lambda k, v: "NATURESTAFF" in v[0],
     "amaldiçoado": lambda k, v: "CURSEDSTAFF" in v[0],
     "metamorfo": lambda k, v: "SHAPESHIFTER" in v[0],
-    # CAPAS
-    "capas": lambda k, v: "CAPEITEM" in v[0],
-
 
     # SECUNDÁRIAS
     "secundarias": lambda k, v: v[0].startswith("OFF_"),
@@ -566,18 +497,9 @@ def calcular_horas(data_iso):
 def id_item(tier, base, enc):
     return f"T{tier}_{base}@{enc}" if enc > 0 else f"T{tier}_{base}"
 
-def ids_recurso_variantes(tier, nome, encanto):
-
-    # =========================
-    # ITENS QUE NÃO POSSUEM TIER
-    # =========================
-    if nome.startswith("HEART_") or nome.startswith("CREST_"):
-        return [RECURSO_MAP[nome]]
-
-    # =========================
-    # RECURSOS NORMAIS (continua igual)
-    # =========================
+def ids_recurso_variantes(tier, nome, enc):
     base = f"T{tier}_{RECURSO_MAP[nome]}"
+    if enc > 0: return [f"{base}@{enc}", f"{base}_LEVEL{enc}@{enc}"]
     return [base]
 
 def identificar_cidade_bonus(nome_item):
@@ -617,39 +539,16 @@ if btn:
             for r in ids_recurso_variantes(tier, d[3], encanto):
                 ids_para_recursos.add(r)
 
-ids = []
-
-for nome_item, dados in ITENS_DB.items():
-    item_id_base = dados[0]  # ID base do item
-
-    # monta ID com tier e encanto
-    item_id = f"T{tier}_{item_id_base}"
-
-    if encanto > 0:
-        item_id += f"@{encanto}"
-
-    ids.append(item_id)
-
-try:
-    cidade_api = CIDADE_API_MAP[cidade_escolhida]
-
-    if not ids:
-        st.warning("Nenhum item encontrado com esses filtros.")
+    try:
+        response = requests.get(
+            f"{API_URL}{','.join(ids_para_recursos)}?locations=Thetford,FortSterling,Martlock,Lymhurst,Bridgewatch,Caerleon",
+            timeout=20
+        )
+        data_recursos = response.json()
+    except:
+        st.error("Erro ao conectar com a API de recursos. Tente novamente.")
         st.stop()
 
-    ids_string = ",".join(ids)
-
-    url = f"{API_URL}{ids_string}?locations={cidade_api}"
-
-    response = requests.get(url, timeout=20)
-    response.raise_for_status()
-
-    data_recursos = response.json()
-
-except Exception as e:
-    st.error(f"Erro ao conectar com a API: {e}")
-    st.stop()
-    
     # Processamento de preços de recursos
     precos_recursos = {}
     for p in data_recursos:
