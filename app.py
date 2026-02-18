@@ -529,7 +529,6 @@ if btn:
     except: st.error("Erro API Venda."); st.stop()
 
     # 3. Processamento
-    resultados = []
     # RESTAURANDO BARRA DE PROGRESSO ORIGINAL
     my_bar = st.progress(0, text="Escaneando Mercado Global...")
     
@@ -601,4 +600,3 @@ if btn:
                 {"".join([f'<div class="city-item"><span>{v["city"]}</span><span style="color:{"#2ecc71" if v["profit"] > 0 else "#e74c3c"}">{v["profit"]:,} ({v["idade"]})</span></div>' for v in res["vendas"]])}
             </div>
         </div>
-        """, unsafe_allow_html=True)
