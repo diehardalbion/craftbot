@@ -103,7 +103,31 @@ if not st.session_state.autenticado:
 API_URL = "https://west.albion-online-data.com/api/v2/stats/prices/"
 HISTORY_URL = "https://west.albion-online-data.com/api/v2/stats/history/"
 CIDADES = ["Martlock", "Thetford", "FortSterling", "Lymhurst", "Bridgewatch", "Brecilien", "Caerleon", "Black Market"]
-RECURSO_MAP = {"Tecido Fino": "CLOTH", "Couro Trabalhado": "LEATHER", "Barra de Aço": "METALBAR", "Tábuas de Pinho": "PLANKS"}
+RECURSO_MAP = {
+    # ================= RECURSOS BASE =================
+    "Tecido Fino": "CLOTH",
+    "Couro Trabalhado": "LEATHER",
+    "Barra de Aço": "METALBAR",
+    "Tábuas de Pinho": "PLANKS",
+
+    # ================= CORAÇÕES =================
+    "HEART_MARTLOCK": "HEART_MARTLOCK",
+    "HEART_BRIDGEWATCH": "HEART_BRIDGEWATCH",
+    "HEART_LYMHURST": "HEART_LYMHURST",
+    "HEART_FORTSTERLING": "HEART_FORTSTERLING",
+    "HEART_THETFORD": "HEART_THETFORD",
+    "HEART_CAERLEON": "HEART_CAERLEON",
+    "HEART_BRECILIEN": "HEART_BRECILIEN",
+
+    # ================= CRESTS =================
+    "CREST_MARTLOCK": "CREST_MARTLOCK",
+    "CREST_BRIDGEWATCH": "CREST_BRIDGEWATCH",
+    "CREST_LYMHURST": "CREST_LYMHURST",
+    "CREST_FORTSTERLING": "CREST_FORTSTERLING",
+    "CREST_THETFORD": "CREST_THETFORD",
+    "CREST_CAERLEON": "CREST_CAERLEON",
+    "CREST_BRECILIEN": "CREST_BRECILIEN",
+}
 BONUS_CIDADE = {
     "Martlock": ["AXE", "QUARTERSTAFF", "FROSTSTAFF", "SHOES_PLATE", "OFF_"],
     "Bridgewatch": ["CROSSBOW", "DAGGER", "CURSEDSTAFF", "ARMOR_PLATE", "SHOES_CLOTH"],
