@@ -419,38 +419,14 @@ if btn:
     resultados.sort(key=lambda x: x[2], reverse=True)
 
     if not resultados:
-        st.warning("⚠️ A API não retornou preços recentes para os itens desta categoria no Black Market.")
+        st.warning(f"Nenhum preço encontrado em {cidade_venda}")
     else:
-        st.subheader(f"📊 {len(resultados)} Itens Encontrados - {categoria.upper()} T{tier}.{encanto}")
+        st.subheader(f"📊 Resultados em {cidade_venda}")
 
-        for nome, lucro, venda, custo, detalhes, h_venda in resultados:
-            perc_lucro = (lucro / custo) * 100 if custo > 0 else 0
-            cidade_foco = identificar_cidade_bonus(nome)
-            cor_destaque = "#2ecc71" if lucro > 0 else "#e74c3c"
-
+        for nome, preco, total_venda in resultados:
             st.markdown(f"""
-            <div class="item-card-custom" style="border-left: 8px solid {cor_destaque};">
-                <div style="font-weight: bold; font-size: 1.2rem; margin-bottom: 10px; color: {cor_destaque};">
-                    ⚔️ {nome} [T{tier}.{encanto}] x{quantidade}
-                </div>
-                <div style="font-size: 1.05rem; margin-bottom: 8px;">
-                    <span style="color: {cor_destaque}; font-weight: bold; font-size: 1.2rem;">
-                        💰 Lucro Estimado: {lucro:,} ({perc_lucro:.2f}%)
-                    </span>
-                    <br><b>Investimento:</b> {custo:,} |
-                    <b>Venda Estimada (BM):</b> {venda:,}
-                </div>
-                <div style="font-size: 0.95rem; color: #cbd5e1; margin-bottom: 10px;">
-                    📍 <b>Foco Craft:</b> {cidade_foco} |
-                    🕒 <b>Baseado em:</b> {h_venda}
-                </div>
-                <div style="background: rgba(0,0,0,0.4); padding: 12px; border-radius: 8px;
-                            border: 1px solid rgba(255,255,255,0.1); font-size: 0.9rem;">
-                    📦 <b>Detalhamento de Compras:</b> <br>
-                    {" | ".join(detalhes)}
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-
-st.markdown("---")
-st.caption("Radar Craft Albion - Desenvolvido para análise de mercado via Albion Online Data Project")
+            ---
+            ### ⚔️ {nome} [T{tier}.{encanto}]
+            💰 Preço unitário: {preco:,}
+            🪙 Venda total ({quantidade}x): {total_venda:,}
+            """)
