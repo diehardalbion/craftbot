@@ -539,46 +539,24 @@ if btn:
             for r in ids_recurso_variantes(tier, d[3], encanto):
                 ids_para_recursos.add(r)
 
-try:
-    response = requests.get(
-        f"{API_URL}{','.join(ids_para_recursos)}?locations={','.join(CIDADES)}",
-        timeout=20
-    )
-    data_recursos = response.json()
-except:
-    st.error("Erro ao buscar dados da API")
-    st.stop()
+    try:
+        response = requests.get(
+            f"{API_URL}{','.join(ids_para_recursos)}?locations=Thetford,FortSterling,Martlock,Lymhurst,Bridgewatch,Caerleon",
+            timeout=20
+        )
+        data_recursos = response.json()
+    except:
+        st.error("Erro ao conectar com a API de recursos. Tente novamente.")
+        st.stop()
 
-    precos_recursos = {}
-
-for p in data_recursos:
-    pid = p["item_id"]
-    price = p["sell_price_min"]
-
-    if price > 0:
-        if pid not in precos_recursos:
-            precos_recursos[pid] = []
-
-        precos_recursos[pid].append({
-            "city": p["city"],
-            "price": price
-        })
-    
     # Processamento de preços de recursos
     precos_recursos = {}
-
-for p in data_recursos:
-    pid = p["item_id"]
-    price = p["sell_price_min"]
-
-    if price > 0:
-        if pid not in precos_recursos:
-            precos_recursos[pid] = []
-
-        precos_recursos[pid].append({
-            "price": price,
-            "city": p["city"]
-        })
+    for p in data_recursos:
+        pid = p["item_id"]
+        price = p["sell_price_min"]
+        if price > 0:
+            if pid not in precos_recursos or price < precos_recursos[pid]["price"]:
+                precos_recursos[pid] = {"price": price, "city": p["city"]}
 
     resultados = []
     progress_text = "Analisando Mercado e Calculando Lucros..."
