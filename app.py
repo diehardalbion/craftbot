@@ -52,7 +52,6 @@ st.markdown("""
 # ================= SISTEMA DE LOGIN / KEYS =================
 def verificar_chave(chave_usuario):
     try:
-        # Tenta carregar keys.json, se não existir, cria um mock para teste ou retorna erro
         try:
             with open("keys.json", "r") as f:
                 keys_db = json.load(f)
@@ -119,7 +118,6 @@ BONUS_CIDADE = {
     "Brecilien": ["CAPE", "BAG"]
 }
 
-# ================= NOMES CORRETOS POR TIER =================
 NOMES_RECURSOS_TIER = {
     "Barra de Aço": {4: "Barra de Aço", 5: "Barra de Titânio", 6: "Barra de Runita", 7: "Barra de Meteorito", 8: "Barra de Adamante"},
     "Tábuas de Pinho": {4: "Tábuas de Pinho", 5: "Tábuas de Cedro", 6: "Tábuas de Carvalho-Sangue", 7: "Tábuas de Freixo", 8: "Tábuas de Pau-branco"},
@@ -128,7 +126,6 @@ NOMES_RECURSOS_TIER = {
 }
 
 ITENS_DB = {
-    # CAJADOS AMALDIÇOADOS
     "Cajado Amaldiçoado": ["MAIN_CURSEDSTAFF", "Tábuas de Pinho", 16, "Barra de Aço", 8, None, 0],
     "Cajado Amaldiçoado Elevado": ["2H_CURSEDSTAFF", "Tábuas de Pinho", 20, "Barra de Aço", 12, None, 0],
     "Cajado Demoníaco": ["2H_DEMONICSTAFF", "Tábuas de Pinho", 20, "Barra de Aço", 12, None, 0],
@@ -137,7 +134,6 @@ ITENS_DB = {
     "Cajado da Danação": ["2H_CURSEDSTAFF_MORGANA", "Tábuas de Pinho", 20, "Barra de Aço", 12, "ARTEFACT_2H_CURSEDSTAFF_MORGANA", 1],
     "Chama-sombra": ["MAIN_CURSEDSTAFF_AVALON", "Tábuas de Pinho", 16, "Barra de Aço", 8, "ARTEFACT_MAIN_CURSEDSTAFF_AVALON", 1],
     "Cajado Pútrido": ["2H_CURSEDSTAFF_CRYSTAL", "Tábuas de Pinho", 20, "Barra de Aço", 12, "QUESTITEM_TOKEN_CRYSTAL_CURSEDSTAFF", 1],
-    # BORDÕES
     "Bordão": ["2H_QUARTERSTAFF", "Barra de Aço", 12, "Couro Trabalhado", 20, None, 0],
     "BOLSA": ["BAG", "Tecido Fino", 8, "Couro Trabalhado", 8, None, 0],
     "Cajado Férreo": ["2H_IRONCLADSTAFF", "Barra de Aço", 12, "Couro Trabalhado", 20, None, 0],
@@ -147,7 +143,6 @@ ITENS_DB = {
     "Cajado do Equilíbrio": ["2H_ROCKSTAFF_KEEPER", "Barra de Aço", 12, "Couro Trabalhado", 20, "ARTEFACT_2H_ROCKSTAFF_KEEPER", 1],
     "Buscador do Graal": ["2H_QUARTERSTAFF_AVALON", "Barra de Aço", 12, "Couro Trabalhado", 20, "ARTEFACT_2H_QUARTERSTAFF_AVALON", 1],
     "Lâminas Gêmeas Fantasmagóricas": ["2H_QUARTERSTAFF_CRYSTAL", "Barra de Aço", 12, "Couro Trabalhado", 20, "QUESTITEM_TOKEN_CRYSTAL_QUARTERSTAFF", 1],
-    # CAJADOS DE GELO
     "Cajado de Gelo": ["MAIN_FROSTSTAFF", "Tábuas de Pinho", 16, "Barra de Aço", 8, None, 0],
     "Cajado de Gelo Elevado": ["2H_FROSTSTAFF", "Tábuas de Pinho", 20, "Barra de Aço", 12, None, 0],
     "Cajado Glacial": ["2H_GLACIALSTAFF", "Tábuas de Pinho", 20, "Barra de Aço", 12, None, 0],
@@ -156,7 +151,6 @@ ITENS_DB = {
     "Prisma Geleterno": ["2H_RAMPY_FROST_KEEPER", "Tábuas de Pinho", 20, "Barra de Aço", 12, "ARTEFACT_2H_RAMPY_FROST_KEEPER", 1],
     "Uivo Frio": ["MAIN_FROSTSTAFF_AVALON", "Tábuas de Pinho", 16, "Barra de Aço", 8, "ARTEFACT_MAIN_FROSTSTAFF_AVALON", 1],
     "Cajado Ártico": ["2H_FROSTSTAFF_CRYSTAL", "Tábuas de Pinho", 20, "Barra de Aço", 12, "QUESTITEM_TOKEN_CRYSTAL_FROSTSTAFF", 1],
-    # CAJADOS ARCANOS
     "Cajado Arcano": ["MAIN_ARCANESTAFF", "Tábuas de Pinho", 16, "Barra de Aço", 8, None, 0],
     "Cajado Arcano Elevado": ["2H_ARCANESTAFF", "Tábuas de Pinho", 20, "Barra de Aço", 12, None, 0],
     "Cajado Enigmático": ["2H_ENIGMATICSTAFF", "Tábuas de Pinho", 20, "Barra de Aço", 12, None, 0],
@@ -165,7 +159,6 @@ ITENS_DB = {
     "Local Malévolo": ["2H_ENIGMATICSTAFF_MORGANA", "Tábuas de Pinho", 20, "Barra de Aço", 12, "ARTEFACT_2H_ENIGMATICSTAFF_MORGANA", 1],
     "Som Equilibrado": ["2H_ARCANESTAFF_AVALON", "Tábuas de Pinho", 20, "Barra de Aço", 12, "ARTEFACT_2H_ARCANESTAFF_AVALON", 1],
     "Cajado Astral": ["2H_ARCANESTAFF_CRYSTAL", "Tábuas de Pinho", 20, "Barra de Aço", 12, "QUESTITEM_TOKEN_CRYSTAL_ARCANESTAFF", 1],
-    # CAJADOS SAGRADOS
     "Cajado Sagrado": ["MAIN_HOLYSTAFF", "Tábuas de Pinho", 16, "Tecido Fino", 8, None, 0],
     "Cajado Sagrado Elevado": ["2H_HOLYSTAFF", "Tábuas de Pinho", 20, "Tecido Fino", 12, None, 0],
     "Cajado Divino": ["2H_DIVINESTAFF", "Tábuas de Pinho", 20, "Tecido Fino", 12, None, 0],
@@ -174,7 +167,6 @@ ITENS_DB = {
     "Cajado da Redenção": ["2H_HOLYSTAFF_UNDEAD", "Tábuas de Pinho", 20, "Tecido Fino", 12, "ARTEFACT_2H_HOLYSTAFF_UNDEAD", 1],
     "Queda Santa": ["MAIN_HOLYSTAFF_AVALON", "Tábuas de Pinho", 16, "Tecido Fino", 8, "ARTEFACT_MAIN_HOLYSTAFF_AVALON", 1],
     "Cajado Exaltado": ["2H_HOLYSTAFF_CRYSTAL", "Tábuas de Pinho", 20, "Tecido Fino", 12, "QUESTITEM_TOKEN_CRYSTAL_HOLYSTAFF", 1],
-    # CAJADOS DE FOGO
     "Cajado de Fogo": ["MAIN_FIRESTAFF", "Tábuas de Pinho", 16, "Barra de Aço", 8, None, 0],
     "Cajado de Fogo Elevado": ["2H_FIRESTAFF", "Tábuas de Pinho", 20, "Barra de Aço", 12, None, 0],
     "Cajado Infernal": ["2H_INFERNALSTAFF", "Tábuas de Pinho", 20, "Barra de Aço", 12, None, 0],
@@ -183,16 +175,8 @@ ITENS_DB = {
     "Cajado Fulgurante": ["2H_INFERNALSTAFF_MORGANA", "Tábuas de Pinho", 20, "Barra de Aço", 12, "ARTEFACT_2H_INFERNALSTAFF_MORGANA", 1],
     "Canção da Alvorada": ["2H_FIRESTAFF_AVALON", "Tábuas de Pinho", 20, "Barra de Aço", 12, "ARTEFACT_2H_FIRESTAFF_AVALON", 1],
     "Cajado do Andarilho Flamejante": ["MAIN_FIRESTAFF_CRYSTAL", "Tábuas de Pinho", 16, "Barra de Aço", 8, "QUESTITEM_TOKEN_CRYSTAL_FIRESTAFF", 1],
-    # CAJADOS DA NATUREZA
     "Cajado da Natureza": ["MAIN_NATURESTAFF", "Tábuas de Pinho", 16, "Tecido Fino", 8, None, 0],
     "Cajado da Natureza Elevado": ["2H_NATURESTAFF", "Tábuas de Pinho", 20, "Tecido Fino", 12, None, 0],
-    "Cajado Selvagem": ["2H_WILDSTAFF", "Tábuas de Pinho", 20, "Tecido Fino", 12, None, 0],
-    "Cajado Druídico": ["MAIN_NATURESTAFF_KEEPER", "Tábuas de Pinho", 16, "Tecido Fino", 8, "ARTEFACT_MAIN_NATURESTAFF_KEEPER", 1],
-    "Cajado Pustulento": ["2H_NATURESTAFF_HELL", "Tábuas de Pinho", 20, "Tecido Fino", 12, "ARTEFACT_2H_NATURESTAFF_HELL", 1],
-    "Cajado Rampante": ["2H_NATURESTAFF_KEEPER", "Tábuas de Pinho", 20, "Tecido Fino", 12, "ARTEFACT_2H_NATURESTAFF_KEEPER", 1],
-    "Raiz Férrea": ["MAIN_NATURESTAFF_AVALON", "Tábuas de Pinho", 16, "Tecido Fino", 8, "ARTEFACT_MAIN_NATURESTAFF_AVALON", 1],
-    "Cajado de Crosta Forjada": ["MAIN_NATURESTAFF_CRYSTAL", "Tábuas de Pinho", 16, "Tecido Fino", 8, "QUESTITEM_TOKEN_CRYSTAL_NATURESTAFF", 1],
-    # ARCOS
     "Arco": ["2H_BOW", "Tábuas de Pinho", 32, None, 0, None, 0],
     "Arco de Guerra": ["2H_WARBOW", "Tábuas de Pinho", 32, None, 0, None, 0],
     "Arco Longo": ["2H_LONGBOW", "Tábuas de Pinho", 32, None, 0, None, 0],
@@ -201,7 +185,6 @@ ITENS_DB = {
     "Arco Badônico": ["2H_BOW_UNDEAD", "Tábuas de Pinho", 32, None, 0, "ARTEFACT_2H_BOW_UNDEAD", 1],
     "Fura-bruma": ["2H_BOW_AVALON", "Tábuas de Pinho", 32, None, 0, "ARTEFACT_2H_BOW_AVALON", 1],
     "Arco do Andarilho Celeste": ["2H_BOW_CRYSTAL", "Tábuas de Pinho", 32, None, 0, "QUESTITEM_TOKEN_CRYSTAL_BOW", 1],
-    # CAJADOS TRANFORMAÇÃO
     "Cajado de Predador": ["2H_SHAPESHIFTER_PANT_TRACKER", "Tábuas de Pinho", 20, "Couro Trabalhado", 12, "ARTEFACT_2H_SHAPESHIFTER_PANT_TRACKER", 1],
     "Cajado Enraízado": ["2H_SHAPESHIFTER_TREANT", "Tábuas de Pinho", 20, "Couro Trabalhado", 12, "ARTEFACT_2H_SHAPESHIFTER_TREANT", 1],
     "Cajado Primitivo": ["2H_SHAPESHIFTER_BEAR", "Tábuas de Pinho", 20, "Couro Trabalhado", 12, "ARTEFACT_2H_SHAPESHIFTER_BEAR", 1],
@@ -210,7 +193,6 @@ ITENS_DB = {
     "Cajado Rúnico da Terra": ["2H_SHAPESHIFTER_GOLEM", "Tábuas de Pinho", 20, "Couro Trabalhado", 12, "ARTEFACT_2H_SHAPESHIFTER_GOLEM", 1],
     "Cajado Invocador da Luz": ["2H_SHAPESHIFTER_EAGLE", "Tábuas de Pinho", 20, "Couro Trabalhado", 12, "ARTEFACT_2H_SHAPESHIFTER_EAGLE", 1],
     "Cajado Petrificante": ["2H_SHAPESHIFTER_CRYSTAL", "Tábuas de Pinho", 20, "Couro Trabalhado", 12, "QUESTITEM_TOKEN_CRYSTAL_SHAPESHIFTER", 1],
-    # SECUNDÁRIAS / ARMADURAS / BOTAS / ETC (Simplificado para o exemplo)
     "TOMO DE FEITIÇOS": ["OFF_BOOK", "Tecido Fino", 4, "Couro Trabalhado", 4, None, 0],
     "TOCHA": ["OFF_TORCH", "Tábuas de Pinho", 4, "Tecido Fino", 4, None, 0],
     "BOTAS DE SOLDADO": ["SHOES_PLATE_SET1", "Barra de Aço", 8, None, 0, None, 0],
@@ -238,27 +220,23 @@ FILTROS = {
 # ================= FUNÇÕES =================
 def get_historical_price(item_id, location):
     try:
-        # 1️⃣ Tenta preço atual primeiro
+        # 1️⃣ Tenta preço atual primeiro (SELL_PRICE_MIN)
         url_atual = f"{API_URL}{item_id}?locations={location}"
         resp_atual = requests.get(url_atual, timeout=10).json()
-        if resp_atual and resp_atual[0]["sell_price_min"] > 0:
-            return resp_atual[0]["sell_price_min"]
+        if resp_atual:
+            # Filtra o resultado para a cidade específica
+            for entry in resp_atual:
+                if entry["city"].replace(" ", "") == location.replace(" ", "") and entry["sell_price_min"] > 0:
+                    return entry["sell_price_min"]
 
-        # 2️⃣ Histórico das últimas 24h
+        # 2️⃣ Histórico das últimas 24h se o preço atual falhar
         url_hist = f"{HISTORY_URL}{item_id}?locations={location}&timescale=24"
         resp_hist = requests.get(url_hist, timeout=10).json()
-
-        if not resp_hist or "data" not in resp_hist[0]:
-            return 0
-
-        # 3️⃣ Filtra preços válidos
-        prices = [d["avg_price"] for d in resp_hist[0]["data"] if d["avg_price"] > 0 and d["item_count"] >= 3]
+        if not resp_hist or "data" not in resp_hist[0]: return 0
+        prices = [d["avg_price"] for d in resp_hist[0]["data"] if d["avg_price"] > 0 and d["item_count"] >= 1]
         if not prices: return 0
-
-        # 4️⃣ Usa mediana
         prices.sort()
-        mid = len(prices) // 2
-        return prices[mid]
+        return prices[len(prices) // 2]
     except:
         return 0
 
@@ -281,8 +259,7 @@ def identificar_cidade_bonus(nome_item):
 with st.sidebar:
     st.markdown("### ⚙️ Configurações")
     categoria = st.selectbox("Categoria", list(FILTROS.keys()))
-    # NOVA OPÇÃO: Cidade de Venda
-    cidade_venda = st.selectbox("Cidade de Venda", CIDADES, index=7) # Black Market como padrão (index 7)
+    cidade_venda = st.selectbox("Cidade de Venda", CIDADES, index=7)
     tier = st.number_input("Tier", 4, 8, 4)
     encanto = st.number_input("Encanto", 0, 4, 0)
     quantidade = st.number_input("Quantidade", 1, 999, 1)
@@ -295,12 +272,10 @@ st.title(f"⚔️ Radar Craft — {cidade_venda}")
 if btn:
     filtro = FILTROS[categoria]
     itens = {k: v for k, v in ITENS_DB.items() if filtro(k, v)}
-
     if not itens:
-        st.error("Nenhum item encontrado nesta categoria.")
+        st.error("Nenhum item encontrado.")
         st.stop()
 
-    # Coleta de IDs de recursos
     ids_para_recursos = set()
     for d in itens.values():
         for r in ids_recurso_variantes(tier, d[1], encanto): ids_para_recursos.add(r)
@@ -308,12 +283,11 @@ if btn:
             for r in ids_recurso_variantes(tier, d[3], encanto): ids_para_recursos.add(r)
 
     try:
-        # Busca recursos nas cidades reais (não BM)
         locs_recursos = "Thetford,FortSterling,Martlock,Lymhurst,Bridgewatch,Caerleon"
         response = requests.get(f"{API_URL}{','.join(ids_para_recursos)}?locations={locs_recursos}", timeout=20)
         data_recursos = response.json()
     except:
-        st.error("Erro ao conectar com a API de recursos.")
+        st.error("Erro na API de recursos.")
         st.stop()
 
     precos_recursos = {}
@@ -326,21 +300,15 @@ if btn:
     resultados = []
     my_bar = st.progress(0, text="Analisando Mercado...")
     total_itens = len(itens)
-
-    # Taxa de mercado: Black Market é menor (aprox 3% de taxa de listagem + 3.5% se não usar ordem? Na verdade BM não tem taxa de venda direta, mas o código usa 6.5%)
-    # Para cidades normais a taxa é 6.5% (4% taxa + 2.5% setup) ou 10.5% se for sem premium.
-    # Vamos manter 6.5% como base conservadora.
     taxa = 0.935 
 
     for i, (nome, d) in enumerate(itens.items()):
         item_id = id_item(tier, d[0], encanto)
         preco_venda = get_historical_price(item_id, cidade_venda)
         my_bar.progress((i + 1) / total_itens, text=f"Analisando: {nome}")
-
         if preco_venda <= 0: continue
 
         custo, detalhes, valid_craft = 0, [], True
-
         for recurso, qtd in [(d[1], d[2]), (d[3], d[4])]:
             if not recurso or qtd == 0: continue
             found = False
@@ -349,24 +317,21 @@ if btn:
                     info = precos_recursos[rid]
                     nome_rec = NOMES_RECURSOS_TIER.get(recurso, {}).get(tier, recurso)
                     custo += info["price"] * qtd * quantidade
-                    detalhes.append(f"{qtd * quantidade}x {nome_rec}: {info['price']:,} ({info['city']})")
+                    detalhes.append(f"{qtd * quantidade}x {nome_rec}: {int(info['price']):,} ({info['city']})")
                     found = True
                     break
-            if not found: {valid_craft := False}
+            if not found: valid_craft = False
         
         if not valid_craft: continue
-
-        if d[5]: # Artefato
+        if d[5]:
             art_id = f"T{tier}_{d[5]}"
-            # Artefatos sempre buscamos em cidades reais
             p_art = get_historical_price(art_id, "Caerleon,FortSterling,Thetford,Lymhurst,Bridgewatch,Martlock")
             if p_art > 0:
                 custo += p_art * d[6] * quantidade
-                detalhes.append(f"{d[6]*quantidade}x Artefato: {p_art:,.0f}")
+                detalhes.append(f"{d[6]*quantidade}x Artefato: {int(p_art):,}")
             else: valid_craft = False
 
         if not valid_craft: continue
-
         venda_total = int(preco_venda * quantidade)
         lucro = int((venda_total * taxa) - custo)
         resultados.append((nome, lucro, venda_total, int(custo), detalhes))
@@ -377,7 +342,7 @@ if btn:
     if not resultados:
         st.warning(f"⚠️ Sem preços recentes para {cidade_venda}.")
     else:
-        st.subheader(f"📊 {len(resultados)} Itens - {categoria.upper()} T{tier}.{encanto} em {cidade_venda}")
+        st.subheader(f"📊 {len(resultados)} Itens em {cidade_venda}")
         for nome, lucro, venda, custo, dets in resultados:
             perc = (lucro / custo) * 100 if custo > 0 else 0
             cor = "#2ecc71" if lucro > 0 else "#e74c3c"
@@ -396,4 +361,4 @@ if btn:
             """, unsafe_allow_html=True)
 
 st.markdown("---")
-st.caption("Radar Craft Albion - Análise Multicidades via Albion Online Data Project")
+st.caption("Radar Craft Albion - Análise Multicidades")
