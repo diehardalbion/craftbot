@@ -42,11 +42,11 @@ st.markdown("""
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 8px;
-        margin: 10px 0;
+        margin: 15px 0;
     }
     .city-item {
         background: rgba(255,255,255,0.05);
-        padding: 6px 12px;
+        padding: 8px 12px;
         border-radius: 6px;
         display: flex;
         justify-content: space-between;
@@ -117,7 +117,7 @@ if not st.session_state.autenticado:
 # ================= CONFIG DE DADOS =================
 API_URL = "https://west.albion-online-data.com/api/v2/stats/prices/"
 HISTORY_URL = "https://west.albion-online-data.com/api/v2/stats/history/"
-CIDADES = ["Martlock", "Thetford", "FortSterling", "Lymhurst", "Bridgewatch", "Caerleon", "Brecilien", "Black Market"]
+CIDADES = ["Black Market", "Caerleon", "Thetford", "Martlock", "FortSterling", "Lymhurst", "Bridgewatch", "Brecilien"]
 RECURSO_MAP = {"Tecido Fino": "CLOTH", "Couro Trabalhado": "LEATHER", "Barra de Aço": "METALBAR", "Tábuas de Pinho": "PLANKS"}
 BONUS_CIDADE = {
     "Martlock": ["AXE", "QUARTERSTAFF", "FROSTSTAFF", "SHOES_PLATE", "OFF_"],
@@ -440,23 +440,6 @@ FILTROS = {
 }
 
 # ================= FUNÇÕES =================
-def get_historical_price(item_id, location="Black Market"):
-    try:
-        url_atual = f"{API_URL}{item_id}?locations={location}"
-        resp_atual = requests.get(url_atual, timeout=10).json()
-        
-        if resp_atual:
-            for entry in resp_atual:
-                if entry["city"].replace(" ", "").lower() == location.replace(" ", "").lower():
-                    if entry["sell_price_min"] > 0: return entry["sell_price_min"]
-
-        url_hist = f"{HISTORY_URL}{item_id}?locations={location}&timescale=24"
-        resp_hist = requests.get(url_hist, timeout=10).json()
-        if not resp_hist or "data" not in resp_hist[0]: return 0
-        prices = [d["avg_price"] for d in resp_hist[0]["data"] if d["avg_price"] > 0]
-        return sum(prices) / len(prices) if prices else 0
-    except: return 0
-
 def id_item(tier, base, enc): return f"T{tier}_{base}@{enc}" if enc > 0 else f"T{tier}_{base}"
 
 def ids_recurso_variantes(tier, nome, enc):
@@ -481,7 +464,7 @@ with st.sidebar:
     st.markdown("---")
     btn = st.button("🚀 ESCANEAR MERCADO")
 
-st.title("⚔️ Radar Craft — Visão Global")
+st.title("⚔️ Radar Craft — Todas as Cidades")
 
 # ================= EXECUÇÃO =================
 if btn:
@@ -489,7 +472,7 @@ if btn:
     itens = {k: v for k, v in ITENS_DB.items() if filtro(k, v)}
     if not itens: st.error("Nada encontrado."); st.stop()
 
-    # 1. Busca Recursos
+    # 1. Coleta Recursos
     ids_recursos = set()
     for d in itens.values():
         for r in ids_recurso_variantes(tier, d[1], encanto): ids_recursos.add(r)
@@ -509,7 +492,6 @@ if btn:
 
     # 2. Busca Preços de Venda (Todas as Cidades)
     ids_venda = [id_item(tier, d[0], encanto) for d in itens.values()]
-    # Adiciona artefatos se houver
     for d in itens.values():
         if d[5]: ids_venda.append(f"T{tier}_{d[5]}")
         
@@ -520,14 +502,22 @@ if btn:
         for entry in resp_venda:
             iid, city = entry["item_id"], entry["city"]
             if iid not in dict_venda: dict_venda[iid] = {}
-            # Lógica: BM = Sell Price | Cidades = Sell Price (se razoável) ou Buy Price
-            p = entry["sell_price_min"] if 0 < entry["sell_price_min"] < 1000000 else entry["buy_price_max"]
+            
+            # LÓGICA DEFINITIVA:
+            if city == "Black Market":
+                # No BM usamos o Buy Price (o que o jogo paga na hora)
+                p = entry["buy_price_max"]
+            else:
+                # Nas cidades reais usamos o Sell Price (ordem de venda competitiva)
+                # Filtro: se o preço for absurdamente alto para o Tier, ignoramos
+                p = entry["sell_price_min"] if 0 < entry["sell_price_min"] < (tier * 150000) else 0
+            
             if p > 0: dict_venda[iid][city] = p
     except: st.error("Erro API Venda."); st.stop()
 
     # 3. Processamento
     resultados = []
-    my_bar = st.progress(0, text="Calculando...")
+    my_bar = st.progress(0, text="Analisando Mercado Global...")
     
     for i, (nome, d) in enumerate(itens.items()):
         item_id = id_item(tier, d[0], encanto)
@@ -553,6 +543,7 @@ if btn:
             art_id = f"T{tier}_{d[5]}"
             p_art = 0
             if art_id in dict_venda:
+                # Artefato sempre pegamos o menor preço de venda nas cidades reais
                 valid_arts = [v for k, v in dict_venda[art_id].items() if k != "Black Market"]
                 if valid_arts: p_art = min(valid_arts)
             if p_art > 0:
@@ -563,20 +554,24 @@ if btn:
         # Lucros
         vendas_cidades = []
         if item_id in dict_venda:
-            for city, p_venda in dict_venda[item_id].items():
-                v_total = p_venda * quantidade
-                lucro = int((v_total * 0.935) - custo)
-                vendas_cidades.append({"city": city, "profit": lucro, "venda": int(p_venda)})
+            for city in CIDADES: # Garante a ordem das cidades
+                if city in dict_venda[item_id]:
+                    p_venda = dict_venda[item_id][city]
+                    v_total = p_venda * quantidade
+                    # Taxa de 6.5% (Premium)
+                    lucro = int((v_total * 0.935) - custo)
+                    vendas_cidades.append({"city": city, "profit": lucro, "venda": int(p_venda)})
         
         if vendas_cidades:
-            vendas_cidades.sort(key=lambda x: x["profit"], reverse=True)
-            resultados.append({"nome": nome, "custo": int(custo), "vendas": vendas_cidades, "detalhes": dets})
+            # Ordenar para o card principal mostrar a melhor
+            melhor_venda = max(vendas_cidades, key=lambda x: x["profit"])
+            resultados.append({"nome": nome, "custo": int(custo), "vendas": vendas_cidades, "melhor": melhor_venda, "detalhes": dets})
 
     my_bar.empty()
-    resultados.sort(key=lambda x: x["vendas"][0]["profit"], reverse=True)
+    resultados.sort(key=lambda x: x["melhor"]["profit"], reverse=True)
 
     for res in resultados:
-        best = res["vendas"][0]
+        best = res["melhor"]
         cor = "#2ecc71" if best["profit"] > 0 else "#e74c3c"
         perc = (best["profit"] / res["custo"]) * 100 if res["custo"] > 0 else 0
         
@@ -589,10 +584,10 @@ if btn:
                 <span style="color: {cor}; font-weight: bold; font-size: 1.2rem;">
                     💰 Lucro Estimado: {best['profit']:,} ({perc:.2f}%)
                 </span>
-                <br><b>Investimento:</b> {res['custo']:,} | <b>Venda Estimada ({best['city']}):</b> {best['venda']:,}
+                <br><b>Investimento:</b> {res['custo']:,} | <b>Melhor Venda ({best['city']}):</b> {best['venda']:,}
             </div>
             <div class="city-grid">
-                {"".join([f'<div class="city-item"><span>{v["city"]}</span><span style="color:{"#2ecc71" if v["profit"] > 0 else "#e74c3c"}">{v["profit"]:,}</span></div>' for v in res["vendas"][:4]])}
+                {"".join([f'<div class="city-item"><span>{v["city"]}</span><span style="color:{"#2ecc71" if v["profit"] > 0 else "#e74c3c"}">{v["profit"]:,}</span></div>' for v in res["vendas"]])}
             </div>
             <div style="font-size: 0.95rem; color: #cbd5e1; margin-bottom: 10px;">
                 📍 <b>Foco Craft:</b> {identificar_cidade_bonus(res['nome'])} | 🕒 <b>Baseado em:</b> Market Atual/24h
