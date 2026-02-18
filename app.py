@@ -605,18 +605,18 @@ if btn:
                 ids_para_recursos.add(r)
 
     try:
-    url = f"{API_URL}{ids}?locations={cidade_escolhida}"
+        url = f"{API_URL}{ids}?locations={cidade_escolhida}"
 
-    response = requests.get(
-        url,
-        timeout=20
-    )
+        response = requests.get(
+            url,
+            timeout=20
+       )
 
-    data_recursos = response.json()
+       data_recursos = response.json()
 
-except Exception as e:
-    st.error("Erro ao conectar com a API de recursos. Tente novamente.")
-    st.stop()
+    except Exception as e:
+        st.error("Erro ao conectar com a API de recursos. Tente novamente.")
+        st.stop()
 
     # Processamento de preços de recursos
     precos_recursos = {}
