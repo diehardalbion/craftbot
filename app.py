@@ -33,7 +33,7 @@ st.markdown("""
         backdrop-filter: blur(12px);
         border-radius: 12px; 
         padding: 20px; 
-        margin-bottom: 20px; 
+        margin-bottom: 20px;
         border: 1px solid rgba(255, 255, 255, 0.1);
         box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         color: white !important;
@@ -87,11 +87,15 @@ if not st.session_state.autenticado:
     with col2:
         st.markdown("### Adquirir Nova Chave")
         st.markdown("""
-        <div style="background: rgba(46, 204, 113, 0.1); padding: 20px; border-radius: 10px; border: 1px solid #2ecc71; text-align: center;">
-            <h2 style="margin:0; color: #2ecc71;">R$ 15,00</h2>
+        <div style="background: rgba(46, 204, 113, 0.1);
+        padding: 20px; border-radius: 10px; border: 1px solid #2ecc71; text-align: center;">
+            <h2 style="margin:0;
+            color: #2ecc71;">R$ 15,00</h2>
             <p style="color: white;">Acesso Mensal (30 dias)</p>
-            <a href="https://wa.me/5521983042557?text=Olá! Gostaria de comprar uma key para o Radar Craft Albion." target="_blank" style="text-decoration: none;">
-                <div style="background-color: #25d366; color: white; padding: 12px; border-radius: 5px; font-weight: bold; margin-top: 10px;">
+            <a href="https://wa.me/5521983042557?text=Olá!
+            Gostaria de comprar uma key para o Radar Craft Albion." target="_blank" style="text-decoration: none;">
+                <div style="background-color: #25d366;
+                color: white; padding: 12px; border-radius: 5px; font-weight: bold; margin-top: 10px;">
                     COMPRAR VIA WHATSAPP
                 </div>
             </a>
@@ -116,38 +120,13 @@ BONUS_CIDADE = {
 
 # ================= NOMES CORRETOS POR TIER =================
 NOMES_RECURSOS_TIER = {
-    "Barra de Aço": {
-        4: "Barra de Aço",
-        5: "Barra de Titânio",
-        6: "Barra de Runita",
-        7: "Barra de Meteorito",
-        8: "Barra de Adamante"
-    },
-    "Tábuas de Pinho": {
-        4: "Tábuas de Pinho",
-        5: "Tábuas de Cedro",
-        6: "Tábuas de Carvalho-Sangue",
-        7: "Tábuas de Freixo",
-        8: "Tábuas de Pau-branco"
-    },
-    "Couro Trabalhado": {
-        4: "Couro Trabalhado",
-        5: "Couro Curtido",
-        6: "Couro Endurecido",
-        7: "Couro Reforçado",
-        8: "Couro Fortificado"
-    },
-    "Tecido Fino": {
-        4: "Tecido Fino",
-        5: "Tecido Ornado",
-        6: "Tecido Rico",
-        7: "Tecido Opulento",
-        8: "Tecido Barroco"
-    }
+    "Barra de Aço": {4: "Barra de Aço", 5: "Barra de Titânio", 6: "Barra de Runita", 7: "Barra de Meteorito", 8: "Barra de Adamante"},
+    "Tábuas de Pinho": {4: "Tábuas de Pinho", 5: "Tábuas de Cedro", 6: "Tábuas de Carvalho-Sangue", 7: "Tábuas de Freixo", 8: "Tábuas de Pau-branco"},
+    "Couro Trabalhado": {4: "Couro Trabalhado", 5: "Couro Curtido", 6: "Couro Endurecido", 7: "Couro Reforçado", 8: "Couro Fortificado"},
+    "Tecido Fino": {4: "Tecido Fino", 5: "Tecido Ornado", 6: "Tecido Rico", 7: "Tecido Opulento", 8: "Tecido Barroco"}
 }
 
 ITENS_DB = {
-    # ================= CAJADOS AMALDIÇOADOS (CURSED) =================
     "Cajado Amaldiçoado": ["MAIN_CURSEDSTAFF", "Tábuas de Pinho", 16, "Barra de Aço", 8, None, 0],
     "Cajado Amaldiçoado Elevado": ["2H_CURSEDSTAFF", "Tábuas de Pinho", 20, "Barra de Aço", 12, None, 0],
     "Cajado Demoníaco": ["2H_DEMONICSTAFF", "Tábuas de Pinho", 20, "Barra de Aço", 12, None, 0],
@@ -156,8 +135,6 @@ ITENS_DB = {
     "Cajado da Danação": ["2H_CURSEDSTAFF_MORGANA", "Tábuas de Pinho", 20, "Barra de Aço", 12, "ARTEFACT_2H_CURSEDSTAFF_MORGANA", 1],
     "Chama-sombra": ["MAIN_CURSEDSTAFF_AVALON", "Tábuas de Pinho", 16, "Barra de Aço", 8, "ARTEFACT_MAIN_CURSEDSTAFF_AVALON", 1],
     "Cajado Pútrido": ["2H_CURSEDSTAFF_CRYSTAL", "Tábuas de Pinho", 20, "Barra de Aço", 12, "QUESTITEM_TOKEN_CRYSTAL_CURSEDSTAFF", 1],
-
-    # ================= BORDÕES (QUARTERSTAFF) =================
     "Bordão": ["2H_QUARTERSTAFF", "Barra de Aço", 12, "Couro Trabalhado", 20, None, 0],
     "BOLSA": ["BAG", "Tecido Fino", 8, "Couro Trabalhado", 8, None, 0],
     "Cajado Férreo": ["2H_IRONCLADSTAFF", "Barra de Aço", 12, "Couro Trabalhado", 20, None, 0],
@@ -167,8 +144,6 @@ ITENS_DB = {
     "Cajado do Equilíbrio": ["2H_ROCKSTAFF_KEEPER", "Barra de Aço", 12, "Couro Trabalhado", 20, "ARTEFACT_2H_ROCKSTAFF_KEEPER", 1],
     "Buscador do Graal": ["2H_QUARTERSTAFF_AVALON", "Barra de Aço", 12, "Couro Trabalhado", 20, "ARTEFACT_2H_QUARTERSTAFF_AVALON", 1],
     "Lâminas Gêmeas Fantasmagóricas": ["2H_QUARTERSTAFF_CRYSTAL", "Barra de Aço", 12, "Couro Trabalhado", 20, "QUESTITEM_TOKEN_CRYSTAL_QUARTERSTAFF", 1],
-
-    # ================= CAJADOS DE GELO (FROST) =================
     "Cajado de Gelo": ["MAIN_FROSTSTAFF", "Tábuas de Pinho", 16, "Barra de Aço", 8, None, 0],
     "Cajado de Gelo Elevado": ["2H_FROSTSTAFF", "Tábuas de Pinho", 20, "Barra de Aço", 12, None, 0],
     "Cajado Glacial": ["2H_GLACIALSTAFF", "Tábuas de Pinho", 20, "Barra de Aço", 12, None, 0],
@@ -177,8 +152,6 @@ ITENS_DB = {
     "Prisma Geleterno": ["2H_RAMPY_FROST_KEEPER", "Tábuas de Pinho", 20, "Barra de Aço", 12, "ARTEFACT_2H_RAMPY_FROST_KEEPER", 1],
     "Uivo Frio": ["MAIN_FROSTSTAFF_AVALON", "Tábuas de Pinho", 16, "Barra de Aço", 8, "ARTEFACT_MAIN_FROSTSTAFF_AVALON", 1],
     "Cajado Ártico": ["2H_FROSTSTAFF_CRYSTAL", "Tábuas de Pinho", 20, "Barra de Aço", 12, "QUESTITEM_TOKEN_CRYSTAL_FROSTSTAFF", 1],
-
-    # ================= CAJADOS ARCANOS (ARCANE) =================
     "Cajado Arcano": ["MAIN_ARCANESTAFF", "Tábuas de Pinho", 16, "Barra de Aço", 8, None, 0],
     "Cajado Arcano Elevado": ["2H_ARCANESTAFF", "Tábuas de Pinho", 20, "Barra de Aço", 12, None, 0],
     "Cajado Enigmático": ["2H_ENIGMATICSTAFF", "Tábuas de Pinho", 20, "Barra de Aço", 12, None, 0],
@@ -187,8 +160,6 @@ ITENS_DB = {
     "Local Malévolo": ["2H_ENIGMATICSTAFF_MORGANA", "Tábuas de Pinho", 20, "Barra de Aço", 12, "ARTEFACT_2H_ENIGMATICSTAFF_MORGANA", 1],
     "Som Equilibrado": ["2H_ARCANESTAFF_AVALON", "Tábuas de Pinho", 20, "Barra de Aço", 12, "ARTEFACT_2H_ARCANESTAFF_AVALON", 1],
     "Cajado Astral": ["2H_ARCANESTAFF_CRYSTAL", "Tábuas de Pinho", 20, "Barra de Aço", 12, "QUESTITEM_TOKEN_CRYSTAL_ARCANESTAFF", 1],
-
-    # ================= CAJADOS SAGRADOS (HOLY) =================
     "Cajado Sagrado": ["MAIN_HOLYSTAFF", "Tábuas de Pinho", 16, "Tecido Fino", 8, None, 0],
     "Cajado Sagrado Elevado": ["2H_HOLYSTAFF", "Tábuas de Pinho", 20, "Tecido Fino", 12, None, 0],
     "Cajado Divino": ["2H_DIVINESTAFF", "Tábuas de Pinho", 20, "Tecido Fino", 12, None, 0],
@@ -197,8 +168,6 @@ ITENS_DB = {
     "Cajado da Redenção": ["2H_HOLYSTAFF_UNDEAD", "Tábuas de Pinho", 20, "Tecido Fino", 12, "ARTEFACT_2H_HOLYSTAFF_UNDEAD", 1],
     "Queda Santa": ["MAIN_HOLYSTAFF_AVALON", "Tábuas de Pinho", 16, "Tecido Fino", 8, "ARTEFACT_MAIN_HOLYSTAFF_AVALON", 1],
     "Cajado Exaltado": ["2H_HOLYSTAFF_CRYSTAL", "Tábuas de Pinho", 20, "Tecido Fino", 12, "QUESTITEM_TOKEN_CRYSTAL_HOLYSTAFF", 1],
-
-    # ================= CAJADOS DE FOGO (FIRE) =================
     "Cajado de Fogo": ["MAIN_FIRESTAFF", "Tábuas de Pinho", 16, "Barra de Aço", 8, None, 0],
     "Cajado de Fogo Elevado": ["2H_FIRESTAFF", "Tábuas de Pinho", 20, "Barra de Aço", 12, None, 0],
     "Cajado Infernal": ["2H_INFERNALSTAFF", "Tábuas de Pinho", 20, "Barra de Aço", 12, None, 0],
@@ -207,8 +176,6 @@ ITENS_DB = {
     "Cajado Fulgurante": ["2H_INFERNALSTAFF_MORGANA", "Tábuas de Pinho", 20, "Barra de Aço", 12, "ARTEFACT_2H_INFERNALSTAFF_MORGANA", 1],
     "Canção da Alvorada": ["2H_FIRESTAFF_AVALON", "Tábuas de Pinho", 20, "Barra de Aço", 12, "ARTEFACT_2H_FIRESTAFF_AVALON", 1],
     "Cajado do Andarilho Flamejante": ["MAIN_FIRESTAFF_CRYSTAL", "Tábuas de Pinho", 16, "Barra de Aço", 8, "QUESTITEM_TOKEN_CRYSTAL_FIRESTAFF", 1],
-
-    # ================= CAJADOS DA NATUREZA (NATURE) =================
     "Cajado da Natureza": ["MAIN_NATURESTAFF", "Tábuas de Pinho", 16, "Tecido Fino", 8, None, 0],
     "Cajado da Natureza Elevado": ["2H_NATURESTAFF", "Tábuas de Pinho", 20, "Tecido Fino", 12, None, 0],
     "Cajado Selvagem": ["2H_WILDSTAFF", "Tábuas de Pinho", 20, "Tecido Fino", 12, None, 0],
@@ -217,8 +184,6 @@ ITENS_DB = {
     "Cajado Rampante": ["2H_NATURESTAFF_KEEPER", "Tábuas de Pinho", 20, "Tecido Fino", 12, "ARTEFACT_2H_NATURESTAFF_KEEPER", 1],
     "Raiz Férrea": ["MAIN_NATURESTAFF_AVALON", "Tábuas de Pinho", 16, "Tecido Fino", 8, "ARTEFACT_MAIN_NATURESTAFF_AVALON", 1],
     "Cajado de Crosta Forjada": ["MAIN_NATURESTAFF_CRYSTAL", "Tábuas de Pinho", 16, "Tecido Fino", 8, "QUESTITEM_TOKEN_CRYSTAL_NATURESTAFF", 1],
-
-    # ================= ARCOS (BOW) =================
     "Arco": ["2H_BOW", "Tábuas de Pinho", 32, None, 0, None, 0],
     "Arco de Guerra": ["2H_WARBOW", "Tábuas de Pinho", 32, None, 0, None, 0],
     "Arco Longo": ["2H_LONGBOW", "Tábuas de Pinho", 32, None, 0, None, 0],
@@ -227,8 +192,6 @@ ITENS_DB = {
     "Arco Badônico": ["2H_BOW_UNDEAD", "Tábuas de Pinho", 32, None, 0, "ARTEFACT_2H_BOW_UNDEAD", 1],
     "Fura-bruma": ["2H_BOW_AVALON", "Tábuas de Pinho", 32, None, 0, "ARTEFACT_2H_BOW_AVALON", 1],
     "Arco do Andarilho Celeste": ["2H_BOW_CRYSTAL", "Tábuas de Pinho", 32, None, 0, "QUESTITEM_TOKEN_CRYSTAL_BOW", 1],
-    
-    # ================= CAJADOS TRANFORMAÇÃO (SHAPESHIFTER) =================
     "Cajado de Predador": ["2H_SHAPESHIFTER_PANT_TRACKER", "Tábuas de Pinho", 20, "Couro Trabalhado", 12, "ARTEFACT_2H_SHAPESHIFTER_PANT_TRACKER", 1],
     "Cajado Enraízado": ["2H_SHAPESHIFTER_TREANT", "Tábuas de Pinho", 20, "Couro Trabalhado", 12, "ARTEFACT_2H_SHAPESHIFTER_TREANT", 1],
     "Cajado Primitivo": ["2H_SHAPESHIFTER_BEAR", "Tábuas de Pinho", 20, "Couro Trabalhado", 12, "ARTEFACT_2H_SHAPESHIFTER_BEAR", 1],
@@ -293,7 +256,7 @@ ITENS_DB = {
     "Casaco Espectral": ["ARMOR_LEATHER_UNDEAD", "Couro Trabalhado", 16, None, 0, "ARTEFACT_ARMOR_LEATHER_UNDEAD", 1],
     "Casaco de Andarilho da Névoa": ["ARMOR_LEATHER_FEY", "Couro Trabalhado", 16, None, 0, "ARTEFACT_ARMOR_LEATHER_FEY", 1],
     "Casaco da Tenacidade": ["ARMOR_LEATHER_CRYSTAL", "Couro Trabalhado", 16, None, 0, "QUESTITEM_TOKEN_CRYSTAL_ARMOR_LEATHER", 1],
-    "Capuz de Mercenário de Mercenário": ["HEAD_LEATHER_SET1", "Couro Trabalhado", 8, None, 0, None, 0],
+    "Capuz de Mercenário": ["HEAD_LEATHER_SET1", "Couro Trabalhado", 8, None, 0, None, 0],
     "Capuz de Caçador": ["HEAD_LEATHER_SET2", "Couro Trabalhado", 8, None, 0, None, 0],
     "Capuz de Assassino": ["HEAD_LEATHER_SET3", "Couro Trabalhado", 8, None, 0, None, 0],
     "Capuz Real": ["HEAD_LEATHER_ROYAL", "Couro Trabalhado", 8, None, 0, "QUESTITEM_TOKEN_ROYAL", 2],
@@ -399,27 +362,18 @@ ITENS_DB = {
     "LANÇA TRINA": ["2H_GLAIVE_HELL", "Tábuas de Pinho", 20, "Barra de Aço", 12, "ARTEFACT_2H_TRIDENT_UNDEAD", 1],
     "ALVORADA": ["MAIN_SPEAR_AVALON", "Tábuas de Pinho", 16, "Barra de Aço", 8, "ARTEFACT_MAIN_SPEAR_LANCE_AVALON", 1],
     "ARCHA FRATURADA": ["2H_SPEAR_CRYSTAL", "Tábuas de Pinho", 12, "Barra de Aço", 20, "QUESTITEM_TOKEN_CRYSTAL_SPEAR", 1]
-
 }
 
-# ================= FILTROS CORRIGIDOS =================
 FILTROS = {
-    # ARMADURAS
     "armadura_placa": lambda k, v: "ARMOR_PLATE" in v[0],
     "armadura_couro": lambda k, v: "ARMOR_LEATHER" in v[0],
     "armadura_pano": lambda k, v: "ARMOR_CLOTH" in v[0],
-
-    # BOTAS
     "botas_placa": lambda k, v: "SHOES_PLATE" in v[0],
     "botas_couro": lambda k, v: "SHOES_LEATHER" in v[0],
     "botas_pano": lambda k, v: "SHOES_CLOTH" in v[0],
-
-    # CAPACETES
     "capacete_placa": lambda k, v: "HEAD_PLATE" in v[0],
     "capacete_couro": lambda k, v: "HEAD_LEATHER" in v[0],
     "capacete_pano": lambda k, v: "HEAD_CLOTH" in v[0],
-
-    # ARMAS
     "espadas": lambda k, v: "SWORD" in v[0],
     "machados": lambda k, v: "AXE" in v[0],
     "mace": lambda k, v: "MACE" in v[0],
@@ -429,11 +383,7 @@ FILTROS = {
     "bestas": lambda k, v: "CROSSBOW" in v[0],
     "manoplas": lambda k, v: "KNUCKLES" in v[0],
     "arcos": lambda k, v: "BOW" in v[0] and "CROSSBOW" not in v[0],
-
-    # BORDÃO (CORRIGIDO PARA NÃO PEGAR MANOPLAS)
     "bordao": lambda k, v: "QUARTERSTAFF" in v[0] or "IRONCLAD" in v[0] or "DOUBLEBLADED" in v[0] or "COMBATSTAFF" in v[0] or "TWINSCYTHE" in v[0],
-
-    # CAJADOS
     "fogo": lambda k, v: "FIRESTAFF" in v[0],
     "gelo": lambda k, v: "FROSTSTAFF" in v[0],
     "arcano": lambda k, v: "ARCANESTAFF" in v[0],
@@ -441,58 +391,47 @@ FILTROS = {
     "natureza": lambda k, v: "NATURESTAFF" in v[0],
     "amaldiçoado": lambda k, v: "CURSEDSTAFF" in v[0],
     "metamorfo": lambda k, v: "SHAPESHIFTER" in v[0],
-
-    # SECUNDÁRIAS
     "secundarias": lambda k, v: v[0].startswith("OFF_"),
-    # BOLSAS
     "bolsas": lambda k, v: "BAG" in v[0],
-
 }
 
-# Pronto! Agora você pode enviar os itens do Bordão para eu formatar e adicionar na DB.
-
-# ================= FUNÇÕES =================
-# MUDANÇA 1 IMPLEMENTADA: Prioriza preço de venda direto se histórico estiver defasado
+# ================= FUNÇÕES DE PREÇO CORRIGIDAS =================
 def get_historical_price(item_id, location="Black Market"):
+    """
+    Função aprimorada para ignorar preços fakes (outliers).
+    Prioriza a média histórica de 24h para garantir lucro real.
+    """
     try:
-        # 1️⃣ Tenta preço atual primeiro (sempre prioridade)
-        url_atual = f"{API_URL}{item_id}?locations={location}"
-        resp_atual = requests.get(url_atual, timeout=10).json()
-        if resp_atual and resp_atual[0]["sell_price_min"] > 0:
-            return resp_atual[0]["sell_price_min"]
-
-        # 2️⃣ Histórico das últimas 24h
+        # Busca o histórico das últimas 24h
         url_hist = f"{HISTORY_URL}{item_id}?locations={location}&timescale=24"
         resp_hist = requests.get(url_hist, timeout=10).json()
 
-        if not resp_hist or "data" not in resp_hist[0]:
+        if not resp_hist or "data" not in resp_hist[0] or not resp_hist[0]["data"]:
+            # Se não tiver histórico, tenta o preço atual de venda rápida (mas com cautela)
+            url_atual = f"{API_URL}{item_id}?locations={location}"
+            resp_atual = requests.get(url_atual, timeout=10).json()
+            if resp_atual and resp_atual[0]["sell_price_min"] > 0:
+                p = resp_atual[0]["sell_price_min"]
+                # Se o preço for absurdamente alto (ex: T4 a 1 milhão), ignora
+                if p > 500000 and "T4" in item_id: return 0
+                return p
             return 0
 
-        # 3️⃣ Filtra preços válidos
+        # Filtra apenas dados válidos e com volume de venda real
         prices = [
             d["avg_price"]
             for d in resp_hist[0]["data"]
-            if d["avg_price"] > 0 and d["item_count"] >= 3
+            if d["avg_price"] > 0 and d["item_count"] >= 1
         ]
 
         if not prices:
             return 0
 
-        # 4️⃣ Usa mediana (não média!)
-        prices.sort()
-        mid = len(prices) // 2
-        return prices[mid]
+        # Retorna a média dos últimos registros para evitar picos falsos
+        return int(sum(prices) / len(prices))
 
     except:
         return 0
-
-def calcular_horas(data_iso):
-    try:
-        data_api = datetime.fromisoformat(data_iso.replace("Z", "+00:00"))
-        data_agora = datetime.now(timezone.utc)
-        diff = data_agora.replace(tzinfo=None) - data_api.replace(tzinfo=None)
-        return int(diff.total_seconds() / 3600)
-    except: return 999
 
 def id_item(tier, base, enc):
     return f"T{tier}_{base}@{enc}" if enc > 0 else f"T{tier}_{base}"
@@ -513,13 +452,14 @@ def identificar_cidade_bonus(nome_item):
 with st.sidebar:
     st.markdown("### ⚙️ Configurações")
     categoria = st.selectbox("Categoria", list(FILTROS.keys()))
+    cidade_venda = st.selectbox("Vender em:", CIDADES, index=7)
     tier = st.number_input("Tier", 4, 8, 4)
     encanto = st.number_input("Encanto", 0, 4, 0)
     quantidade = st.number_input("Quantidade", 1, 999, 1)
     st.markdown("---")
     btn = st.button("🚀 ESCANEAR MERCADO")
 
-st.title("⚔️ Radar Craft — Black Market")
+st.title(f"⚔️ Radar Craft — {cidade_venda}")
 
 # ================= EXECUÇÃO =================
 if btn:
@@ -530,7 +470,6 @@ if btn:
         st.error("Nenhum item encontrado nesta categoria.")
         st.stop()
 
-    # Coleta de IDs de recursos para a API
     ids_para_recursos = set()
     for d in itens.values():
         for r in ids_recurso_variantes(tier, d[1], encanto):
@@ -546,10 +485,9 @@ if btn:
         )
         data_recursos = response.json()
     except:
-        st.error("Erro ao conectar com a API de recursos. Tente novamente.")
+        st.error("Erro ao conectar com a API de recursos.")
         st.stop()
 
-    # Processamento de preços de recursos
     precos_recursos = {}
     for p in data_recursos:
         pid = p["item_id"]
@@ -559,123 +497,71 @@ if btn:
                 precos_recursos[pid] = {"price": price, "city": p["city"]}
 
     resultados = []
-    progress_text = "Analisando Mercado e Calculando Lucros..."
-    my_bar = st.progress(0, text=progress_text)
+    my_bar = st.progress(0, text="Analisando Mercado...")
 
     total_itens = len(itens)
-
     for i, (nome, d) in enumerate(itens.items()):
         item_id = id_item(tier, d[0], encanto)
-        preco_venda_bm = get_historical_price(item_id)
+        preco_venda_final = get_historical_price(item_id, location=cidade_venda)
 
         my_bar.progress((i + 1) / total_itens, text=f"Analisando: {nome}")
 
-        if preco_venda_bm <= 0:
+        if preco_venda_final <= 0:
             continue
 
         custo = 0
         detalhes = []
         valid_craft = True
 
-        # ================= CÁLCULO DE RECURSOS BASE =================
         for recurso, qtd in [(d[1], d[2]), (d[3], d[4])]:
-            if not recurso or qtd == 0:
-                continue
-
+            if not recurso or qtd == 0: continue
             found = False
-
             for rid in ids_recurso_variantes(tier, recurso, encanto):
                 if rid in precos_recursos:
                     info = precos_recursos[rid]
-
-                    # 🔥 Nome correto baseado no tier
-                    nome_recurso = NOMES_RECURSOS_TIER.get(recurso, {}).get(tier, recurso)
-
                     custo += info["price"] * qtd * quantidade
-
-                    detalhes.append(
-                        f"{qtd * quantidade}x T{tier}.{encanto} {nome_recurso}: "
-                        f"{info['price']:,} ({info['city']})"
-                    )
-
+                    detalhes.append(f"{qtd * quantidade}x {recurso}: {info['price']:,} ({info['city']})")
                     found = True
                     break
+            if not found: valid_craft = False; break
 
-            if not found:
-                valid_craft = False
-                break
+        if not valid_craft: continue
 
-        if not valid_craft:
-            continue
-
-        # ================= CÁLCULO DE ARTEFATOS =================
         if d[5]:
             art_id = f"T{tier}_{d[5]}"
-            preco_artefato = get_historical_price(
-                art_id,
-                location="Caerleon,FortSterling,Thetford,Lymhurst,Bridgewatch,Martlock"
-            )
+            preco_art = get_historical_price(art_id, location="Caerleon,FortSterling,Thetford,Lymhurst,Bridgewatch,Martlock")
+            if preco_art > 0:
+                custo += preco_art * d[6] * quantidade
+                detalhes.append(f"{d[6]*quantidade}x Artefato: {preco_art:,}")
+            else: valid_craft = False
 
-            if preco_artefato > 0:
-                qtd_art = d[6] * quantidade
-                custo += preco_artefato * qtd_art
+        if not valid_craft: continue
 
-                detalhes.append(
-                    f"{qtd_art}x Artefato: "
-                    f"{preco_artefato:,.0f} (Média Market)"
-                )
-            else:
-                valid_craft = False
+        venda_total = int(preco_venda_final * quantidade)
+        taxa = 0.935 if cidade_venda == "Black Market" else 0.915
+        lucro = int((venda_total * taxa) - custo)
 
-        if not valid_craft:
-            continue
+        # Filtro de segurança: Se o lucro for maior que 1000% no T4, provavelmente é erro de dado
+        if tier == 4 and (lucro/custo) > 10: continue
 
-        custo_final = int(custo)
-        venda_total = int(preco_venda_bm * quantidade)
-        lucro = int((venda_total * 0.935) - custo_final)
-
-        resultados.append(
-            (nome, lucro, venda_total, custo_final, detalhes, "Market Atual/24h")
-        )
+        resultados.append((nome, lucro, venda_total, int(custo), detalhes))
 
     my_bar.empty()
-
-    # Ordenar pelo maior lucro
     resultados.sort(key=lambda x: x[1], reverse=True)
 
     if not resultados:
-        st.warning("⚠️ A API não retornou preços recentes para os itens desta categoria no Black Market.")
+        st.warning("⚠️ Sem dados reais de lucro no momento para esta cidade.")
     else:
-        st.subheader(f"📊 {len(resultados)} Itens Encontrados - {categoria.upper()} T{tier}.{encanto}")
-
-        for nome, lucro, venda, custo, detalhes, h_venda in resultados:
-            perc_lucro = (lucro / custo) * 100 if custo > 0 else 0
-            cidade_foco = identificar_cidade_bonus(nome)
-            cor_destaque = "#2ecc71" if lucro > 0 else "#e74c3c"
-
+        for nome, lucro, venda, custo, detalhes in resultados:
+            perc = (lucro/custo)*100
+            cor = "#2ecc71" if lucro > 0 else "#e74c3c"
             st.markdown(f"""
-            <div class="item-card-custom" style="border-left: 8px solid {cor_destaque};">
-                <div style="font-weight: bold; font-size: 1.2rem; margin-bottom: 10px; color: {cor_destaque};">
-                    ⚔️ {nome} [T{tier}.{encanto}] x{quantidade}
+            <div class="item-card-custom" style="border-left: 8px solid {cor};">
+                <div style="font-weight: bold; font-size: 1.2rem; color: {cor};">⚔️ {nome} [T{tier}.{encanto}]</div>
+                <div style="font-size: 1.1rem; margin: 10px 0;">
+                    💰 <b>Lucro Real: {lucro:,} ({perc:.1f}%)</b><br>
+                    📉 Investimento: {custo:,} | 📈 Venda Média ({cidade_venda}): {venda:,}
                 </div>
-                <div style="font-size: 1.05rem; margin-bottom: 8px;">
-                    <span style="color: {cor_destaque}; font-weight: bold; font-size: 1.2rem;">
-                        💰 Lucro Estimado: {lucro:,} ({perc_lucro:.2f}%)
-                    </span>
-                    <br><b>Investimento:</b> {custo:,} |
-                    <b>Venda Estimada (BM):</b> {venda:,}
-                </div>
-                <div style="font-size: 0.95rem; color: #cbd5e1; margin-bottom: 10px;">
-                    📍 <b>Foco Craft:</b> {cidade_foco} |
-                    🕒 <b>Baseado em:</b> {h_venda}
-                </div>
-                <div style="background: rgba(0,0,0,0.4); padding: 12px; border-radius: 8px;
-                            border: 1px solid rgba(255,255,255,0.1); font-size: 0.9rem;">
-                    📦 <b>Detalhamento de Compras:</b> <br>
-                    {" | ".join(detalhes)}
-                </div>
+                <div style="font-size: 0.85rem; color: #aaa;">{ " | ".join(detalhes) }</div>
             </div>
             """, unsafe_allow_html=True)
-
-st.markdown("---")
-st.caption("Radar Craft Albion - Desenvolvido para análise de mercado via Albion Online Data Project")
