@@ -138,7 +138,7 @@ NOMES_RECURSOS_TIER = {
 }
 
 ITENS_DB = {
-        # ================= CAPAS (LÓGICA: CAPA NORMAL + CORAÇÃO + BRASÃO) =================
+    # ================= CAPAS (LÓGICA: CAPA NORMAL + CORAÇÃO + BRASÃO) =================
     "CAPA DE MARTLOCK": ["CAPE_FW_MARTLOCK", "CAPE", 1, "CREST_MARTLOCK", 1, "ROCKHEART", 1],
     "CAPA DE THETFORD": ["CAPE_FW_THETFORD", "CAPE", 1, "CREST_THETFORD", 1, "VINEHEART", 1],
     "CAPA DE FORT STERLING": ["CAPE_FW_FORTSTERLING", "CAPE", 1, "CREST_FORTSTERLING", 1, "MOUNTAINHEART", 1],
@@ -449,7 +449,6 @@ FILTROS = {
     "bolsas": lambda k, v: "BAG" in v[0],
 
 }
-
 # ================= FUNÇÕES =================
 def get_idade_str(data_iso):
     try:
@@ -481,14 +480,14 @@ with st.sidebar:
     tier = st.number_input("Tier", 4, 8, 4)
     encanto = st.number_input("Encanto", 0, 4, 0)
     quantidade = st.number_input("Quantidade", 1, 999, 1)
-    foco = st.checkbox("Usar Foco (RRR 43.5%)", value=False)
     st.markdown("---")
     btn = st.button("🚀 ESCANEAR MERCADO")
 
 st.title("⚔️ Radar Craft — Capas & Itens")
 
 if btn:
-    rrr = 0.435 if foco else 0.248
+    # Taxa de retorno fixa conforme original
+    rrr = 0.248
     filtro = FILTROS[categoria]
     itens = {k: v for k, v in ITENS_DB.items() if filtro(k, v)}
     
@@ -531,8 +530,13 @@ if btn:
 
     # 3. Processamento
     resultados = []
-    for nome, d in itens.items():
+    # RESTAURANDO BARRA DE PROGRESSO ORIGINAL
+    my_bar = st.progress(0, text="Escaneando Mercado Global...")
+    
+    for i, (nome, d) in enumerate(itens.items()):
         item_id = id_item(tier, d[0], encanto)
+        my_bar.progress((i + 1) / len(itens))
+        
         custo_total, valid = 0, True
         
         # Componente 1
@@ -575,6 +579,7 @@ if btn:
             vendas.sort(key=lambda x: x["profit"], reverse=True)
             resultados.append({"nome": nome, "custo": int(custo_total), "vendas": vendas})
 
+    my_bar.empty()
     resultados.sort(key=lambda x: x["vendas"][0]["profit"], reverse=True)
 
     for res in resultados:
