@@ -12,7 +12,7 @@ CIDADES = [
     "Bridgewatch",
     "Brecilien",
     "Caerleon",
-    "Black Market"
+    "BlackMarket"
 ]
 
 # ================= CONFIGURAÇÃO DA PÁGINA =================
@@ -607,19 +607,23 @@ if btn:
 try:
     ids_string = ",".join(ids_para_recursos)
 
-    url = f"{API_URL}{ids_string}?locations={cidade_escolhida}"
+    cidade_api = CIDADE_API_MAP[cidade_escolhida]
+
+    url = f"{API_URL}{ids_string}?locations={cidade_api}"
 
     response = requests.get(
         url,
         timeout=20
     )
 
+    response.raise_for_status()  # força erro real se API falhar
+
     data_recursos = response.json()
 
 except Exception as e:
-    st.error("Erro ao conectar com a API de recursos. Tente novamente.")
+    st.error(f"Erro ao conectar com a API: {e}")
     st.stop()
-
+    
     # Processamento de preços de recursos
     precos_recursos = {}
     for p in data_recursos:
