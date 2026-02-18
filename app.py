@@ -477,7 +477,7 @@ if btn:
     total_itens = len(itens)
     for i, (nome, d) in enumerate(itens.items()):
         item_id = id_item(tier, d[0], encanto)
-        preco_venda_final = get_historical_price(item_id, location=cidade_venda)
+        NameError: name 'get_historical_price' is not defined
 
         my_bar.progress((i + 1) / total_itens, text=f"Analisando: {nome}")
 
