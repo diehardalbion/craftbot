@@ -147,6 +147,16 @@ NOMES_RECURSOS_TIER = {
 }
 
 ITENS_DB = {
+    # ================= CAPAS DE CIDADE =================
+
+    "Capacapa de Martlock": ["CAPEITEM_FW_MARTLOCK", "Tecido Fino", 16, "HEART_MARTLOCK", 1, "CREST_MARTLOCK", 1],
+    "Capacapa de Bridgewatch": ["CAPEITEM_FW_BRIDGEWATCH", "Tecido Fino", 16, "HEART_BRIDGEWATCH", 1, "CREST_BRIDGEWATCH", 1],
+    "Capacapa de Lymhurst": ["CAPEITEM_FW_LYMHURST", "Tecido Fino", 16, "HEART_LYMHURST", 1, "CREST_LYMHURST", 1],
+    "Capacapa de Fort Sterling": ["CAPEITEM_FW_FORTSTERLING", "Tecido Fino", 16, "HEART_FORTSTERLING", 1, "CREST_FORTSTERLING", 1],
+    "Capacapa de Thetford": ["CAPEITEM_FW_THETFORD", "Tecido Fino", 16, "HEART_THETFORD", 1, "CREST_THETFORD", 1],
+    "Capacapa de Caerleon": ["CAPEITEM_FW_CAERLEON", "Tecido Fino", 16, "HEART_CAERLEON", 1, "CREST_CAERLEON", 1],
+    "Capacapa de Brecilien": ["CAPEITEM_FW_BRECILIEN", "Tecido Fino", 16, "HEART_BRECILIEN", 1, "CREST_BRECILIEN", 1],
+    
     # ================= CAJADOS AMALDIÇOADOS (CURSED) =================
     "Cajado Amaldiçoado": ["MAIN_CURSEDSTAFF", "Tábuas de Pinho", 16, "Barra de Aço", 8, None, 0],
     "Cajado Amaldiçoado Elevado": ["2H_CURSEDSTAFF", "Tábuas de Pinho", 20, "Barra de Aço", 12, None, 0],
@@ -441,6 +451,9 @@ FILTROS = {
     "natureza": lambda k, v: "NATURESTAFF" in v[0],
     "amaldiçoado": lambda k, v: "CURSEDSTAFF" in v[0],
     "metamorfo": lambda k, v: "SHAPESHIFTER" in v[0],
+    # CAPAS
+    "capas": lambda k, v: "CAPEITEM" in v[0],
+
 
     # SECUNDÁRIAS
     "secundarias": lambda k, v: v[0].startswith("OFF_"),
