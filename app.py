@@ -116,7 +116,7 @@ st.sidebar.title("⚙️ Configurações")
 cidade_escolhida = st.sidebar.selectbox(
     "Selecione a cidade:",
     CIDADES,
-    index=CIDADES.index("Black Market")  # deixa BM como padrão
+    index=CIDADES.index("BlackMarket")  # deixa BM como padrão
 )
 
 # ================= CONFIG DE DADOS =================
