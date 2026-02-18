@@ -549,6 +549,21 @@ except:
     st.error("Erro ao buscar dados da API")
     st.stop()
 
+    precos_recursos = {}
+
+for p in data_recursos:
+    pid = p["item_id"]
+    price = p["sell_price_min"]
+
+    if price > 0:
+        if pid not in precos_recursos:
+            precos_recursos[pid] = []
+
+        precos_recursos[pid].append({
+            "city": p["city"],
+            "price": price
+        })
+    
     # Processamento de preços de recursos
     precos_recursos = {}
 
