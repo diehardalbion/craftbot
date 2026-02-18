@@ -534,9 +534,18 @@ def calcular_horas(data_iso):
 def id_item(tier, base, enc):
     return f"T{tier}_{base}@{enc}" if enc > 0 else f"T{tier}_{base}"
 
-def ids_recurso_variantes(tier, nome, enc):
+def ids_recurso_variantes(tier, nome, encanto):
+
+    # =========================
+    # ITENS QUE NÃO POSSUEM TIER
+    # =========================
+    if nome.startswith("HEART_") or nome.startswith("CREST_"):
+        return [RECURSO_MAP[nome]]
+
+    # =========================
+    # RECURSOS NORMAIS (continua igual)
+    # =========================
     base = f"T{tier}_{RECURSO_MAP[nome]}"
-    if enc > 0: return [f"{base}@{enc}", f"{base}_LEVEL{enc}@{enc}"]
     return [base]
 
 def identificar_cidade_bonus(nome_item):
