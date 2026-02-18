@@ -617,6 +617,14 @@ if btn:
             for r in ids_recurso_variantes(tier, d[3], encanto):
                 ids_para_recursos.add(r)
 
+# Monta lista de IDs dos itens selecionados
+ids = []
+
+for nome_item in itens_categoria:
+    item_data = ITENS_DB.get(nome_item)
+    if item_data:
+        ids.append(item_data["id"])
+
 try:
     cidade_api = CIDADE_API_MAP[cidade_escolhida]
 
