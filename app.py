@@ -3,6 +3,18 @@ import requests
 import json
 from datetime import datetime, timezone
 
+# ================= LISTA DE CIDADES =================
+CIDADES = [
+    "Martlock",
+    "Thetford",
+    "Fort Sterling",
+    "Lymhurst",
+    "Bridgewatch",
+    "Brecilien",
+    "Caerleon",
+    "Black Market"
+]
+
 # ================= CONFIGURAÇÃO DA PÁGINA =================
 st.set_page_config("Radar Craft Albion", layout="wide", page_icon="⚔️")
 
@@ -99,10 +111,17 @@ if not st.session_state.autenticado:
         """, unsafe_allow_html=True)
     st.stop()
 
+st.sidebar.title("⚙️ Configurações")
+
+cidade_escolhida = st.sidebar.selectbox(
+    "Selecione a cidade:",
+    CIDADES,
+    index=CIDADES.index("Black Market")  # deixa BM como padrão
+)
+
 # ================= CONFIG DE DADOS =================
 API_URL = "https://west.albion-online-data.com/api/v2/stats/prices/"
 HISTORY_URL = "https://west.albion-online-data.com/api/v2/stats/history/"
-CIDADES = ["Martlock", "Thetford", "FortSterling", "Lymhurst", "Bridgewatch", "Brecilien", "Caerleon", "Black Market"]
 RECURSO_MAP = {
     # ================= RECURSOS BASE =================
     "Tecido Fino": "CLOTH",
@@ -586,7 +605,7 @@ if btn:
                 ids_para_recursos.add(r)
 
     try:
-        response = requests.get(
+        response = requests.get(f"{API_URL}{ids}?locations={cidade_escolhida}")
             f"{API_URL}{','.join(ids_para_recursos)}?locations=Thetford,FortSterling,Martlock,Lymhurst,Bridgewatch,Caerleon",
             timeout=20
         )
