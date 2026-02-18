@@ -618,18 +618,14 @@ if btn:
                 ids_para_recursos.add(r)
 
 try:
-    ids_string = ",".join(ids_para_recursos)
-
     cidade_api = CIDADE_API_MAP[cidade_escolhida]
+
+    ids_string = ",".join(ids)
 
     url = f"{API_URL}{ids_string}?locations={cidade_api}"
 
-    response = requests.get(
-        url,
-        timeout=20
-    )
-
-    response.raise_for_status()  # força erro real se API falhar
+    response = requests.get(url, timeout=20)
+    response.raise_for_status()
 
     data_recursos = response.json()
 
