@@ -475,13 +475,16 @@ if btn:
     my_bar = st.progress(0, text="Analisando Mercado...")
 
     total_itens = len(itens)
-    for i, (nome, d) in enumerate(itens.items()):
-        item_id = id_item(tier, d[0], encanto)
+for i, (nome, d) in enumerate(itens.items()):
+    item_id = id_item(tier, d[0], encanto)
 
-        my_bar.progress((i + 1) / total_itens, text=f"Analisando: {nome}")
+    # 👇 ESTA LINHA É OBRIGATÓRIA
+    preco_venda_final = get_min_sell_price(item_id, location=cidade_venda)
 
-        if preco_venda_final <= 0:
-            continue
+    my_bar.progress((i + 1) / total_itens, text=f"Analisando: {nome}")
+
+    if preco_venda_final <= 0:
+        continue
 
         custo = 0
         detalhes = []
