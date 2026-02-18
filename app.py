@@ -220,16 +220,30 @@ FILTROS = {
 # ================= FUNÇÕES =================
 def get_historical_price(item_id, location):
     try:
-        # 1️⃣ Tenta preço atual primeiro (SELL_PRICE_MIN)
         url_atual = f"{API_URL}{item_id}?locations={location}"
         resp_atual = requests.get(url_atual, timeout=10).json()
+        
         if resp_atual:
-            # Filtra o resultado para a cidade específica
             for entry in resp_atual:
-                if entry["city"].replace(" ", "") == location.replace(" ", "") and entry["sell_price_min"] > 0:
-                    return entry["sell_price_min"]
+                # Normaliza nomes de cidades para comparação
+                city_api = entry["city"].replace(" ", "").lower()
+                city_req = location.replace(" ", "").lower()
+                
+                if city_api == city_req:
+                    # LÓGICA CORRIGIDA:
+                    # Se for Black Market, usa o menor preço de venda (Sell Price Min)
+                    # Se for Cidade Real, usa o maior preço de compra (Buy Price Max) para evitar os 999,999
+                    if city_req == "blackmarket":
+                        if entry["sell_price_min"] > 0:
+                            return entry["sell_price_min"]
+                    else:
+                        if entry["buy_price_max"] > 0:
+                            return entry["buy_price_max"]
+                        # Fallback para sell_price_min apenas se for razoável (ex: < 500.000 para itens T4)
+                        if 0 < entry["sell_price_min"] < 500000:
+                            return entry["sell_price_min"]
 
-        # 2️⃣ Histórico das últimas 24h se o preço atual falhar
+        # Histórico de 24h como fallback
         url_hist = f"{HISTORY_URL}{item_id}?locations={location}&timescale=24"
         resp_hist = requests.get(url_hist, timeout=10).json()
         if not resp_hist or "data" not in resp_hist[0]: return 0
@@ -340,18 +354,21 @@ if btn:
     resultados.sort(key=lambda x: x[1], reverse=True)
 
     if not resultados:
-        st.warning(f"⚠️ Sem preços recentes para {cidade_venda}.")
+        st.warning(f"⚠️ Sem preços válidos para {cidade_venda}.")
     else:
         st.subheader(f"📊 {len(resultados)} Itens em {cidade_venda}")
         for nome, lucro, venda, custo, dets in resultados:
             perc = (lucro / custo) * 100 if custo > 0 else 0
             cor = "#2ecc71" if lucro > 0 else "#e74c3c"
+            # Identifica se é venda direta (ordem de compra) ou listagem
+            tipo_venda = "Venda Imediata" if cidade_venda.lower() != "black market" else "Venda BM"
+            
             st.markdown(f"""
             <div class="item-card-custom" style="border-left: 8px solid {cor};">
                 <div style="font-weight: bold; font-size: 1.2rem; color: {cor};">⚔️ {nome} x{quantidade}</div>
                 <div style="font-size: 1.05rem; margin: 8px 0;">
                     <span style="color: {cor}; font-weight: bold; font-size: 1.2rem;">💰 Lucro: {lucro:,} ({perc:.2f}%)</span><br>
-                    <b>Investimento:</b> {custo:,} | <b>Venda ({cidade_venda}):</b> {venda:,}
+                    <b>Investimento:</b> {custo:,} | <b>{tipo_venda} ({cidade_venda}):</b> {venda:,}
                 </div>
                 <div style="font-size: 0.95rem; color: #cbd5e1; margin-bottom: 10px;">📍 <b>Foco Craft:</b> {identificar_cidade_bonus(nome)}</div>
                 <div style="background: rgba(0,0,0,0.4); padding: 10px; border-radius: 8px; font-size: 0.85rem;">
@@ -361,4 +378,4 @@ if btn:
             """, unsafe_allow_html=True)
 
 st.markdown("---")
-st.caption("Radar Craft Albion - Análise Multicidades")
+st.caption("Radar Craft Albion - Análise Multicidades (Corrigido para Ordens de Compra)")
