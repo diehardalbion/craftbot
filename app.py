@@ -606,7 +606,8 @@ if btn:
 
     try:
         response = requests.get(f"{API_URL}{ids}?locations={cidade_escolhida}")
-            f"{API_URL}{','.join(ids_para_recursos)}?locations=Thetford,FortSterling,Martlock,Lymhurst,Bridgewatch,Caerleon",
+                f"{API_URL}{','.join(ids_para_recursos)}?locations=Thetford,FortSterling,Martlock,Lymhurst,Bridgewatch,Caerleon"
+)
             timeout=20
         )
         data_recursos = response.json()
