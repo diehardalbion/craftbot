@@ -551,12 +551,19 @@ if btn:
 
     # Processamento de preços de recursos
     precos_recursos = {}
-    for p in data_recursos:
-        pid = p["item_id"]
-        price = p["sell_price_min"]
-        if price > 0:
-            if pid not in precos_recursos or price < precos_recursos[pid]["price"]:
-                precos_recursos[pid] = {"price": price, "city": p["city"]}
+
+for p in data_recursos:
+    pid = p["item_id"]
+    price = p["sell_price_min"]
+
+    if price > 0:
+        if pid not in precos_recursos:
+            precos_recursos[pid] = []
+
+        precos_recursos[pid].append({
+            "price": price,
+            "city": p["city"]
+        })
 
     resultados = []
     progress_text = "Analisando Mercado e Calculando Lucros..."
