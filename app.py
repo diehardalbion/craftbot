@@ -630,6 +630,10 @@ for nome_item, dados in ITENS_DB.items():
 try:
     cidade_api = CIDADE_API_MAP[cidade_escolhida]
 
+    if not ids:
+        st.warning("Nenhum item encontrado com esses filtros.")
+        st.stop()
+
     ids_string = ",".join(ids)
 
     url = f"{API_URL}{ids_string}?locations={cidade_api}"
