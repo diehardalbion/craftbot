@@ -15,6 +15,19 @@ CIDADES = [
     "BlackMarket"
 ]
 
+
+# ================= MAP PARA API =================
+CIDADE_API_MAP = {
+    "Martlock": "Martlock",
+    "Thetford": "Thetford",
+    "Fort Sterling": "FortSterling",
+    "Lymhurst": "Lymhurst",
+    "Bridgewatch": "Bridgewatch",
+    "Brecilien": "Brecilien",
+    "Caerleon": "Caerleon",
+    "Black Market": "BlackMarket"
+}
+
 # ================= CONFIGURAÇÃO DA PÁGINA =================
 st.set_page_config("Radar Craft Albion", layout="wide", page_icon="⚔️")
 
