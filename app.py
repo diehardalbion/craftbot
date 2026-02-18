@@ -539,14 +539,14 @@ if btn:
             for r in ids_recurso_variantes(tier, d[3], encanto):
                 ids_para_recursos.add(r)
 
-    try:
-        response = requests.get(
-            f"{API_URL}{','.join(ids_para_recursos)}?locations=Thetford,FortSterling,Martlock,Lymhurst,Bridgewatch,Caerleon",
-            timeout=20
-        )
-        data_recursos = response.json()
-    except:
-        st.error("Erro ao conectar com a API de recursos. Tente novamente.")
+try:
+    response = requests.get(
+        f"{API_URL}{','.join(ids_para_recursos)}?locations={','.join(CIDADES)}",
+        timeout=20
+    )
+    data_recursos = response.json()
+except:
+    st.error("Erro ao buscar dados da API")
         st.stop()
 
     # Processamento de preços de recursos
