@@ -620,12 +620,15 @@ if btn:
 ids = []
 
 for nome_item, dados in ITENS_DB.items():
-    if (
-        dados["categoria"] == categoria_selecionada
-        and dados["tier"] == tier
-        and dados["encanto"] == encanto
-    ):
-        ids.append(dados["id"])
+    item_id_base = dados[0]  # ID base do item
+
+    # monta ID com tier e encanto
+    item_id = f"T{tier}_{item_id_base}"
+
+    if encanto > 0:
+        item_id += f"@{encanto}"
+
+    ids.append(item_id)
 
 try:
     cidade_api = CIDADE_API_MAP[cidade_escolhida]
