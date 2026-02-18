@@ -396,40 +396,15 @@ FILTROS = {
 }
 
 # ================= FUNÇÕES DE PREÇO CORRIGIDAS =================
-def get_historical_price(item_id, location="Black Market"):
-    """
-    Função aprimorada para ignorar preços fakes (outliers).
-    Prioriza a média histórica de 24h para garantir lucro real.
-    """
+def get_min_sell_price(item_id, location):
     try:
-        # Busca o histórico das últimas 24h
-        url_hist = f"{HISTORY_URL}{item_id}?locations={location}&timescale=24"
-        resp_hist = requests.get(url_hist, timeout=10).json()
+        url = f"{API_URL}{item_id}?locations={location}"
+        resp = requests.get(url, timeout=10).json()
 
-        if not resp_hist or "data" not in resp_hist[0] or not resp_hist[0]["data"]:
-            # Se não tiver histórico, tenta o preço atual de venda rápida (mas com cautela)
-            url_atual = f"{API_URL}{item_id}?locations={location}"
-            resp_atual = requests.get(url_atual, timeout=10).json()
-            if resp_atual and resp_atual[0]["sell_price_min"] > 0:
-                p = resp_atual[0]["sell_price_min"]
-                # Se o preço for absurdamente alto (ex: T4 a 1 milhão), ignora
-                if p > 500000 and "T4" in item_id: return 0
-                return p
-            return 0
+        if resp and resp[0]["sell_price_min"] > 0:
+            return resp[0]["sell_price_min"]
 
-        # Filtra apenas dados válidos e com volume de venda real
-        prices = [
-            d["avg_price"]
-            for d in resp_hist[0]["data"]
-            if d["avg_price"] > 0 and d["item_count"] >= 1
-        ]
-
-        if not prices:
-            return 0
-
-        # Retorna a média dos últimos registros para evitar picos falsos
-        return int(sum(prices) / len(prices))
-
+        return 0
     except:
         return 0
 
