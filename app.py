@@ -46,28 +46,23 @@ section[data-testid="stSidebar"] * {
 
 /* ================= INPUTS ================= */
 
-/* Remove estilo agressivo antigo */
-.stNumberInput [data-baseweb="input"] > div {
-    background-color: transparent !important;
-    border: none !important;
-}
-
-/* Estilo correto */
-.stSelectbox [data-baseweb="select"],
-.stTextInput [data-baseweb="input"],
-.stNumberInput input {
+.stNumberInput [data-baseweb="input"] {
     background-color: #1a1a1a !important;
-    color: #ffffff !important;
     border: 1px solid #333 !important;
     border-radius: 6px !important;
+    overflow: visible !important;
 }
 
-/* Labels */
-.stSelectbox label,
-.stNumberInput label,
-.stTextInput label {
+/* Campo de texto */
+.stNumberInput input {
+    background-color: transparent !important;
     color: #ffffff !important;
-    font-weight: bold;
+}
+
+/* Botões + e - sempre visíveis */
+.stNumberInput button {
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
 /* ================= BOTÕES + E - ================= */
