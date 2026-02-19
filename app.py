@@ -7,127 +7,193 @@ from datetime import datetime, timezone
 st.set_page_config("Radar Craft Albion", layout="wide", page_icon="⚔️")
 
 # ================= CUSTOM CSS (VISUAL) =================
+# ================= CUSTOM CSS (VISUAL REFEITO) =================
 st.markdown("""
 <style>
+
+/* REMOVE HEADER */
 header {visibility: hidden;}
+
+/* REMOVE PADDING SUPERIOR */
 .main .block-container {
     padding-top: 0rem;
-    padding-bottom: 0rem;
+    padding-bottom: 1rem;
 }
+
+/* BACKGROUND APP */
 .stApp {
-    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)),
+    background: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.85)),
     url("https://i.imgur.com/kVAiMjD.png");
     background-size: cover;
     background-attachment: fixed;
 }
-/* SIDEBAR - FUNDO PRETO */
-[data-testid="stSidebar"] {
+
+/* ================= SIDEBAR ================= */
+
+section[data-testid="stSidebar"] {
     background-color: #000000 !important;
     border-right: 2px solid #2ecc71;
+    width: 320px !important;
 }
-[data-testid="stSidebar"] * {
+
+section[data-testid="stSidebar"] > div {
+    width: 320px !important;
+}
+
+section[data-testid="stSidebar"] * {
     color: #ffffff !important;
 }
-/* INPUTS DA SIDEBAR - FUNDO PRETO, TEXTO BRANCO */
-.stSelectbox [data-baseweb="select"] > div,
-.stNumberInput [data-baseweb="input"] > div,
-.stTextInput [data-baseweb="input"] > div {
+
+/* ================= INPUTS ================= */
+
+/* Remove estilo agressivo antigo */
+.stNumberInput [data-baseweb="input"] > div {
+    background-color: transparent !important;
+    border: none !important;
+}
+
+/* Estilo correto */
+.stSelectbox [data-baseweb="select"],
+.stTextInput [data-baseweb="input"],
+.stNumberInput input {
     background-color: #1a1a1a !important;
-    border: 1px solid #333333 !important;
     color: #ffffff !important;
+    border: 1px solid #333 !important;
+    border-radius: 6px !important;
 }
+
+/* Labels */
 .stSelectbox label,
 .stNumberInput label,
 .stTextInput label {
     color: #ffffff !important;
     font-weight: bold;
 }
-/* BOTÃO DA SIDEBAR */
-.stButton>button {
+
+/* ================= BOTÕES + E - ================= */
+
+button[aria-label="Increment value"],
+button[aria-label="Decrement value"] {
+    opacity: 1 !important;
+    background-color: #2ecc71 !important;
+    color: #000000 !important;
+    border-radius: 6px !important;
+    width: 32px !important;
+    height: 32px !important;
+}
+
+/* Remove efeito fade */
+button[aria-label="Increment value"]:hover,
+button[aria-label="Decrement value"]:hover {
+    opacity: 1 !important;
+}
+
+/* ================= BOTÃO PRINCIPAL ================= */
+
+.stButton > button {
     width: 100%;
     background-color: #2ecc71 !important;
     color: #000000 !important;
     font-weight: bold;
     border: none;
-    padding: 0.5rem;
+    padding: 0.6rem;
+    border-radius: 8px;
 }
-/* TÍTULO PRINCIPAL */
+
+.stButton > button:hover {
+    background-color: #27ae60 !important;
+}
+
+/* ================= TÍTULOS ================= */
+
 h1, h2, h3, .stMarkdown {
     color: #ffffff !important;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
-/* CARD DE ITEM - RESULTADOS */
+
+/* ================= CARD RESULTADO ================= */
+
 .item-card-custom {
-    background-color: rgba(20, 22, 28, 0.98) !important;
-    backdrop-filter: blur(12px);
-    border-radius: 12px;
+    background-color: #111111 !important;
+    border-radius: 14px;
     padding: 20px;
     margin-bottom: 20px;
-    border: 2px solid rgba(46, 204, 113, 0.4);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+    border: 2px solid rgba(46, 204, 113, 0.5);
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.8);
     color: #ffffff !important;
 }
+
 .item-card-custom * {
     color: #ffffff !important;
 }
-/* TABELA DE CIDADES - ALTO CONTRASTE */
+
+/* ================= TABELA ================= */
+
 .city-table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 15px;
     margin-bottom: 15px;
     font-size: 0.95rem;
-    background-color: rgba(30, 33, 40, 0.98);
-    border-radius: 8px;
+    background-color: #1e2128;
+    border-radius: 10px;
     overflow: hidden;
-    border: 2px solid rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.15);
 }
+
 .city-table th {
-    background-color: rgba(46, 204, 113, 0.95) !important;
+    background-color: #2ecc71 !important;
     color: #000000 !important;
     font-weight: bold;
     padding: 12px;
     text-align: center;
-    border: 1px solid rgba(46, 204, 113, 1);
     font-size: 1rem;
 }
+
 .city-table td {
     padding: 10px;
     text-align: center;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     color: #ffffff !important;
-    background-color: rgba(40, 43, 51, 0.95);
+    background-color: #2a2d35;
     font-weight: 600;
 }
+
 .city-table tr:nth-child(even) {
-    background-color: rgba(50, 54, 64, 0.95) !important;
+    background-color: #323640 !important;
 }
-.city-table tr:nth-child(odd) {
-    background-color: rgba(40, 43, 51, 0.95) !important;
-}
+
 .city-table tr:hover {
     background-color: rgba(46, 204, 113, 0.25) !important;
 }
+
+/* ================= LUCRO ================= */
+
 .best-profit {
     color: #2ecc71 !important;
     font-weight: bold;
     font-size: 1.1rem;
 }
+
 .negative-profit {
     color: #e74c3c !important;
     font-weight: bold;
 }
-/* DETALHES DE COMPRA */
+
+/* ================= DETALHES ================= */
+
 .purchase-details {
-    background: rgba(30, 33, 40, 0.98);
+    background: #1e2128;
     padding: 15px;
     border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     font-size: 0.9rem;
     color: #e0e0e0 !important;
 }
+
 </style>
 """, unsafe_allow_html=True)
+
 
 # ================= SISTEMA DE LOGIN / KEYS =================
 def verificar_chave(chave_usuario):
