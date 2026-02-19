@@ -46,23 +46,25 @@ section[data-testid="stSidebar"] * {
 
 /* ================= INPUTS ================= */
 
-.stNumberInput [data-baseweb="input"] {
+.stNumberInput [data-baseweb="base-input"] {
     background-color: #1a1a1a !important;
     border: 1px solid #333 !important;
     border-radius: 6px !important;
-    overflow: visible !important;
 }
 
-/* Campo de texto */
+/* Texto dentro */
 .stNumberInput input {
-    background-color: transparent !important;
     color: #ffffff !important;
+    background: transparent !important;
 }
 
-/* Botões + e - sempre visíveis */
+/* Botões + e - */
 .stNumberInput button {
     opacity: 1 !important;
     visibility: visible !important;
+    background-color: #2ecc71 !important;
+    color: #000000 !important;
+    border-radius: 6px !important;
 }
 
 /* ================= BOTÕES + E - ================= */
