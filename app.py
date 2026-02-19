@@ -11,86 +11,100 @@ st.markdown("""
 <style>
 header {visibility: hidden;}
 .main .block-container {
-padding-top: 0rem;
-padding-bottom: 0rem;
+    padding-top: 0rem;
+    padding-bottom: 0rem;
 }
 .stApp {
-background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)),
-url("https://i.imgur.com/kVAiMjD.png");
-background-size: cover;
-background-attachment: fixed;
+    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)),
+    url("https://i.imgur.com/kVAiMjD.png");
+    background-size: cover;
+    background-attachment: fixed;
 }
 [data-testid="stSidebar"] {
-background-color: rgba(15, 17, 23, 0.95) !important;
-border-right: 1px solid #3e4149;
+    background-color: rgba(15, 17, 23, 0.98) !important;
+    border-right: 1px solid #3e4149;
 }
-h1, h2, h3, label, .stMarkdown {
-color: #ffffff !important;
-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+h1, h2, h3, label, .stMarkdown, p, div {
+    color: #ffffff !important;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 .item-card-custom {
-background-color: rgba(255, 255, 255, 0.05) !important;
-backdrop-filter: blur(12px);
-border-radius: 12px;
-padding: 20px;
-margin-bottom: 20px;
-border: 1px solid rgba(255, 255, 255, 0.1);
-box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-color: white !important;
+    background-color: rgba(20, 22, 28, 0.98) !important;
+    backdrop-filter: blur(12px);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 2px solid rgba(46, 204, 113, 0.3);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+    color: #ffffff !important;
 }
 .stButton>button {
-width: 100%;
-background-color: #2ecc71 !important;
-color: white !important;
-font-weight: bold;
-border: none;
-padding: 0.5rem;
+    width: 100%;
+    background-color: #2ecc71 !important;
+    color: #000000 !important;
+    font-weight: bold;
+    border: none;
+    padding: 0.5rem;
 }
-/* Tabela de Cidades */
-.city-table {
-width: 100%;
-border-collapse: collapse;
-margin-top: 10px;
-font-size: 0.9rem;
-}
-.city-table th, .city-table td {
-border: 1px solid rgba(255,255,255,0.1);
-padding: 8px;
-text-align: center;
-}
-.city-table th {
-background-color: rgba(0,0,0,0.3);
-color: #2ecc71;
-}
-.city-table tr:nth-child(even) {
-background-color: rgba(255,255,255,0.02);
-}
-.best-profit {
-color: #2ecc71 !important;
-font-weight: bold;
-}
-/* Tabela de Cidades */
+/* Tabela de Cidades - ALTO CONTRASTE */
 .city-table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 10px;
-    font-size: 0.9rem;
-}
-.city-table th, .city-table td {
-    border: 1px solid rgba(255,255,255,0.1);
-    padding: 8px;
-    text-align: center;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    font-size: 0.95rem;
+    background-color: rgba(30, 33, 40, 0.95);
+    border-radius: 8px;
+    overflow: hidden;
 }
 .city-table th {
-    background-color: rgba(0,0,0,0.3);
-    color: #2ecc71;
+    background-color: rgba(46, 204, 113, 0.9);
+    color: #000000 !important;
+    font-weight: bold;
+    padding: 12px;
+    text-align: center;
+    border: 1px solid rgba(46, 204, 113, 1);
+}
+.city-table td {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #ffffff !important;
 }
 .city-table tr:nth-child(even) {
-    background-color: rgba(255,255,255,0.02);
+    background-color: rgba(50, 54, 64, 0.9);
+}
+.city-table tr:nth-child(odd) {
+    background-color: rgba(40, 43, 51, 0.9);
+}
+.city-table tr:hover {
+    background-color: rgba(46, 204, 113, 0.2);
 }
 .best-profit {
     color: #2ecc71 !important;
     font-weight: bold;
+    font-size: 1.1rem;
+}
+.negative-profit {
+    color: #e74c3c !important;
+    font-weight: bold;
+}
+/* Detalhes de compra */
+.purchase-details {
+    background: rgba(30, 33, 40, 0.95);
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 0.9rem;
+    color: #e0e0e0 !important;
+}
+/* Sidebar inputs */
+.stTextInput>div>div>input, 
+.stNumberInput>div>div>input,
+.stSelectbox>div>div>select {
+    background-color: rgba(30, 33, 40, 0.9);
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 </style>
 """, unsafe_allow_html=True)
@@ -682,78 +696,85 @@ if btn:
 
     my_bar.empty()
 
-    # ================= EXIBIÇÃO DOS RESULTADOS =================
-    if not resultados:
-        st.warning("⚠️ A API não retornou preços recentes para os itens desta categoria.")
-    else:
-        st.subheader(f"📊 {len(resultados)} Itens Encontrados - {categoria.upper()} T{tier}.{encanto}")
+   # ================= EXIBIÇÃO DOS RESULTADOS =================
+if not resultados:
+    st.warning("⚠️ A API não retornou preços recentes para os itens desta categoria.")
+else:
+    st.subheader(f"📊 {len(resultados)} Itens Encontrados - {categoria.upper()} T{tier}.{encanto}")
 
-        for res in resultados:
-            nome = res["nome"]
-            custo = res["custo"]
-            detalhes = res["detalhes"]
-            cidades = res["cidades"]
+    for res in resultados:
+        nome = res["nome"]
+        custo = res["custo"]
+        detalhes = res["detalhes"]
+        cidades = res["cidades"]
 
-            melhor_lucro = cidades[0]["lucro"] if cidades else 0
-            melhor_cidade = cidades[0]["cidade"] if cidades else "N/A"
-            cor_destaque = "#2ecc71" if melhor_lucro > 0 else "#e74c3c"
-            cidade_foco = identificar_cidade_bonus(nome)
+        melhor_lucro = cidades[0]["lucro"] if cidades else 0
+        melhor_cidade = cidades[0]["cidade"] if cidades else "N/A"
+        cor_destaque = "#2ecc71" if melhor_lucro > 0 else "#e74c3c"
+        cidade_foco = identificar_cidade_bonus(nome)
 
-            # Construir tabela HTML de cidades
-            rows_html = ""
-            for c in cidades:
-                if c["venda"] > 0:
-                    color_class = "best-profit" if c["lucro"] == melhor_lucro and melhor_lucro > 0 else ""
-                    bm_tag = " 🎮 BM" if c["cidade"] == "Black Market" else ""
-                    rows_html += f"""
-                    <tr>
-                        <td>{c['cidade']}{bm_tag}</td>
-                        <td>{c['preco_venda']:,}</td>
-                        <td>{c['venda']:,}</td>
-                        <td class="{color_class}">{c['lucro']:,}</td>
-                        <td class="{color_class}">{c['roi']:.1f}%</td>
-                    </tr>
-                    """
+        # Construir tabela HTML de cidades
+        rows_html = ""
+        for c in cidades:
+            if c["venda"] > 0:
+                if c["lucro"] == melhor_lucro and melhor_lucro > 0:
+                    color_class = "best-profit"
+                elif c["lucro"] < 0:
+                    color_class = "negative-profit"
+                else:
+                    color_class = ""
+                
+                bm_tag = " 🎮 BM" if c["cidade"] == "Black Market" else ""
+                rows_html += f"""
+                <tr>
+                    <td><b>{c['cidade']}</b>{bm_tag}</td>
+                    <td>{c['preco_venda']:,}</td>
+                    <td>{c['venda']:,}</td>
+                    <td class="{color_class}">{c['lucro']:,}</td>
+                    <td class="{color_class}">{c['roi']:.1f}%</td>
+                </tr>
+                """
 
-            html_content = f"""
-            <div class="item-card-custom" style="border-left: 8px solid {cor_destaque};">
-                <div style="font-weight: bold; font-size: 1.2rem; margin-bottom: 10px; color: {cor_destaque};">
-                    ⚔️ {nome} [T{tier}.{encanto}] x{quantidade}
+        html_content = f"""
+        <div class="item-card-custom" style="border-left: 8px solid {cor_destaque};">
+            <div style="font-weight: bold; font-size: 1.3rem; margin-bottom: 15px; color: {cor_destaque};">
+                ⚔️ {nome} [T{tier}.{encanto}] x{quantidade}
+            </div>
+            <div style="font-size: 1.1rem; margin-bottom: 10px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px;">
+                <div style="color: {cor_destaque}; font-weight: bold; font-size: 1.3rem; margin-bottom: 5px;">
+                    💰 Melhor Lucro: {melhor_lucro:,} ({melhor_cidade})
                 </div>
-                <div style="font-size: 1.05rem; margin-bottom: 8px;">
-                    <span style="color: {cor_destaque}; font-weight: bold; font-size: 1.2rem;">
-                        💰 Melhor Lucro: {melhor_lucro:,} ({melhor_cidade})
-                    </span>
-                    <br><b>Investimento:</b> {custo:,}
-                </div>
-                <div style="font-size: 0.95rem; color: #cbd5e1; margin-bottom: 10px;">
-                    📍 <b>Foco Craft:</b> {cidade_foco}
-                </div>
-
-                <table class="city-table">
-                    <thead>
-                        <tr>
-                            <th>Cidade</th>
-                            <th>Preço Unit.</th>
-                            <th>Venda Total</th>
-                            <th>Lucro</th>
-                            <th>ROI</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {rows_html}
-                    </tbody>
-                </table>
-
-                <div style="background: rgba(0,0,0,0.4); padding: 12px; border-radius: 8px;
-                border: 1px solid rgba(255,255,255,0.1); font-size: 0.9rem; margin-top: 10px;">
-                    📦 <b>Detalhamento de Compras:</b> <br>
-                    {" | ".join(detalhes)}
+                <div style="color: #ffffff;">
+                    <b>Investimento:</b> {custo:,}
                 </div>
             </div>
-            """
+            <div style="font-size: 1rem; color: #a0d2a8; margin-bottom: 15px; font-weight: 600;">
+                📍 <b>Foco Craft:</b> {cidade_foco}
+            </div>
 
-            st.components.v1.html(html_content, height=400, scrolling=False)
-            st.markdown("---")
+            <table class="city-table">
+                <thead>
+                    <tr>
+                        <th>Cidade</th>
+                        <th>Preço Unit.</th>
+                        <th>Venda Total</th>
+                        <th>Lucro</th>
+                        <th>ROI</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {rows_html}
+                </tbody>
+            </table>
 
-    st.caption("Radar Craft Albion - Desenvolvido para análise de mercado via Albion Online Data Project")
+            <div class="purchase-details">
+                📦 <b>Detalhamento de Compras:</b><br>
+                <span style="color: #b0b8c5;">{" | ".join(detalhes)}</span>
+            </div>
+        </div>
+        """
+
+        st.components.v1.html(html_content, height=450, scrolling=False)
+        st.markdown("---")
+
+st.caption("Radar Craft Albion - Desenvolvido para análise de mercado via Albion Online Data Project")
