@@ -20,22 +20,21 @@ header {visibility: hidden;}
     background-size: cover;
     background-attachment: fixed;
 }
+/* SIDEBAR - FUNDO PRETO */
 [data-testid="stSidebar"] {
-    background-color: rgba(15, 17, 23, 0.95) !important;
-    border-right: 1px solid #3e4149;
+    background-color: #000000 !important;
+    border-right: 2px solid #2ecc71;
 }
-h1, h2, h3, label, .stMarkdown, p, div, span {
+[data-testid="stSidebar"] * {
     color: #ffffff !important;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
-/* INPUTS - TEXTO BRANCO VISÍVEL */
-.stTextInput>div>div>input,
-.stNumberInput>div>div>input,
-.stSelectbox>div>div>select {
-    background-color: rgba(30, 33, 40, 0.95) !important;
+/* INPUTS DA SIDEBAR - FUNDO PRETO, TEXTO BRANCO */
+.stSelectbox [data-baseweb="select"] > div,
+.stNumberInput [data-baseweb="input"] > div,
+.stTextInput [data-baseweb="input"] > div {
+    background-color: #1a1a1a !important;
+    border: 1px solid #333333 !important;
     color: #ffffff !important;
-    border: 1px solid rgba(255, 255, 255, 0.3) !important;
-    font-weight: 600;
 }
 .stSelectbox label,
 .stNumberInput label,
@@ -43,7 +42,7 @@ h1, h2, h3, label, .stMarkdown, p, div, span {
     color: #ffffff !important;
     font-weight: bold;
 }
-/* BOTÃO */
+/* BOTÃO DA SIDEBAR */
 .stButton>button {
     width: 100%;
     background-color: #2ecc71 !important;
@@ -52,7 +51,12 @@ h1, h2, h3, label, .stMarkdown, p, div, span {
     border: none;
     padding: 0.5rem;
 }
-/* CARD DE ITEM */
+/* TÍTULO PRINCIPAL */
+h1, h2, h3, .stMarkdown {
+    color: #ffffff !important;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+/* CARD DE ITEM - RESULTADOS */
 .item-card-custom {
     background-color: rgba(20, 22, 28, 0.98) !important;
     backdrop-filter: blur(12px);
@@ -63,7 +67,10 @@ h1, h2, h3, label, .stMarkdown, p, div, span {
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
     color: #ffffff !important;
 }
-/* TABELA - ALTO CONTRASTE */
+.item-card-custom * {
+    color: #ffffff !important;
+}
+/* TABELA DE CIDADES - ALTO CONTRASTE */
 .city-table {
     width: 100%;
     border-collapse: collapse;
@@ -110,6 +117,7 @@ h1, h2, h3, label, .stMarkdown, p, div, span {
     color: #e74c3c !important;
     font-weight: bold;
 }
+/* DETALHES DE COMPRA */
 .purchase-details {
     background: rgba(30, 33, 40, 0.98);
     padding: 15px;
