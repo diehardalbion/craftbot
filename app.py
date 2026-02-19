@@ -837,7 +837,7 @@ elif btn and resultados:
         </div>
         """
 
-        st.components.v1.html(html_content, height=500, scrolling=False)
+        st.components.v1.html(html_content, height=1200, scrolling=True)
         st.markdown("---")
 
 st.caption("Radar Craft Albion - Desenvolvido para análise de mercado via Albion Online Data Project")
