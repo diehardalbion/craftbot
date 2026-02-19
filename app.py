@@ -571,28 +571,44 @@ if btn:
     my_bar = st.progress(0, text=progress_text)
     total_itens = len(itens)
 
-    # ================= BUSCA PREÇOS DE TODAS AS CIDADES =================
-    CIDADES_VENDA = ["Martlock", "Thetford", "FortSterling", "Lymhurst", "Bridgewatch", "Caerleon", "Black Market"]
+    # Cidades para venda (mercado player-player)
+    CIDADES_VENDA = ["Martlock", "Thetford", "FortSterling", "Lymhurst", "Bridgewatch", "Caerleon"]
 
     for i, (nome, d) in enumerate(itens.items()):
         item_id = id_item(tier, d[0], encanto)
         my_bar.progress((i + 1) / total_itens, text=f"Analisando: {nome}")
 
-        # Busca preço em todas as cidades
+        # Busca preço de venda em TODAS as cidades + Black Market
         precos_cidades = {}
-        for cidade in CIDADES_VENDA:
-            preco = get_historical_price(item_id, location=cidade)
-            if preco > 0:
-                precos_cidades[cidade] = preco
+        
+        # 1️⃣ Preços das cidades (mercado player-player)
+        try:
+            url_cidades = f"{API_URL}{item_id}?locations={','.join(CIDADES_VENDA)}"
+            resp_cidades = requests.get(url_cidades, timeout=10).json()
+            for p in resp_cidades:
+                city = p["city"]
+                price = p["sell_price_min"]
+                if price > 0:
+                    precos_cidades[city] = price
+        except:
+            pass
+
+        # 2️⃣ Preço do Black Market (jogo compra)
+        try:
+            preco_bm = get_historical_price(item_id, location="Black Market")
+            if preco_bm > 0:
+                precos_cidades["Black Market"] = preco_bm
+        except:
+            pass
 
         if not precos_cidades:
             continue
 
+        # ================= CÁLCULO DE CUSTO =================
         custo = 0
         detalhes = []
         valid_craft = True
 
-        # ================= CÁLCULO DE RECURSOS BASE =================
         for recurso, qtd in [(d[1], d[2]), (d[3], d[4])]:
             if not recurso or qtd == 0:
                 continue
@@ -602,7 +618,10 @@ if btn:
                     info = precos_recursos[rid]
                     nome_recurso = NOMES_RECURSOS_TIER.get(recurso, {}).get(tier, recurso)
                     custo += info["price"] * qtd * quantidade
-                    detalhes.append(f"{qtd * quantidade}x T{tier}.{encanto} {nome_recurso}: {info['price']:,} ({info['city']})")
+                    detalhes.append(
+                        f"{qtd * quantidade}x T{tier}.{encanto} {nome_recurso}: "
+                        f"{info['price']:,} ({info['city']})"
+                    )
                     found = True
                     break
             if not found:
@@ -612,14 +631,20 @@ if btn:
         if not valid_craft:
             continue
 
-        # ================= CÁLCULO DE ARTEFATOS =================
+        # ================= ARTEFATOS =================
         if d[5]:
             art_id = f"T{tier}_{d[5]}"
-            preco_artefato = get_historical_price(art_id, location="Caerleon,FortSterling,Thetford,Lymhurst,Bridgewatch,Martlock")
+            preco_artefato = get_historical_price(
+                art_id,
+                location="Caerleon,FortSterling,Thetford,Lymhurst,Bridgewatch,Martlock"
+            )
             if preco_artefato > 0:
                 qtd_art = d[6] * quantidade
                 custo += preco_artefato * qtd_art
-                detalhes.append(f"{qtd_art}x Artefato: {preco_artefato:,.0f} (Média Market)")
+                detalhes.append(
+                    f"{qtd_art}x Artefato: "
+                    f"{preco_artefato:,.0f} (Média Market)"
+                )
             else:
                 valid_craft = False
 
@@ -632,14 +657,20 @@ if btn:
         lucros_cidades = []
         for cidade, preco_venda in precos_cidades.items():
             venda_total = int(preco_venda * quantidade)
-            lucro = int((venda_total * 0.935) - custo_final)
+            
+            # Black Market tem taxa diferente (6.5%) vs cidades (6.5%)
+            taxa = 0.935
+            lucro = int((venda_total * taxa) - custo_final)
+            
             lucros_cidades.append({
                 "cidade": cidade,
+                "preco_venda": preco_venda,
                 "venda": venda_total,
                 "lucro": lucro,
                 "roi": (lucro / custo_final * 100) if custo_final > 0 else 0
             })
 
+        # Ordenar pelo maior lucro
         lucros_cidades.sort(key=lambda x: x["lucro"], reverse=True)
 
         resultados.append({
@@ -664,6 +695,7 @@ if btn:
             cidades = res["cidades"]
 
             melhor_lucro = cidades[0]["lucro"] if cidades else 0
+            melhor_cidade = cidades[0]["cidade"] if cidades else "N/A"
             cor_destaque = "#2ecc71" if melhor_lucro > 0 else "#e74c3c"
             cidade_foco = identificar_cidade_bonus(nome)
 
@@ -672,9 +704,11 @@ if btn:
             for c in cidades:
                 if c["venda"] > 0:
                     color_class = "best-profit" if c["lucro"] == melhor_lucro and melhor_lucro > 0 else ""
+                    bm_tag = " 🎮 BM" if c["cidade"] == "Black Market" else ""
                     rows_html += f"""
                     <tr>
-                        <td>{c['cidade']}</td>
+                        <td>{c['cidade']}{bm_tag}</td>
+                        <td>{c['preco_venda']:,}</td>
                         <td>{c['venda']:,}</td>
                         <td class="{color_class}">{c['lucro']:,}</td>
                         <td class="{color_class}">{c['roi']:.1f}%</td>
@@ -688,7 +722,7 @@ if btn:
                 </div>
                 <div style="font-size: 1.05rem; margin-bottom: 8px;">
                     <span style="color: {cor_destaque}; font-weight: bold; font-size: 1.2rem;">
-                        💰 Melhor Lucro: {melhor_lucro:,}
+                        💰 Melhor Lucro: {melhor_lucro:,} ({melhor_cidade})
                     </span>
                     <br><b>Investimento:</b> {custo:,}
                 </div>
@@ -700,7 +734,8 @@ if btn:
                     <thead>
                         <tr>
                             <th>Cidade</th>
-                            <th>Venda</th>
+                            <th>Preço Unit.</th>
+                            <th>Venda Total</th>
                             <th>Lucro</th>
                             <th>ROI</th>
                         </tr>
@@ -718,7 +753,7 @@ if btn:
             </div>
             """
 
-            st.components.v1.html(html_content, height=350, scrolling=False)
+            st.components.v1.html(html_content, height=400, scrolling=False)
             st.markdown("---")
 
     st.caption("Radar Craft Albion - Desenvolvido para análise de mercado via Albion Online Data Project")
