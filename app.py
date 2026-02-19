@@ -631,80 +631,39 @@ if btn:
     my_bar.empty()
 
 # ================= EXIBIÇÃO DOS RESULTADOS =================
-if btn and not resultados:
-    st.warning("⚠️ A API não retornou preços recentes para os itens desta categoria.")
-elif btn and resultados:
-    st.subheader(f"📊 {len(resultados)} Itens Encontrados - {categoria.upper()} T{tier}.{encanto}")
+    if not resultados:
+        st.warning("⚠️ A API não retornou preços recentes para os itens desta categoria no Black Market.")
+    else:
+        st.subheader(f"📊 {len(resultados)} Itens Encontrados - {categoria.upper()} T{tier}.{encanto}")
 
-    for res in resultados:
-        nome = res["nome"]
-        custo = res["custo"]
-        detalhes = res["detalhes"]
-        cidades = res["cidades"]
+        for nome, lucro, venda, custo, detalhes, h_venda in resultados:
+            perc_lucro = (lucro / custo) * 100 if custo > 0 else 0
+            cidade_foco = identificar_cidade_bonus(nome)
+            cor_destaque = "#2ecc71" if lucro > 0 else "#e74c3c"
 
-        melhor_lucro = cidades[0]["lucro"] if cidades else 0
-        melhor_cidade = cidades[0]["cidade"] if cidades else "N/A"
-        cor_destaque = "#2ecc71" if melhor_lucro > 0 else "#e74c3c"
-        cidade_foco = identificar_cidade_bonus(nome)
+            st.markdown(f"""
+            <div class="item-card-custom" style="border-left: 8px solid {cor_destaque};">
+                <div style="font-weight: bold; font-size: 1.2rem; margin-bottom: 10px; color: {cor_destaque};">
+                    ⚔️ {nome} [T{tier}.{encanto}] x{quantidade}
+                </div>
+                <div style="font-size: 1.05rem; margin-bottom: 8px;">
+                    <span style="color: {cor_destaque}; font-weight: bold; font-size: 1.2rem;">
+                        💰 Lucro Estimado: {lucro:,} ({perc_lucro:.2f}%)
+                    </span>
+                    <br><b>Investimento:</b> {custo:,} |
+                    <b>Venda Estimada (BM):</b> {venda:,}
+                </div>
+                <div style="font-size: 0.95rem; color: #cbd5e1; margin-bottom: 10px;">
+                    📍 <b>Foco Craft:</b> {cidade_foco} |
+                    🕒 <b>Baseado em:</b> {h_venda}
+                </div>
+                <div style="background: rgba(0,0,0,0.4); padding: 12px; border-radius: 8px;
+                            border: 1px solid rgba(255,255,255,0.1); font-size: 0.9rem;">
+                    📦 <b>Detalhamento de Compras:</b> <br>
+                    {" | ".join(detalhes)}
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
 
-        rows_html = ""
-        for c in cidades:
-            if c["venda"] > 0:
-                if c["lucro"] == melhor_lucro and melhor_lucro > 0:
-                    color_class = "best-profit"
-                elif c["lucro"] < 0:
-                    color_class = "negative-profit"
-                else:
-                    color_class = ""
-                bm_tag = " 🎮 BM" if c["cidade"] == "Black Market" else ""
-                rows_html += f"""
-                <tr>
-                    <td><b>{c['cidade']}</b>{bm_tag}</td>
-                    <td>{c['preco_venda']:,}</td>
-                    <td>{c['venda']:,}</td>
-                    <td class="{color_class}">{c['lucro']:,}</td>
-                    <td class="{color_class}">{c['roi']:.1f}%</td>
-                </tr>
-                """
-
-html_content = f"""
-<div class="item-card-custom" style="border-left: 8px solid {cor_destaque};">
-    <div style="font-weight: bold; font-size: 1.3rem; margin-bottom: 15px; color: {cor_destaque};">
-        ⚔️ {nome} [T{tier}.{encanto}] x{quantidade}
-    </div>
-    <div style="font-size: 1.1rem; margin-bottom: 10px; padding: 12px; background: rgba(0,0,0,0.4); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
-        <div style="color: {cor_destaque}; font-weight: bold; font-size: 1.4rem; margin-bottom: 8px;">
-            💰 Melhor Lucro: {melhor_lucro:,} ({melhor_cidade})
-        </div>
-        <div style="color: #ffffff; font-size: 1.05rem;">
-            <b>Investimento:</b> {custo:,}
-        </div>
-    </div>
-    <div style="font-size: 1.05rem; color: #a0d2a8; margin-bottom: 15px; font-weight: 700; padding: 8px; background: rgba(46,204,113,0.1); border-radius: 6px;">
-        📍 <b>Foco Craft:</b> {cidade_foco}
-    </div>
-
-    <table class="city-table">
-        <thead>
-            <tr>
-                <th>Cidade</th>
-                <th>Preço Unit.</th>
-                <th>Venda Total</th>
-                <th>Lucro</th>
-                <th>ROI</th>
-            </tr>
-        </thead>
-        <tbody>
-            {rows_html}
-        </tbody>
-    </table>
-
-    <div class="purchase-details">
-        <div style="color: #2ecc71; font-weight: bold; margin-bottom: 8px;">📦 <b>Detalhamento de Compras:</b></div>
-        <div style="color: #ffffff; line-height: 1.6;">{"<br>".join(detalhes)}</div>
-    </div>
-</div>
-"""
-
-st.components.v1.html(html_content, height=500, scrolling=False)
 st.markdown("---")
+st.caption("Radar Craft Albion - Desenvolvido para análise de mercado via Albion Online Data Project")
