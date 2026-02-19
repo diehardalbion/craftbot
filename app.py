@@ -9,119 +9,95 @@ st.set_page_config("Radar Craft Albion", layout="wide", page_icon="⚔️")
 # ================= CUSTOM CSS (VISUAL) =================
 st.markdown("""
 <style>
-header {visibility: hidden;}
-.main .block-container {
-    padding-top: 0rem;
-    padding-bottom: 0rem;
-}
-.stApp {
-    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)),
-    url("https://i.imgur.com/kVAiMjD.png");
-    background-size: cover;
-    background-attachment: fixed;
-}
-[data-testid="stSidebar"] {
-    background-color: rgba(15, 17, 23, 0.98) !important;
-    border-right: 1px solid #3e4149;
-}
-h1, h2, h3, label, .stMarkdown, p, div, span {
-    color: #ffffff !important;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-/* INPUTS - TEXTO BRANCO */
-.stTextInput>div>div>input,
-.stNumberInput>div>div>input,
-.stSelectbox>div>div>select {
-    background-color: rgba(30, 33, 40, 0.95) !important;
-    color: #ffffff !important;
-    border: 1px solid rgba(255, 255, 255, 0.3) !important;
-    font-weight: 600;
-}
-.stSelectbox label,
-.stNumberInput label,
-.stTextInput label {
-    color: #ffffff !important;
-    font-weight: bold;
-}
-/* BOTÃO */
-.stButton>button {
-    width: 100%;
-    background-color: #2ecc71 !important;
-    color: #000000 !important;
-    font-weight: bold;
-    border: none;
-    padding: 0.5rem;
-}
-/* CARD DE ITEM */
-.item-card-custom {
-    background-color: rgba(20, 22, 28, 0.98) !important;
-    backdrop-filter: blur(12px);
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 20px;
-    border: 2px solid rgba(46, 204, 113, 0.4);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
-    color: #ffffff !important;
-}
-/* TABELA - ALTO CONTRASTE */
-.city-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
-    margin-bottom: 15px;
-    font-size: 0.95rem;
-    background-color: rgba(30, 33, 40, 0.98);
-    border-radius: 8px;
-    overflow: hidden;
-    border: 2px solid rgba(255, 255, 255, 0.1);
-}
-.city-table th {
-    background-color: rgba(46, 204, 113, 0.95) !important;
-    color: #000000 !important;
-    font-weight: bold;
-    padding: 12px;
-    text-align: center;
-    border: 1px solid rgba(46, 204, 113, 1);
-    font-size: 1rem;
-}
-.city-table td {
-    padding: 10px;
-    text-align: center;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: #ffffff !important;
-    background-color: rgba(40, 43, 51, 0.9);
-    font-weight: 500;
-}
-.city-table tr:nth-child(even) {
-    background-color: rgba(50, 54, 64, 0.95) !important;
-}
-.city-table tr:nth-child(odd) {
-    background-color: rgba(40, 43, 51, 0.95) !important;
-}
-.city-table tr:hover {
-    background-color: rgba(46, 204, 113, 0.25) !important;
-}
-.best-profit {
-    color: #2ecc71 !important;
-    font-weight: bold;
-    font-size: 1.1rem;
-}
-.negative-profit {
-    color: #e74c3c !important;
-    font-weight: bold;
-}
-/* DETALHES DE COMPRA */
-.purchase-details {
-    background: rgba(30, 33, 40, 0.98);
-    padding: 15px;
-    border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    font-size: 0.9rem;
-    color: #e0e0e0 !important;
-}
+    header {visibility: hidden;}
+    .main .block-container {
+        padding-top: 0rem;
+        padding-bottom: 0rem;
+    }
+    .stApp {
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)), 
+                    url("https://i.imgur.com/kVAiMjD.png");
+        background-size: cover;
+        background-attachment: fixed;
+    }
+    [data-testid="stSidebar"] {
+        background-color: rgba(15, 17, 23, 0.95) !important;
+        border-right: 1px solid #3e4149;
+    }
+    h1, h2, h3, label, .stMarkdown {
+        color: #ffffff !important;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .item-card-custom { 
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        backdrop-filter: blur(12px);
+        border-radius: 12px; 
+        padding: 20px; 
+        margin-bottom: 20px; 
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        color: white !important;
+    }
+    .stButton>button {
+        width: 100%;
+        background-color: #2ecc71 !important;
+        color: white !important;
+        font-weight: bold;
+        border: none;
+        padding: 0.5rem;
+    }
 </style>
 """, unsafe_allow_html=True)
 
+# ================= SISTEMA DE LOGIN / KEYS =================
+def verificar_chave(chave_usuario):
+    try:
+        with open("keys.json", "r") as f:
+            keys_db = json.load(f)
+        if chave_usuario in keys_db:
+            dados = keys_db[chave_usuario]
+            if not dados["ativa"]:
+                return False, "Esta chave foi desativada."
+            if dados["expira"] != "null":
+                data_expira = datetime.strptime(dados["expira"], "%Y-%m-%d").date()
+                if datetime.now().date() > data_expira:
+                    return False, "Esta chave expirou."
+            return True, dados["cliente"]
+        return False, "Chave inválida."
+    except Exception as e:
+        return False, f"Erro ao acessar keys.json: {e}"
+
+if "autenticado" not in st.session_state:
+    st.session_state.autenticado = False
+
+if not st.session_state.autenticado:
+    st.title("🛡️ Radar Craft - Acesso Restrito")
+    col1, col2 = st.columns([1, 1])
+    with col1:
+        st.markdown("### Já possui acesso?")
+        key_input = st.text_input("Insira sua Chave:", type="password")
+        if st.button("LIBERAR ACESSO"):
+            sucesso, mensagem = verificar_chave(key_input)
+            if sucesso:
+                st.session_state.autenticado = True
+                st.session_state.cliente = mensagem
+                st.rerun()
+            else:
+                st.error(mensagem)
+    with col2:
+        st.markdown("### Adquirir Nova Chave")
+        st.markdown("""
+        <div style="background: rgba(46, 204, 113, 0.1); padding: 20px; border-radius: 10px; border: 1px solid #2ecc71; text-align: center;">
+            <h2 style="margin:0; color: #2ecc71;">R$ 15,00</h2>
+            <p style="color: white;">Acesso Mensal (30 dias)</p>
+            <a href="https://wa.me/5521983042557?text=Olá! Gostaria de comprar uma key para o Radar Craft Albion." target="_blank" style="text-decoration: none;">
+                <div style="background-color: #25d366; color: white; padding: 12px; border-radius: 5px; font-weight: bold; margin-top: 10px;">
+                    COMPRAR VIA WHATSAPP
+                </div>
+            </a>
+        </div>
+        """, unsafe_allow_html=True)
+    st.stop()
 # ================= SISTEMA DE LOGIN / KEYS =================
 def verificar_chave(chave_usuario):
     try:
