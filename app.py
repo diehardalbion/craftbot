@@ -667,44 +667,44 @@ elif btn and resultados:
                 </tr>
                 """
 
-        html_content = f"""
-        <div class="item-card-custom" style="border-left: 8px solid {cor_destaque};">
-            <div style="font-weight: bold; font-size: 1.4rem; margin-bottom: 15px; color: {cor_destaque}; text-shadow: 0 0 10px rgba(46,204,113,0.3);">
-                ⚔️ {nome} [T{tier}.{encanto}] x{quantidade}
-            </div>
-            <div style="font-size: 1.1rem; margin-bottom: 10px; padding: 12px; background: rgba(0,0,0,0.4); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
-                <div style="color: {cor_destaque}; font-weight: bold; font-size: 1.4rem; margin-bottom: 8px; text-shadow: 0 0 8px rgba(46,204,113,0.4);">
-                    💰 Melhor Lucro: {melhor_lucro:,} ({melhor_cidade})
-                </div>
-                <div style="color: #ffffff; font-size: 1.05rem;">
-                    <b>💵 Investimento:</b> {custo:,}
-                </div>
-            </div>
-            <div style="font-size: 1.05rem; color: #a0d2a8; margin-bottom: 15px; font-weight: 700; padding: 8px; background: rgba(46,204,113,0.1); border-radius: 6px;">
-                📍 <b>Foco Craft:</b> {cidade_foco}
-            </div>
-
-            <table class="city-table">
-                <thead>
-                    <tr>
-                        <th>Cidade</th>
-                        <th>Preço Unit.</th>
-                        <th>Venda Total</th>
-                        <th>Lucro</th>
-                        <th>ROI</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {rows_html}
-                </tbody>
-            </table>
-
-            <div class="purchase-details">
-                <div style="color: #2ecc71; font-weight: bold; margin-bottom: 8px;">📦 <b>Detalhamento de Compras:</b></div>
-                <div style="color: #d0d8e5; line-height: 1.6;">{"<br>".join(detalhes)}</div>
-            </div>
+html_content = f"""
+<div class="item-card-custom" style="border-left: 8px solid {cor_destaque};">
+    <div style="font-weight: bold; font-size: 1.3rem; margin-bottom: 15px; color: {cor_destaque};">
+        ⚔️ {nome} [T{tier}.{encanto}] x{quantidade}
+    </div>
+    <div style="font-size: 1.1rem; margin-bottom: 10px; padding: 12px; background: rgba(0,0,0,0.4); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+        <div style="color: {cor_destaque}; font-weight: bold; font-size: 1.4rem; margin-bottom: 8px;">
+            💰 Melhor Lucro: {melhor_lucro:,} ({melhor_cidade})
         </div>
-        """
+        <div style="color: #ffffff; font-size: 1.05rem;">
+            <b>Investimento:</b> {custo:,}
+        </div>
+    </div>
+    <div style="font-size: 1.05rem; color: #a0d2a8; margin-bottom: 15px; font-weight: 700; padding: 8px; background: rgba(46,204,113,0.1); border-radius: 6px;">
+        📍 <b>Foco Craft:</b> {cidade_foco}
+    </div>
 
-        st.components.v1.html(html_content, height=500, scrolling=False)
-        st.markdown("---")
+    <table class="city-table">
+        <thead>
+            <tr>
+                <th>Cidade</th>
+                <th>Preço Unit.</th>
+                <th>Venda Total</th>
+                <th>Lucro</th>
+                <th>ROI</th>
+            </tr>
+        </thead>
+        <tbody>
+            {rows_html}
+        </tbody>
+    </table>
+
+    <div class="purchase-details">
+        <div style="color: #2ecc71; font-weight: bold; margin-bottom: 8px;">📦 <b>Detalhamento de Compras:</b></div>
+        <div style="color: #ffffff; line-height: 1.6;">{"<br>".join(detalhes)}</div>
+    </div>
+</div>
+"""
+
+st.components.v1.html(html_content, height=500, scrolling=False)
+st.markdown("---")
