@@ -103,30 +103,7 @@ if not st.session_state.autenticado:
 API_URL = "https://west.albion-online-data.com/api/v2/stats/prices/"
 HISTORY_URL = "https://west.albion-online-data.com/api/v2/stats/history/"
 CIDADES = ["Martlock", "Thetford", "FortSterling", "Lymhurst", "Bridgewatch", "Brecilien", "Caerleon", "Black Market"]
-
-# ADICIONADO CHAVES DE CAPAS E BRASÕES PARA CORRIGIR O KEYERROR
-RECURSO_MAP = {
-    "Tecido Fino": "CLOTH", 
-    "Couro Trabalhado": "LEATHER", 
-    "Barra de Aço": "METALBAR", 
-    "Tábuas de Pinho": "PLANKS",
-    "CAPE": "CAPE",
-    "CREST_MARTLOCK": "CREST_MARTLOCK",
-    "CREST_THETFORD": "CREST_THETFORD",
-    "CREST_FORTSTERLING": "CREST_FORTSTERLING",
-    "CREST_LYMHURST": "CREST_LYMHURST",
-    "CREST_BRIDGEWATCH": "CREST_BRIDGEWATCH",
-    "CREST_CAERLEON": "CREST_CAERLEON",
-    "CREST_BRECILIEN": "CREST_BRECILIEN",
-    "ROCKHEART": "ROCKHEART",
-    "VINEHEART": "VINEHEART",
-    "MOUNTAINHEART": "MOUNTAINHEART",
-    "TREEHEART": "TREEHEART",
-    "BEASTHEART": "BEASTHEART",
-    "SHADOWHEART": "SHADOWHEART",
-    "AVALONIAN_ENERGY": "AVALONIAN_ENERGY"
-}
-
+RECURSO_MAP = {"Tecido Fino": "CLOTH", "Couro Trabalhado": "LEATHER", "Barra de Aço": "METALBAR", "Tábuas de Pinho": "PLANKS"}
 BONUS_CIDADE = {
     "Martlock": ["AXE", "QUARTERSTAFF", "FROSTSTAFF", "SHOES_PLATE", "OFF_"],
     "Bridgewatch": ["CROSSBOW", "DAGGER", "CURSEDSTAFF", "ARMOR_PLATE", "SHOES_CLOTH"],
@@ -170,15 +147,6 @@ NOMES_RECURSOS_TIER = {
 }
 
 ITENS_DB = {
-    # ================= CAPAS (LÓGICA: CAPA NORMAL + CORAÇÃO + BRASÃO) =================
-    "CAPA DE MARTLOCK": ["CAPE_FW_MARTLOCK", "CAPE", 1, "CREST_MARTLOCK", 1, "ROCKHEART", 1],
-    "CAPA DE THETFORD": ["CAPE_FW_THETFORD", "CAPE", 1, "CREST_THETFORD", 1, "VINEHEART", 1],
-    "CAPA DE FORT STERLING": ["CAPE_FW_FORTSTERLING", "CAPE", 1, "CREST_FORTSTERLING", 1, "MOUNTAINHEART", 1],
-    "CAPA DE LYMHURST": ["CAPE_FW_LYMHURST", "CAPE", 1, "CREST_LYMHURST", 1, "TREEHEART", 1],
-    "CAPA DE BRIDGEWATCH": ["CAPE_FW_BRIDGEWATCH", "CAPE", 1, "CREST_BRIDGEWATCH", 1, "BEASTHEART", 1],
-    "CAPA DE CAERLEON": ["CAPE_FW_CAERLEON", "CAPE", 1, "CREST_CAERLEON", 1, "SHADOWHEART", 1],
-    "CAPA DE BRECILIEN": ["CAPE_FW_BRECILIEN", "CAPE", 1, "CREST_BRECILIEN", 1, "AVALONIAN_ENERGY", 1],
-    "CAPA COMUM": ["CAPE", "Tecido Fino", 4, "Couro Trabalhado", 4, None, 0],
     # ================= CAJADOS AMALDIÇOADOS (CURSED) =================
     "Cajado Amaldiçoado": ["MAIN_CURSEDSTAFF", "Tábuas de Pinho", 16, "Barra de Aço", 8, None, 0],
     "Cajado Amaldiçoado Elevado": ["2H_CURSEDSTAFF", "Tábuas de Pinho", 20, "Barra de Aço", 12, None, 0],
@@ -436,7 +404,6 @@ ITENS_DB = {
 
 # ================= FILTROS CORRIGIDOS =================
 FILTROS = {
-    "capas": lambda k, v: "CAPE" in v[0],
     # ARMADURAS
     "armadura_placa": lambda k, v: "ARMOR_PLATE" in v[0],
     "armadura_couro": lambda k, v: "ARMOR_LEATHER" in v[0],
@@ -485,34 +452,43 @@ FILTROS = {
 # Pronto! Agora você pode enviar os itens do Bordão para eu formatar e adicionar na DB.
 
 # ================= FUNÇÕES =================
+# MUDANÇA 1 IMPLEMENTADA: Prioriza preço de venda direto se histórico estiver defasado
 def get_historical_price(item_id, location="Black Market"):
     try:
-        url = f"{HISTORY_URL}{item_id}?locations={location}&timescale=24"
-        response = requests.get(url, timeout=10)
-        data = response.json()
-        
-        if data and "data" in data[0] and data[0]["data"]:
-            precos = [d["avg_price"] for d in data[0]["data"] if d["avg_price"] > 0]
-            if precos:
-                return sum(precos) / len(precos)
-        return 0
+        # 1️⃣ Tenta preço atual primeiro (sempre prioridade)
+        url_atual = f"{API_URL}{item_id}?locations={location}"
+        resp_atual = requests.get(url_atual, timeout=10).json()
+        if resp_atual and resp_atual[0]["sell_price_min"] > 0:
+            return resp_atual[0]["sell_price_min"]
+
+        # 2️⃣ Histórico das últimas 24h
+        url_hist = f"{HISTORY_URL}{item_id}?locations={location}&timescale=24"
+        resp_hist = requests.get(url_hist, timeout=10).json()
+
+        if not resp_hist or "data" not in resp_hist[0]:
+            return 0
+
+        # 3️⃣ Filtra preços válidos
+        prices = [
+            d["avg_price"]
+            for d in resp_hist[0]["data"]
+            if d["avg_price"] > 0 and d["item_count"] >= 3
+        ]
+
+        if not prices:
+            return 0
+
+        # 4️⃣ Usa mediana (não média!)
+        prices.sort()
+        mid = len(prices) // 2
+        return prices[mid]
+
     except:
         return 0
 
-def get_idade_str(data_iso):
+def calcular_horas(data_iso):
     try:
-        if not data_iso or data_iso.startswith("0001"): return "Antigo"
-        dt_api = datetime.fromisoformat(data_iso.replace("Z", "+00:00"))
-        agora = datetime.now(timezone.utc)
-        diff = agora - dt_api
-        minutos = int(diff.total_seconds() / 60)
-        if minutos < 60: return f"{minutos}m"
-        return f"{minutos // 60}h"
-    except: return "???"
-
-def get_horas_atras(data_api_str):
-    try:
-        data_api = datetime.fromisoformat(data_api_str.replace("Z", "+00:00"))
+        data_api = datetime.fromisoformat(data_iso.replace("Z", "+00:00"))
         data_agora = datetime.now(timezone.utc)
         diff = data_agora.replace(tzinfo=None) - data_api.replace(tzinfo=None)
         return int(diff.total_seconds() / 3600)
