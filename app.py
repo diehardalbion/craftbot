@@ -44,6 +44,43 @@ section[data-testid="stSidebar"] * {
     color: #ffffff !important;
 }
 
+/* ================= SELECTBOX ================= */
+
+.stSelectbox [data-baseweb="select"] > div {
+    background-color: #1a1a1a !important;
+    border: 1px solid #333 !important;
+    border-radius: 6px !important;
+}
+
+/* Texto selecionado */
+.stSelectbox div[data-baseweb="select"] span {
+    color: #ffffff !important;
+}
+
+/* Ícone da seta */
+.stSelectbox svg {
+    fill: #2ecc71 !important;
+}
+
+/* Dropdown */
+div[data-baseweb="popover"] {
+    background-color: #1a1a1a !important;
+}
+
+div[data-baseweb="menu"] {
+    background-color: #1a11a !important;
+}
+
+div[data-baseweb="menu"] li {
+    color: #ffffff !important;
+}
+
+/* Hover */
+div[data-baseweb="menu"] li:hover {
+    background-color: #2ecc71 !important;
+    color: #000000 !important;
+}
+
 /* ================= INPUTS ================= */
 
 .stNumberInput [data-baseweb="base-input"] {
