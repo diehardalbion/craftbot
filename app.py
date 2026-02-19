@@ -24,20 +24,26 @@ header {visibility: hidden;}
     background-color: rgba(15, 17, 23, 0.98) !important;
     border-right: 1px solid #3e4149;
 }
-h1, h2, h3, label, .stMarkdown, p, div {
+h1, h2, h3, label, .stMarkdown, p, div, span {
     color: #ffffff !important;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
-.item-card-custom {
-    background-color: rgba(20, 22, 28, 0.98) !important;
-    backdrop-filter: blur(12px);
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 20px;
-    border: 2px solid rgba(46, 204, 113, 0.3);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+/* INPUTS - TEXTO BRANCO */
+.stTextInput>div>div>input,
+.stNumberInput>div>div>input,
+.stSelectbox>div>div>select {
+    background-color: rgba(30, 33, 40, 0.95) !important;
     color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    font-weight: 600;
 }
+.stSelectbox label,
+.stNumberInput label,
+.stTextInput label {
+    color: #ffffff !important;
+    font-weight: bold;
+}
+/* BOTÃO */
 .stButton>button {
     width: 100%;
     background-color: #2ecc71 !important;
@@ -46,38 +52,54 @@ h1, h2, h3, label, .stMarkdown, p, div {
     border: none;
     padding: 0.5rem;
 }
+/* CARD DE ITEM */
+.item-card-custom {
+    background-color: rgba(20, 22, 28, 0.98) !important;
+    backdrop-filter: blur(12px);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 2px solid rgba(46, 204, 113, 0.4);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+    color: #ffffff !important;
+}
+/* TABELA - ALTO CONTRASTE */
 .city-table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 15px;
     margin-bottom: 15px;
     font-size: 0.95rem;
-    background-color: rgba(30, 33, 40, 0.95);
+    background-color: rgba(30, 33, 40, 0.98);
     border-radius: 8px;
     overflow: hidden;
+    border: 2px solid rgba(255, 255, 255, 0.1);
 }
 .city-table th {
-    background-color: rgba(46, 204, 113, 0.9);
+    background-color: rgba(46, 204, 113, 0.95) !important;
     color: #000000 !important;
     font-weight: bold;
     padding: 12px;
     text-align: center;
     border: 1px solid rgba(46, 204, 113, 1);
+    font-size: 1rem;
 }
 .city-table td {
     padding: 10px;
     text-align: center;
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     color: #ffffff !important;
+    background-color: rgba(40, 43, 51, 0.9);
+    font-weight: 500;
 }
 .city-table tr:nth-child(even) {
-    background-color: rgba(50, 54, 64, 0.9);
+    background-color: rgba(50, 54, 64, 0.95) !important;
 }
 .city-table tr:nth-child(odd) {
-    background-color: rgba(40, 43, 51, 0.9);
+    background-color: rgba(40, 43, 51, 0.95) !important;
 }
 .city-table tr:hover {
-    background-color: rgba(46, 204, 113, 0.2);
+    background-color: rgba(46, 204, 113, 0.25) !important;
 }
 .best-profit {
     color: #2ecc71 !important;
@@ -88,20 +110,14 @@ h1, h2, h3, label, .stMarkdown, p, div {
     color: #e74c3c !important;
     font-weight: bold;
 }
+/* DETALHES DE COMPRA */
 .purchase-details {
-    background: rgba(30, 33, 40, 0.95);
+    background: rgba(30, 33, 40, 0.98);
     padding: 15px;
     border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     font-size: 0.9rem;
     color: #e0e0e0 !important;
-}
-.stTextInput>div>div>input, 
-.stNumberInput>div>div>input,
-.stSelectbox>div>div>select {
-    background-color: rgba(30, 33, 40, 0.9);
-    color: #ffffff !important;
-    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 </style>
 """, unsafe_allow_html=True)
@@ -677,18 +693,18 @@ elif btn and resultados:
 
         html_content = f"""
         <div class="item-card-custom" style="border-left: 8px solid {cor_destaque};">
-            <div style="font-weight: bold; font-size: 1.3rem; margin-bottom: 15px; color: {cor_destaque};">
+            <div style="font-weight: bold; font-size: 1.4rem; margin-bottom: 15px; color: {cor_destaque}; text-shadow: 0 0 10px rgba(46,204,113,0.3);">
                 ⚔️ {nome} [T{tier}.{encanto}] x{quantidade}
             </div>
-            <div style="font-size: 1.1rem; margin-bottom: 10px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px;">
-                <div style="color: {cor_destaque}; font-weight: bold; font-size: 1.3rem; margin-bottom: 5px;">
+            <div style="font-size: 1.1rem; margin-bottom: 10px; padding: 12px; background: rgba(0,0,0,0.4); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                <div style="color: {cor_destaque}; font-weight: bold; font-size: 1.4rem; margin-bottom: 8px; text-shadow: 0 0 8px rgba(46,204,113,0.4);">
                     💰 Melhor Lucro: {melhor_lucro:,} ({melhor_cidade})
                 </div>
-                <div style="color: #ffffff;">
-                    <b>Investimento:</b> {custo:,}
+                <div style="color: #ffffff; font-size: 1.05rem;">
+                    <b>💵 Investimento:</b> {custo:,}
                 </div>
             </div>
-            <div style="font-size: 1rem; color: #a0d2a8; margin-bottom: 15px; font-weight: 600;">
+            <div style="font-size: 1.05rem; color: #a0d2a8; margin-bottom: 15px; font-weight: 700; padding: 8px; background: rgba(46,204,113,0.1); border-radius: 6px;">
                 📍 <b>Foco Craft:</b> {cidade_foco}
             </div>
 
@@ -708,13 +724,11 @@ elif btn and resultados:
             </table>
 
             <div class="purchase-details">
-                📦 <b>Detalhamento de Compras:</b><br>
-                <span style="color: #b0b8c5;">{" | ".join(detalhes)}</span>
+                <div style="color: #2ecc71; font-weight: bold; margin-bottom: 8px;">📦 <b>Detalhamento de Compras:</b></div>
+                <div style="color: #d0d8e5; line-height: 1.6;">{"<br>".join(detalhes)}</div>
             </div>
         </div>
         """
 
-        st.components.v1.html(html_content, height=450, scrolling=False)
+        st.components.v1.html(html_content, height=500, scrolling=False)
         st.markdown("---")
-
-st.caption("Radar Craft Albion - Desenvolvido para análise de mercado via Albion Online Data Project")
