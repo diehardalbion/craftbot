@@ -626,67 +626,70 @@ if btn:
     else:
         st.subheader(f"📊 {len(resultados)} Itens Encontrados - {categoria.upper()} T{tier}.{encanto}")
         for res in resultados:
-            nome = res["nome"]
-            custo = res["custo"]
-            detalhes = res["detalhes"]
-            cidades = res["cidades"]
-            
-            # Pega o melhor lucro para cor de destaque
-            melhor_lucro = cidades[0]["lucro"] if cidades else 0
-            cor_destaque = "#2ecc71" if melhor_lucro > 0 else "#e74c3c"
-            cidade_foco = identificar_cidade_bonus(nome)
+    nome = res["nome"]
+    custo = res["custo"]
+    detalhes = res["detalhes"]
+    cidades = res["cidades"]
+    
+    # Pega o melhor lucro para cor de destaque
+    melhor_lucro = cidades[0]["lucro"] if cidades else 0
+    cor_destaque = "#2ecc71" if melhor_lucro > 0 else "#e74c3c"
+    cidade_foco = identificar_cidade_bonus(nome)
 
-            # Construir tabela HTML de cidades
-            rows_html = ""
-            for c in cidades:
-                # Mostra apenas cidades com preço válido
-                if c["venda"] > 0:
-                    color_class = "best-profit" if c["lucro"] == melhor_lucro and melhor_lucro > 0 else ""
-                    rows_html += f"""
-                    <tr>
-                        <td>{c['cidade']}</td>
-                        <td>{c['venda']:,}</td>
-                        <td class="{color_class}">{c['lucro']:,}</td>
-                        <td class="{color_class}">{c['roi']:.1f}%</td>
-                    </tr>
-                    """
-            
-            st.markdown(f"""
-            <div class="item-card-custom" style="border-left: 8px solid {cor_destaque};">
-                <div style="font-weight: bold; font-size: 1.2rem; margin-bottom: 10px; color: {cor_destaque};">
-                    ⚔️ {nome} [T{tier}.{encanto}] x{quantidade}
-                </div>
-                <div style="font-size: 1.05rem; margin-bottom: 8px;">
-                    <span style="color: {cor_destaque}; font-weight: bold; font-size: 1.2rem;">
-                        💰 Melhor Lucro: {melhor_lucro:,}
-                    </span>
-                    <br><b>Investimento:</b> {custo:,}
-                </div>
-                <div style="font-size: 0.95rem; color: #cbd5e1; margin-bottom: 10px;">
-                    📍 <b>Foco Craft:</b> {cidade_foco}
-                </div>
-                
-                <table class="city-table">
-                    <thead>
-                        <tr>
-                            <th>Cidade</th>
-                            <th>Venda</th>
-                            <th>Lucro</th>
-                            <th>ROI</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {rows_html}
-                    </tbody>
-                </table>
+    # Construir tabela HTML de cidades
+    rows_html = ""
+    for c in cidades:
+        # Mostra apenas cidades com preço válido
+        if c["venda"] > 0:
+            color_class = "best-profit" if c["lucro"] == melhor_lucro and melhor_lucro > 0 else ""
+            rows_html += f"""
+            <tr>
+                <td>{c['cidade']}</td>
+                <td>{c['venda']:,}</td>
+                <td class="{color_class}">{c['lucro']:,}</td>
+                <td class="{color_class}">{c['roi']:.1f}%</td>
+            </tr>
+            """
+    
+    # Usar st.components.v1.html para renderizar HTML complexo
+    html_content = f"""
+    <div class="item-card-custom" style="border-left: 8px solid {cor_destaque};">
+        <div style="font-weight: bold; font-size: 1.2rem; margin-bottom: 10px; color: {cor_destaque};">
+            ⚔️ {nome} [T{tier}.{encanto}] x{quantidade}
+        </div>
+        <div style="font-size: 1.05rem; margin-bottom: 8px;">
+            <span style="color: {cor_destaque}; font-weight: bold; font-size: 1.2rem;">
+                💰 Melhor Lucro: {melhor_lucro:,}
+            </span>
+            <br><b>Investimento:</b> {custo:,}
+        </div>
+        <div style="font-size: 0.95rem; color: #cbd5e1; margin-bottom: 10px;">
+            📍 <b>Foco Craft:</b> {cidade_foco}
+        </div>
+        
+        <table class="city-table">
+            <thead>
+                <tr>
+                    <th>Cidade</th>
+                    <th>Venda</th>
+                    <th>Lucro</th>
+                    <th>ROI</th>
+                </tr>
+            </thead>
+            <tbody>
+                {rows_html}
+            </tbody>
+        </table>
 
-                <div style="background: rgba(0,0,0,0.4); padding: 12px; border-radius: 8px;
-                border: 1px solid rgba(255,255,255,0.1); font-size: 0.9rem; margin-top: 10px;">
-                    📦 <b>Detalhamento de Compras:</b> <br>
-                    {" | ".join(detalhes)}
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-            st.markdown("---")
+        <div style="background: rgba(0,0,0,0.4); padding: 12px; border-radius: 8px;
+        border: 1px solid rgba(255,255,255,0.1); font-size: 0.9rem; margin-top: 10px;">
+            📦 <b>Detalhamento de Compras:</b> <br>
+            {" | ".join(detalhes)}
+        </div>
+    </div>
+    """
+    
+    st.components.v1.html(html_content, height=300 if len(cidades) > 3 else 250, scrolling=False)
+    st.markdown("---")
 
     st.caption("Radar Craft Albion - Desenvolvido para análise de mercado via Albion Online Data Project")
