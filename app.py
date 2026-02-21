@@ -88,7 +88,7 @@ if not st.session_state.autenticado:
         st.markdown("### Adquirir Nova Chave")
         st.markdown("""
         <div style="background: rgba(46, 204, 113, 0.1); padding: 20px; border-radius: 10px; border: 1px solid #2ecc71; text-align: center;">
-        <h2 style="margin:0; color: #2ecc71;">R$ 15,00</h2>
+        <h2 style="margin:0; color: #2ecc71;">R$ 20,00</h2>
         <p style="color: white;">Acesso Mensal (30 dias)</p>
         <a href="https://wa.me/5521983042557?text=Olá! Gostaria de comprar uma key para o Radar Craft Albion." target="_blank" style="text-decoration: none;">
         <div style="background-color: #25d366; color: white; padding: 12px; border-radius: 5px; font-weight: bold; margin-top: 10px;">
