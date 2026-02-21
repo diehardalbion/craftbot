@@ -613,7 +613,7 @@ if btn:
         if d[5]:
             art_id = f"T{tier}_{d[5]}"
             preco_artefato = get_historical_price(art_id, location="Caerleon,FortSterling,Thetford,Lymhurst,Bridgewatch,Martlock")
-            qtd_art = d[6] * quantidade
+            qtd_art = d[6] * quantidade  # 🔥 Definido ANTES do if/else
             
             if preco_artefato > 0:
                 custo += preco_artefato * qtd_art
