@@ -88,7 +88,7 @@ if not st.session_state.autenticado:
         st.markdown("### Adquirir Nova Chave")
         st.markdown("""
         <div style="background: rgba(46, 204, 113, 0.1); padding: 20px; border-radius: 10px; border: 1px solid #2ecc71; text-align: center;">
-        <h2 style="margin:0; color: #2ecc71;">R$ 20,00</h2>
+        <h2 style="margin:0; color: #2ecc71;">R$ 15,00</h2>
         <p style="color: white;">Acesso Mensal (30 dias)</p>
         <a href="https://wa.me/5521983042557?text=Olá! Gostaria de comprar uma key para o Radar Craft Albion." target="_blank" style="text-decoration: none;">
         <div style="background-color: #25d366; color: white; padding: 12px; border-radius: 5px; font-weight: bold; margin-top: 10px;">
@@ -109,34 +109,34 @@ RECURSO_MAP = {
     "Couro Trabalhado": "LEATHER",
     "Barra de Aço": "METALBAR",
     "Tábuas de Pinho": "PLANKS",
-    # === NOVOS RECURSOS PARA CAPAS ===
+    # === CAPAS ===
     "Capa Base": "CAPE",
     "BP Bridgewatch": "CAPEITEM_FW_BRIDGEWATCH_BP",
-    "Token Bridgewatch": "FACTION_DESERT_TOKEN",
+    "Token Bridgewatch": "FACTION_DESERT_TOKEN_1",  # ← CORRIGIDO: adicionado _1
     "BP Fort Sterling": "CAPEITEM_FW_FORTSTERLING_BP",
-    "Token Fort Sterling": "FACTION_MOUNTAIN_TOKEN",
+    "Token Fort Sterling": "FACTION_MOUNTAIN_TOKEN_1",  # ← CORRIGIDO
     "BP Lymhurst": "CAPEITEM_FW_LYMHURST_BP",
-    "Token Lymhurst": "FACTION_FOREST_TOKEN",
+    "Token Lymhurst": "FACTION_FOREST_TOKEN_1",  # ← CORRIGIDO
     "BP Martlock": "CAPEITEM_FW_MARTLOCK_BP",
-    "Token Martlock": "FACTION_HIGHLAND_TOKEN",
+    "Token Martlock": "FACTION_HIGHLAND_TOKEN_1",  # ← CORRIGIDO
     "BP Caerleon": "CAPEITEM_FW_CAERLEON_BP",
-    "Token Caerleon": "FACTION_CAERLEON_TOKEN",
+    "Token Caerleon": "FACTION_CAERLEON_TOKEN_1",  # ← CORRIGIDO
     "BP Brecilien": "CAPEITEM_FW_BRECILIEN_BP",
-    "Token Brecilien": "FACTION_MISTS_TOKEN",
+    "Token Brecilien": "FACTION_MISTS_TOKEN_1",  # ← CORRIGIDO
     "BP Heretic": "CAPEITEM_HERETIC_BP",
-    "Token Heretic": "FACTION_FOREST_TOKEN",
+    "Token Heretic": "FACTION_FOREST_TOKEN_1",  # ← CORRIGIDO
     "BP Undead": "CAPEITEM_UNDEAD_BP",
-    "Token Undead": "FACTION_MOUNTAIN_TOKEN",
+    "Token Undead": "FACTION_MOUNTAIN_TOKEN_1",  # ← CORRIGIDO
     "BP Keeper": "CAPEITEM_KEEPER_BP",
-    "Token Keeper": "FACTION_HIGHLAND_TOKEN",
+    "Token Keeper": "FACTION_HIGHLAND_TOKEN_1",  # ← CORRIGIDO
     "BP Morgana": "CAPEITEM_MORGANA_BP",
-    "Token Morgana": "FACTION_SWAMP_TOKEN",
+    "Token Morgana": "FACTION_SWAMP_TOKEN_1",  # ← CORRIGIDO
     "BP Demon": "CAPEITEM_DEMON_BP",
-    "Token Demon": "FACTION_DESERT_TOKEN",
+    "Token Demon": "FACTION_DESERT_TOKEN_1",  # ← CORRIGIDO
     "BP Avalon": "CAPEITEM_AVALON_BP",
-    "Token Avalon": "FACTION_MISTS_TOKEN",
+    "Token Avalon": "FACTION_MISTS_TOKEN_1",  # ← CORRIGIDO
     "BP Smuggler": "CAPEITEM_SMUGGLER_BP",
-    "Token Smuggler": "FACTION_CAERLEON_TOKEN",
+    "Token Smuggler": "FACTION_CAERLEON_TOKEN_1",  # ← CORRIGIDO
 }
 
 BONUS_CIDADE = {
@@ -149,43 +149,12 @@ BONUS_CIDADE = {
     "Brecilien": ["CAPE", "BAG", "CAPEITEM_FW_BRECILIEN", "CAPEITEM_AVALON"]
 }
 
-# ================= NOMES CORRETOS POR TIER =================
 NOMES_RECURSOS_TIER = {
-    "Barra de Aço": {
-        4: "Barra de Aço",
-        5: "Barra de Titânio",
-        6: "Barra de Runita",
-        7: "Barra de Meteorito",
-        8: "Barra de Adamante"
-    },
-    "Tábuas de Pinho": {
-        4: "Tábuas de Pinho",
-        5: "Tábuas de Cedro",
-        6: "Tábuas de Carvalho-Sangue",
-        7: "Tábuas de Freixo",
-        8: "Tábuas de Pau-branco"
-    },
-    "Couro Trabalhado": {
-        4: "Couro Trabalhado",
-        5: "Couro Curtido",
-        6: "Couro Endurecido",
-        7: "Couro Reforçado",
-        8: "Couro Fortificado"
-    },
-    "Tecido Fino": {
-        4: "Tecido Fino",
-        5: "Tecido Ornado",
-        6: "Tecido Rico",
-        7: "Tecido Opulento",
-        8: "Tecido Barroco"
-    },
-    "Capa Base": {
-        4: "Capa do Adepto",
-        5: "Capa do Perito",
-        6: "Capa do Mestre",
-        7: "Capa do Grão-Mestre",
-        8: "Capa do Ancião"
-    }
+    "Barra de Aço": {4: "Barra de Aço", 5: "Barra de Titânio", 6: "Barra de Runita", 7: "Barra de Meteorito", 8: "Barra de Adamante"},
+    "Tábuas de Pinho": {4: "Tábuas de Pinho", 5: "Tábuas de Cedro", 6: "Tábuas de Carvalho-Sangue", 7: "Tábuas de Freixo", 8: "Tábuas de Pau-branco"},
+    "Couro Trabalhado": {4: "Couro Trabalhado", 5: "Couro Curtido", 6: "Couro Endurecido", 7: "Couro Reforçado", 8: "Couro Fortificado"},
+    "Tecido Fino": {4: "Tecido Fino", 5: "Tecido Ornado", 6: "Tecido Rico", 7: "Tecido Opulento", 8: "Tecido Barroco"},
+    "Capa Base": {4: "Capa do Adepto", 5: "Capa do Perito", 6: "Capa do Mestre", 7: "Capa do Grão-Mestre", 8: "Capa do Ancião"}
 }
 
 ITENS_DB = {
@@ -450,21 +419,16 @@ ITENS_DB = {
     "Capa de Contrabandista": ["CAPEITEM_SMUGGLER", "Capa Base", 1, "BP Smuggler", 1, "Token Smuggler", 1],
 }
 
-# ================= FILTROS CORRIGIDOS =================
 FILTROS = {
-    # ARMADURAS
     "armadura_placa": lambda k, v: "ARMOR_PLATE" in v[0],
     "armadura_couro": lambda k, v: "ARMOR_LEATHER" in v[0],
     "armadura_pano": lambda k, v: "ARMOR_CLOTH" in v[0],
-    # BOTAS
     "botas_placa": lambda k, v: "SHOES_PLATE" in v[0],
     "botas_couro": lambda k, v: "SHOES_LEATHER" in v[0],
     "botas_pano": lambda k, v: "SHOES_CLOTH" in v[0],
-    # CAPACETES
     "capacete_placa": lambda k, v: "HEAD_PLATE" in v[0],
     "capacete_couro": lambda k, v: "HEAD_LEATHER" in v[0],
     "capacete_pano": lambda k, v: "HEAD_CLOTH" in v[0],
-    # ARMAS
     "espadas": lambda k, v: "SWORD" in v[0],
     "machados": lambda k, v: "AXE" in v[0],
     "mace": lambda k, v: "MACE" in v[0],
@@ -474,9 +438,7 @@ FILTROS = {
     "bestas": lambda k, v: "CROSSBOW" in v[0],
     "manoplas": lambda k, v: "KNUCKLES" in v[0],
     "arcos": lambda k, v: "BOW" in v[0] and "CROSSBOW" not in v[0],
-    # BORDÃO (CORRIGIDO PARA NÃO PEGAR MANOPLAS)
-    "bordao": lambda k, v: "QUARTERSTAFF" in v[0] or "IRONCLAD" in v[0] or "DOUBLEBLADED" in v[0] or "COMBATSTAFF" in v[0] or "TWINSCYTHE" in v[0],
-    # CAJADOS
+    "bordao": lambda k, v: "QUARTERSTAFF" in v[0] or "IRONCLAD" in v[0],
     "fogo": lambda k, v: "FIRESTAFF" in v[0],
     "gelo": lambda k, v: "FROSTSTAFF" in v[0],
     "arcano": lambda k, v: "ARCANESTAFF" in v[0],
@@ -484,68 +446,56 @@ FILTROS = {
     "natureza": lambda k, v: "NATURESTAFF" in v[0],
     "amaldiçoado": lambda k, v: "CURSEDSTAFF" in v[0],
     "metamorfo": lambda k, v: "SHAPESHIFTER" in v[0],
-    # SECUNDÁRIAS
     "secundarias": lambda k, v: v[0].startswith("OFF_"),
-    # BOLSAS
     "bolsas": lambda k, v: "BAG" in v[0],
-    # CAPAS (NOVO)
     "capas": lambda k, v: "CAPE" in v[0],
 }
 
 # ================= FUNÇÕES =================
 def get_historical_price(item_id, location="Black Market"):
-    """
-    🔥 FUNÇÃO ATUALIZADA - Usa buy_price_max como fallback quando sell_price_min = 0
-    """
     try:
-        # 1️⃣ Tenta preço atual primeiro
         url_atual = f"{API_URL}{item_id}?locations={location}"
         resp_atual = requests.get(url_atual, timeout=10).json()
         
         if resp_atual and len(resp_atual) > 0:
-            # Pega o menor preço de venda
             sell_price = resp_atual[0].get("sell_price_min", 0)
             if sell_price and sell_price > 0:
                 return sell_price
-            
-            # 🔥 NOVO: Se não tem venda, usa buy_price_max como referência
+            # Fallback: usa buy_price_max * 1.15
             buy_price = resp_atual[0].get("buy_price_max", 0)
             if buy_price and buy_price > 0:
-                return int(buy_price * 1.15)  # Adiciona 15% para estimar venda
+                return int(buy_price * 1.15)
         
-        # 2️⃣ Fallback: histórico 24h
         url_hist = f"{HISTORY_URL}{item_id}?locations={location}&timescale=24"
         resp_hist = requests.get(url_hist, timeout=10).json()
         
         if resp_hist and len(resp_hist) > 0 and "data" in resp_hist[0]:
-            prices = [
-                d["avg_price"]
-                for d in resp_hist[0]["data"]
-                if d.get("avg_price", 0) > 0 and d.get("item_count", 0) >= 3
-            ]
+            prices = [d["avg_price"] for d in resp_hist[0]["data"] if d.get("avg_price", 0) > 0 and d.get("item_count", 0) >= 3]
             if prices:
                 prices.sort()
-                return prices[len(prices) // 2]  # Mediana
+                return prices[len(prices) // 2]
         
         return 0
-    except Exception as e:
-        print(f"Erro ao buscar preço de {item_id}: {e}")
-        return 0
-
-def calcular_horas(data_iso):
-    try:
-        data_api = datetime.fromisoformat(data_iso.replace("Z", "+00:00"))
-        data_agora = datetime.now(timezone.utc)
-        diff = data_agora.replace(tzinfo=None) - data_api.replace(tzinfo=None)
-        return int(diff.total_seconds() / 3600)
     except:
-        return 999
+        return 0
 
 def id_item(tier, base, enc):
     return f"T{tier}_{base}@{enc}" if enc > 0 else f"T{tier}_{base}"
 
 def ids_recurso_variantes(tier, nome, enc):
-    base = f"T{tier}_{RECURSO_MAP[nome]}"
+    """Gera IDs corretos para a API - trata tokens/blueprints separadamente"""
+    base_id = RECURSO_MAP.get(nome)
+    if not base_id:
+        return []
+    
+    # 🔥 Tokens e Blueprints de facção: formato especial
+    if "TOKEN" in base_id or "_BP" in base_id:
+        if enc > 0:
+            return [f"T{tier}_{base_id}@{enc}"]
+        return [f"T{tier}_{base_id}"]
+    
+    # Recursos padrão (tecido, couro, capa base)
+    base = f"T{tier}_{base_id}"
     if enc > 0:
         return [f"{base}@{enc}", f"{base}_LEVEL{enc}@{enc}"]
     return [base]
@@ -557,7 +507,7 @@ def identificar_cidade_bonus(nome_item):
                 return f"{cidade}"
     return "Caerleon"
 
-# ================= INTERFACE SIDEBAR =================
+# ================= INTERFACE =================
 with st.sidebar:
     st.markdown("### ⚙️ Configurações")
     categoria = st.selectbox("Categoria", list(FILTROS.keys()))
@@ -577,7 +527,6 @@ if btn:
         st.error("Nenhum item encontrado nesta categoria.")
         st.stop()
     
-    # Coleta de IDs de recursos para a API
     ids_para_recursos = set()
     for d in itens.values():
         for r in ids_recurso_variantes(tier, d[1], encanto):
@@ -588,7 +537,7 @@ if btn:
     
     try:
         response = requests.get(
-            f"{API_URL}{','.join(ids_para_recursos)}?locations=Thetford,FortSterling,Martlock,Lymhurst,Bridgewatch,Caerleon",
+            f"{API_URL}{','.join(ids_para_recursos)}?locations=Thetford,FortSterling,Martlock,Lymhurst,Bridgewatch,Caerleon,Brecilien",
             timeout=20
         )
         data_recursos = response.json()
@@ -596,7 +545,6 @@ if btn:
         st.error("Erro ao conectar com a API de recursos. Tente novamente.")
         st.stop()
     
-    # Processamento de preços de recursos
     precos_recursos = {}
     for p in data_recursos:
         pid = p["item_id"]
@@ -622,7 +570,6 @@ if btn:
         detalhes = []
         valid_craft = True
         
-        # ================= CÁLCULO DE RECURSOS BASE =================
         for recurso, qtd in [(d[1], d[2]), (d[3], d[4])]:
             if not recurso or qtd == 0:
                 continue
@@ -630,52 +577,33 @@ if btn:
             for rid in ids_recurso_variantes(tier, recurso, encanto):
                 if rid in precos_recursos:
                     info = precos_recursos[rid]
-                    # 🔥 Nome correto baseado no tier
                     nome_recurso = NOMES_RECURSOS_TIER.get(recurso, {}).get(tier, recurso)
                     custo += info["price"] * qtd * quantidade
-                    detalhes.append(
-                        f"{qtd * quantidade}x T{tier}.{encanto} {nome_recurso}: "
-                        f"{info['price']:,} ({info['city']})"
-                    )
+                    detalhes.append(f"{qtd * quantidade}x T{tier}.{encanto} {nome_recurso}: {info['price']:,} ({info['city']})")
                     found = True
                     break
-            if not found:
+            # Permite continuar se for token/BP sem preço
+            if not found and "Token" not in recurso and "BP" not in recurso:
                 valid_craft = False
                 break
         
         if not valid_craft:
             continue
         
-        # ================= CÁLCULO DE ARTEFATOS =================
         if d[5]:
             art_id = f"T{tier}_{d[5]}"
-            preco_artefato = get_historical_price(
-                art_id,
-                location="Caerleon,FortSterling,Thetford,Lymhurst,Bridgewatch,Martlock"
-            )
+            preco_artefato = get_historical_price(art_id, location="Caerleon,FortSterling,Thetford,Lymhurst,Bridgewatch,Martlock")
             if preco_artefato > 0:
                 qtd_art = d[6] * quantidade
                 custo += preco_artefato * qtd_art
-                detalhes.append(
-                    f"{qtd_art}x Artefato: "
-                    f"{preco_artefato:,.0f} (Média Market)"
-                )
-            else:
-                valid_craft = False
-        
-        if not valid_craft:
-            continue
+                detalhes.append(f"{qtd_art}x Artefato: {preco_artefato:,.0f} (Média Market)")
         
         custo_final = int(custo)
         venda_total = int(preco_venda_bm * quantidade)
         lucro = int((venda_total * 0.935) - custo_final)
-        resultados.append(
-            (nome, lucro, venda_total, custo_final, detalhes, "Market Atual/24h")
-        )
+        resultados.append((nome, lucro, venda_total, custo_final, detalhes, "Market Atual/24h"))
     
     my_bar.empty()
-    
-    # Ordenar pelo maior lucro
     resultados.sort(key=lambda x: x[1], reverse=True)
     
     if not resultados:
@@ -695,17 +623,13 @@ if btn:
             <span style="color: {cor_destaque}; font-weight: bold; font-size: 1.2rem;">
             💰 Lucro Estimado: {lucro:,} ({perc_lucro:.2f}%)
             </span>
-            <br><b>Investimento:</b> {custo:,} |
-            <b>Venda Estimada (BM):</b> {venda:,}
+            <br><b>Investimento:</b> {custo:,} | <b>Venda Estimada (BM):</b> {venda:,}
             </div>
             <div style="font-size: 0.95rem; color: #cbd5e1; margin-bottom: 10px;">
-            📍 <b>Foco Craft:</b> {cidade_foco} |
-            🕒 <b>Baseado em:</b> {h_venda}
+            📍 <b>Foco Craft:</b> {cidade_foco} | 🕒 <b>Baseado em:</b> {h_venda}
             </div>
-            <div style="background: rgba(0,0,0,0.4); padding: 12px; border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.1); font-size: 0.9rem;">
-            📦 <b>Detalhamento de Compras:</b> <br>
-            {" | ".join(detalhes)}
+            <div style="background: rgba(0,0,0,0.4); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); font-size: 0.9rem;">
+            📦 <b>Detalhamento de Compras:</b> <br> {" | ".join(detalhes)}
             </div>
             </div>
             """, unsafe_allow_html=True)
