@@ -103,7 +103,32 @@ if not st.session_state.autenticado:
 API_URL = "https://west.albion-online-data.com/api/v2/stats/prices/"
 HISTORY_URL = "https://west.albion-online-data.com/api/v2/stats/history/"
 CIDADES = ["Martlock", "Thetford", "FortSterling", "Lymhurst", "Bridgewatch", "Brecilien", "Caerleon", "Black Market"]
-RECURSO_MAP = {"Tecido Fino": "CLOTH", "Couro Trabalhado": "LEATHER", "Barra de Aço": "METALBAR", "Tábuas de Pinho": "PLANKS"}
+RECURSO_MAP = {"Tecido Fino": "CLOTH", "Couro Trabalhado": "LEATHER", "Barra de Aço": "METALBAR", "Tábuas de Pinho": "PLANKS","Capa Base": "CAPE","BP Bridgewatch": "CAPEITEM_FW_BRIDGEWATCH_BP","Token Bridgewatch": "FACTION_DESERT_TOKEN",
+    "BP Fort Sterling": "CAPEITEM_FW_FORTSTERLING_BP",
+    "Token Fort Sterling": "FACTION_MOUNTAIN_TOKEN",
+    "BP Lymhurst": "CAPEITEM_FW_LYMHURST_BP",
+    "Token Lymhurst": "FACTION_FOREST_TOKEN",
+    "BP Martlock": "CAPEITEM_FW_MARTLOCK_BP",
+    "Token Martlock": "FACTION_HIGHLAND_TOKEN",
+    "BP Caerleon": "CAPEITEM_FW_CAERLEON_BP",
+    "Token Caerleon": "FACTION_CAERLEON_TOKEN",
+    "BP Brecilien": "CAPEITEM_FW_BRECILIEN_BP",
+    "Token Brecilien": "FACTION_MISTS_TOKEN",
+    "BP Heretic": "CAPEITEM_HERETIC_BP",
+    "Token Heretic": "FACTION_FOREST_TOKEN",
+    "BP Undead": "CAPEITEM_UNDEAD_BP",
+    "Token Undead": "FACTION_MOUNTAIN_TOKEN",
+    "BP Keeper": "CAPEITEM_KEEPER_BP",
+    "Token Keeper": "FACTION_HIGHLAND_TOKEN",
+    "BP Morgana": "CAPEITEM_MORGANA_BP",
+    "Token Morgana": "FACTION_SWAMP_TOKEN",
+    "BP Demon": "CAPEITEM_DEMON_BP",
+    "Token Demon": "FACTION_DESERT_TOKEN",
+    "BP Avalon": "CAPEITEM_AVALON_BP",
+    "Token Avalon": "FACTION_MISTS_TOKEN",
+    "BP Smuggler": "CAPEITEM_SMUGGLER_BP",
+    "Token Smuggler": "FACTION_CAERLEON_TOKEN",
+}
 BONUS_CIDADE = {
     "Martlock": ["AXE", "QUARTERSTAFF", "FROSTSTAFF", "SHOES_PLATE", "OFF_"],
     "Bridgewatch": ["CROSSBOW", "DAGGER", "CURSEDSTAFF", "ARMOR_PLATE", "SHOES_CLOTH"],
@@ -399,6 +424,25 @@ ITENS_DB = {
     "LANÇA TRINA": ["2H_GLAIVE_HELL", "Tábuas de Pinho", 20, "Barra de Aço", 12, "ARTEFACT_2H_TRIDENT_UNDEAD", 1],
     "ALVORADA": ["MAIN_SPEAR_AVALON", "Tábuas de Pinho", 16, "Barra de Aço", 8, "ARTEFACT_MAIN_SPEAR_LANCE_AVALON", 1],
     "ARCHA FRATURADA": ["2H_SPEAR_CRYSTAL", "Tábuas de Pinho", 12, "Barra de Aço", 20, "QUESTITEM_TOKEN_CRYSTAL_SPEAR", 1]
+        # === CAPAS PADRÃO ===
+    "Capa Padrão": ["CAPE", "Tecido Fino", 4, "Couro Trabalhado", 4, None, 0],
+    
+    # === CAPAS DE FACÇÃO (ROYAL CITIES) ===
+    "Capa de Bridgewatch": ["CAPEITEM_FW_BRIDGEWATCH", "Capa Base", 1, "BP Bridgewatch", 1, "Token Bridgewatch", 1],
+    "Capa de Fort Sterling": ["CAPEITEM_FW_FORTSTERLING", "Capa Base", 1, "BP Fort Sterling", 1, "Token Fort Sterling", 1],
+    "Capa de Lymhurst": ["CAPEITEM_FW_LYMHURST", "Capa Base", 1, "BP Lymhurst", 1, "Token Lymhurst", 1],
+    "Capa de Martlock": ["CAPEITEM_FW_MARTLOCK", "Capa Base", 1, "BP Martlock", 1, "Token Martlock", 1],
+    "Capa de Caerleon": ["CAPEITEM_FW_CAERLEON", "Capa Base", 1, "BP Caerleon", 1, "Token Caerleon", 1],
+    "Capa de Brecilien": ["CAPEITEM_FW_BRECILIEN", "Capa Base", 1, "BP Brecilien", 1, "Token Brecilien", 1],
+    
+    # === CAPAS DE FACÇÃO (OUTLAWS & SPECIAL) ===
+    "Capa Herege": ["CAPEITEM_HERETIC", "Capa Base", 1, "BP Heretic", 1, "Token Heretic", 1],
+    "Capa Morta-viva": ["CAPEITEM_UNDEAD", "Capa Base", 1, "BP Undead", 1, "Token Undead", 1],
+    "Capa Protetora": ["CAPEITEM_KEEPER", "Capa Base", 1, "BP Keeper", 1, "Token Keeper", 1],
+    "Capa Morgana": ["CAPEITEM_MORGANA", "Capa Base", 1, "BP Morgana", 1, "Token Morgana", 1],
+    "Capa Demoníaca": ["CAPEITEM_DEMON", "Capa Base", 1, "BP Demon", 1, "Token Demon", 1],
+    "Capa Avaloniana": ["CAPEITEM_AVALON", "Capa Base", 1, "BP Avalon", 1, "Token Avalon", 1],
+    "Capa de Contrabandista": ["CAPEITEM_SMUGGLER", "Capa Base", 1, "BP Smuggler", 1, "Token Smuggler", 1],
 
 }
 
