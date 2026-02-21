@@ -2,101 +2,108 @@ import streamlit as st
 import requests
 import json
 from datetime import datetime, timezone
+
 # ================= CONFIGURAÇÃO DA PÁGINA =================
 st.set_page_config("Radar Craft Albion", layout="wide", page_icon="⚔️")
+
 # ================= CUSTOM CSS (VISUAL) =================
 st.markdown("""
 <style>
 header {visibility: hidden;}
 .main .block-container {
-padding-top: 0rem;
-padding-bottom: 0rem;
+    padding-top: 0rem;
+    padding-bottom: 0rem;
 }
 .stApp {
-background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)),
-url("https://i.imgur.com/kVAiMjD.png");
-background-size: cover;
-background-attachment: fixed;
+    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)),
+    url("https://i.imgur.com/kVAiMjD.png");
+    background-size: cover;
+    background-attachment: fixed;
 }
 [data-testid="stSidebar"] {
-background-color: rgba(15, 17, 23, 0.95) !important;
-border-right: 1px solid #3e4149;
+    background-color: rgba(15, 17, 23, 0.95) !important;
+    border-right: 1px solid #3e4149;
 }
 h1, h2, h3, label, .stMarkdown {
-color: #ffffff !important;
-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #ffffff !important;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 .item-card-custom {
-background-color: rgba(255, 255, 255, 0.05) !important;
-backdrop-filter: blur(12px);
-border-radius: 12px;
-padding: 20px;
-margin-bottom: 20px;
-border: 1px solid rgba(255, 255, 255, 0.1);
-box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-color: white !important;
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    backdrop-filter: blur(12px);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    color: white !important;
 }
 .stButton>button {
-width: 100%;
-background-color: #2ecc71 !important;
-color: white !important;
-font-weight: bold;
-border: none;
-padding: 0.5rem;
+    width: 100%;
+    background-color: #2ecc71 !important;
+    color: white !important;
+    font-weight: bold;
+    border: none;
+    padding: 0.5rem;
 }
 </style>
 """, unsafe_allow_html=True)
+
 # ================= SISTEMA DE LOGIN / KEYS =================
 def verificar_chave(chave_usuario):
-try:
-with open("keys.json", "r") as f:
-keys_db = json.load(f)
-if chave_usuario in keys_db:
-dados = keys_db[chave_usuario]
-if not dados["ativa"]:
-return False, "Esta chave foi desativada."
-if dados["expira"] != "null":
-data_expira = datetime.strptime(dados["expira"], "%Y-%m-%d").date()
-if datetime.now().date() > data_expira:
-return False, "Esta chave expirou."
-return True, dados["cliente"]
-return False, "Chave inválida."
-except Exception as e:
-return False, f"Erro ao acessar keys.json: {e}"
+    try:
+        with open("keys.json", "r") as f:
+            keys_db = json.load(f)
+        if chave_usuario in keys_db:
+            dados = keys_db[chave_usuario]
+            if not dados["ativa"]:
+                return False, "Esta chave foi desativada."
+            if dados["expira"] != "null":
+                data_expira = datetime.strptime(dados["expira"], "%Y-%m-%d").date()
+                if datetime.now().date() > data_expira:
+                    return False, "Esta chave expirou."
+            return True, dados["cliente"]
+        return False, "Chave inválida."
+    except Exception as e:
+        return False, f"Erro ao acessar keys.json: {e}"
+
 if "autenticado" not in st.session_state:
-st.session_state.autenticado = False
+    st.session_state.autenticado = False
+
 if not st.session_state.autenticado:
-st.title("🛡️ Radar Craft - Acesso Restrito")
-col1, col2 = st.columns([1, 1])
-with col1:
-st.markdown("### Já possui acesso?")
-key_input = st.text_input("Insira sua Chave:", type="password")
-if st.button("LIBERAR ACESSO"):
-sucesso, mensagem = verificar_chave(key_input)
-if sucesso:
-st.session_state.autenticado = True
-st.session_state.cliente = mensagem
-st.rerun()
-else:
-st.error(mensagem)
-with col2:
-st.markdown("### Adquirir Nova Chave")
-st.markdown("""
-<div style="background: rgba(46, 204, 113, 0.1); padding: 20px; border-radius: 10px; border: 1px solid #2ecc71; text-align: center;">
-<h2 style="margin:0; color: #2ecc71;">R$ 15,00</h2>
-<p style="color: white;">Acesso Mensal (30 dias)</p>
-<a href="https://wa.me/5521983042557?text=Olá! Gostaria de comprar uma key para o Radar Craft Albion." target="_blank" style="text-decoration: none;">
-<div style="background-color: #25d366; color: white; padding: 12px; border-radius: 5px; font-weight: bold; margin-top: 10px;">
-COMPRAR VIA WHATSAPP
-</div>
-</a>
-</div>
-""", unsafe_allow_html=True)
-st.stop()
+    st.title("🛡️ Radar Craft - Acesso Restrito")
+    col1, col2 = st.columns([1, 1])
+    with col1:
+        st.markdown("### Já possui acesso?")
+        key_input = st.text_input("Insira sua Chave:", type="password")
+        if st.button("LIBERAR ACESSO"):
+            sucesso, mensagem = verificar_chave(key_input)
+            if sucesso:
+                st.session_state.autenticado = True
+                st.session_state.cliente = mensagem
+                st.rerun()
+            else:
+                st.error(mensagem)
+    with col2:
+        st.markdown("### Adquirir Nova Chave")
+        st.markdown("""
+        <div style="background: rgba(46, 204, 113, 0.1); padding: 20px; border-radius: 10px; border: 1px solid #2ecc71; text-align: center;">
+        <h2 style="margin:0; color: #2ecc71;">R$ 15,00</h2>
+        <p style="color: white;">Acesso Mensal (30 dias)</p>
+        <a href="https://wa.me/5521983042557?text=Olá! Gostaria de comprar uma key para o Radar Craft Albion." target="_blank" style="text-decoration: none;">
+        <div style="background-color: #25d366; color: white; padding: 12px; border-radius: 5px; font-weight: bold; margin-top: 10px;">
+        COMPRAR VIA WHATSAPP
+        </div>
+        </a>
+        </div>
+        """, unsafe_allow_html=True)
+    st.stop()
+
 # ================= CONFIG DE DADOS =================
 API_URL = "https://west.albion-online-data.com/api/v2/stats/prices/"
 HISTORY_URL = "https://west.albion-online-data.com/api/v2/stats/history/"
 CIDADES = ["Martlock", "Thetford", "FortSterling", "Lymhurst", "Bridgewatch", "Brecilien", "Caerleon", "Black Market"]
+
 RECURSO_MAP = {
     "Tecido Fino": "CLOTH",
     "Couro Trabalhado": "LEATHER",
@@ -131,6 +138,7 @@ RECURSO_MAP = {
     "BP Smuggler": "CAPEITEM_SMUGGLER_BP",
     "Token Smuggler": "FACTION_CAERLEON_TOKEN",
 }
+
 BONUS_CIDADE = {
     "Martlock": ["AXE", "QUARTERSTAFF", "FROSTSTAFF", "SHOES_PLATE", "OFF_", "CAPEITEM_FW_MARTLOCK", "CAPEITEM_KEEPER"],
     "Bridgewatch": ["CROSSBOW", "DAGGER", "CURSEDSTAFF", "ARMOR_PLATE", "SHOES_CLOTH", "CAPEITEM_FW_BRIDGEWATCH", "CAPEITEM_DEMON"],
@@ -140,6 +148,7 @@ BONUS_CIDADE = {
     "Caerleon": ["KNUCKLES", "SHAPESHIFTER", "CAPEITEM_FW_CAERLEON", "CAPEITEM_SMUGGLER"],
     "Brecilien": ["CAPE", "BAG", "CAPEITEM_FW_BRECILIEN", "CAPEITEM_AVALON"]
 }
+
 # ================= NOMES CORRETOS POR TIER =================
 NOMES_RECURSOS_TIER = {
     "Barra de Aço": {
@@ -178,6 +187,7 @@ NOMES_RECURSOS_TIER = {
         8: "Capa do Ancião"
     }
 }
+
 ITENS_DB = {
     # ================= CAJADOS AMALDIÇOADOS (CURSED) =================
     "Cajado Amaldiçoado": ["MAIN_CURSEDSTAFF", "Tábuas de Pinho", 16, "Barra de Aço", 8, None, 0],
@@ -252,7 +262,7 @@ ITENS_DB = {
     "Arco Badônico": ["2H_BOW_UNDEAD", "Tábuas de Pinho", 32, None, 0, "ARTEFACT_2H_BOW_UNDEAD", 1],
     "Fura-bruma": ["2H_BOW_AVALON", "Tábuas de Pinho", 32, None, 0, "ARTEFACT_2H_BOW_AVALON", 1],
     "Arco do Andarilho Celeste": ["2H_BOW_CRYSTAL", "Tábuas de Pinho", 32, None, 0, "QUESTITEM_TOKEN_CRYSTAL_BOW", 1],
-    # ================= CAJADOS TRANFORMAÇÃO (SHAPESHIFTER) =================
+    # ================= CAJADOS TRANSFORMAÇÃO (SHAPESHIFTER) =================
     "Cajado de Predador": ["2H_SHAPESHIFTER_PANT_TRACKER", "Tábuas de Pinho", 20, "Couro Trabalhado", 12, "ARTEFACT_2H_SHAPESHIFTER_PANT_TRACKER", 1],
     "Cajado Enraízado": ["2H_SHAPESHIFTER_TREANT", "Tábuas de Pinho", 20, "Couro Trabalhado", 12, "ARTEFACT_2H_SHAPESHIFTER_TREANT", 1],
     "Cajado Primitivo": ["2H_SHAPESHIFTER_BEAR", "Tábuas de Pinho", 20, "Couro Trabalhado", 12, "ARTEFACT_2H_SHAPESHIFTER_BEAR", 1],
@@ -317,7 +327,7 @@ ITENS_DB = {
     "Casaco Espectral": ["ARMOR_LEATHER_UNDEAD", "Couro Trabalhado", 16, None, 0, "ARTEFACT_ARMOR_LEATHER_UNDEAD", 1],
     "Casaco de Andarilho da Névoa": ["ARMOR_LEATHER_FEY", "Couro Trabalhado", 16, None, 0, "ARTEFACT_ARMOR_LEATHER_FEY", 1],
     "Casaco da Tenacidade": ["ARMOR_LEATHER_CRYSTAL", "Couro Trabalhado", 16, None, 0, "QUESTITEM_TOKEN_CRYSTAL_ARMOR_LEATHER", 1],
-    "Capuz de Mercenário de Mercenário": ["HEAD_LEATHER_SET1", "Couro Trabalhado", 8, None, 0, None, 0],
+    "Capuz de Mercenário": ["HEAD_LEATHER_SET1", "Couro Trabalhado", 8, None, 0, None, 0],
     "Capuz de Caçador": ["HEAD_LEATHER_SET2", "Couro Trabalhado", 8, None, 0, None, 0],
     "Capuz de Assassino": ["HEAD_LEATHER_SET3", "Couro Trabalhado", 8, None, 0, None, 0],
     "Capuz Real": ["HEAD_LEATHER_ROYAL", "Couro Trabalhado", 8, None, 0, "QUESTITEM_TOKEN_ROYAL", 2],
@@ -439,6 +449,7 @@ ITENS_DB = {
     "Capa Avaloniana": ["CAPEITEM_AVALON", "Capa Base", 1, "BP Avalon", 1, "Token Avalon", 1],
     "Capa de Contrabandista": ["CAPEITEM_SMUGGLER", "Capa Base", 1, "BP Smuggler", 1, "Token Smuggler", 1],
 }
+
 # ================= FILTROS CORRIGIDOS =================
 FILTROS = {
     # ARMADURAS
@@ -480,21 +491,18 @@ FILTROS = {
     # CAPAS (NOVO)
     "capas": lambda k, v: "CAPE" in v[0],
 }
+
 # ================= FUNÇÕES =================
-# MUDANÇA 1 IMPLEMENTADA: Prioriza preço de venda direto se histórico estiver defasado
 def get_historical_price(item_id, location="Black Market"):
     try:
-        # 1️⃣ Tenta preço atual primeiro (sempre prioridade)
         url_atual = f"{API_URL}{item_id}?locations={location}"
         resp_atual = requests.get(url_atual, timeout=10).json()
         if resp_atual and resp_atual[0]["sell_price_min"] > 0:
             return resp_atual[0]["sell_price_min"]
-        # 2️⃣ Histórico das últimas 24h
         url_hist = f"{HISTORY_URL}{item_id}?locations={location}&timescale=24"
         resp_hist = requests.get(url_hist, timeout=10).json()
         if not resp_hist or "data" not in resp_hist[0]:
             return 0
-        # 3️⃣ Filtra preços válidos
         prices = [
             d["avg_price"]
             for d in resp_hist[0]["data"]
@@ -502,7 +510,6 @@ def get_historical_price(item_id, location="Black Market"):
         ]
         if not prices:
             return 0
-        # 4️⃣ Usa mediana (não média!)
         prices.sort()
         mid = len(prices) // 2
         return prices[mid]
@@ -553,7 +560,6 @@ if btn:
     if not itens:
         st.error("Nenhum item encontrado nesta categoria.")
         st.stop()
-    # Coleta de IDs de recursos para a API
     ids_para_recursos = set()
     for d in itens.values():
         for r in ids_recurso_variantes(tier, d[1], encanto):
@@ -570,7 +576,6 @@ if btn:
     except:
         st.error("Erro ao conectar com a API de recursos. Tente novamente.")
         st.stop()
-    # Processamento de preços de recursos
     precos_recursos = {}
     for p in data_recursos:
         pid = p["item_id"]
@@ -591,7 +596,6 @@ if btn:
         custo = 0
         detalhes = []
         valid_craft = True
-        # ================= CÁLCULO DE RECURSOS BASE =================
         for recurso, qtd in [(d[1], d[2]), (d[3], d[4])]:
             if not recurso or qtd == 0:
                 continue
@@ -599,7 +603,6 @@ if btn:
             for rid in ids_recurso_variantes(tier, recurso, encanto):
                 if rid in precos_recursos:
                     info = precos_recursos[rid]
-                    # 🔥 Nome correto baseado no tier
                     nome_recurso = NOMES_RECURSOS_TIER.get(recurso, {}).get(tier, recurso)
                     custo += info["price"] * qtd * quantidade
                     detalhes.append(
@@ -613,7 +616,6 @@ if btn:
                 break
         if not valid_craft:
             continue
-        # ================= CÁLCULO DE ARTEFATOS =================
         if d[5]:
             art_id = f"T{tier}_{d[5]}"
             preco_artefato = get_historical_price(
@@ -638,7 +640,6 @@ if btn:
             (nome, lucro, venda_total, custo_final, detalhes, "Market Atual/24h")
         )
     my_bar.empty()
-    # Ordenar pelo maior lucro
     resultados.sort(key=lambda x: x[1], reverse=True)
     if not resultados:
         st.warning("⚠️ A API não retornou preços recentes para os itens desta categoria no Black Market.")
@@ -649,27 +650,27 @@ if btn:
             cidade_foco = identificar_cidade_bonus(nome)
             cor_destaque = "#2ecc71" if lucro > 0 else "#e74c3c"
             st.markdown(f"""
-<div class="item-card-custom" style="border-left: 8px solid {cor_destaque};">
-<div style="font-weight: bold; font-size: 1.2rem; margin-bottom: 10px; color: {cor_destaque};">
-⚔️ {nome} [T{tier}.{encanto}] x{quantidade}
-</div>
-<div style="font-size: 1.05rem; margin-bottom: 8px;">
-<span style="color: {cor_destaque}; font-weight: bold; font-size: 1.2rem;">
-💰 Lucro Estimado: {lucro:,} ({perc_lucro:.2f}%)
-</span>
-<br><b>Investimento:</b> {custo:,} |
-<b>Venda Estimada (BM):</b> {venda:,}
-</div>
-<div style="font-size: 0.95rem; color: #cbd5e1; margin-bottom: 10px;">
-📍 <b>Foco Craft:</b> {cidade_foco} |
-🕒 <b>Baseado em:</b> {h_venda}
-</div>
-<div style="background: rgba(0,0,0,0.4); padding: 12px; border-radius: 8px;
-border: 1px solid rgba(255,255,255,0.1); font-size: 0.9rem;">
-📦 <b>Detalhamento de Compras:</b> <br>
-{" | ".join(detalhes)}
-</div>
-</div>
-""", unsafe_allow_html=True)
+            <div class="item-card-custom" style="border-left: 8px solid {cor_destaque};">
+            <div style="font-weight: bold; font-size: 1.2rem; margin-bottom: 10px; color: {cor_destaque};">
+            ⚔️ {nome} [T{tier}.{encanto}] x{quantidade}
+            </div>
+            <div style="font-size: 1.05rem; margin-bottom: 8px;">
+            <span style="color: {cor_destaque}; font-weight: bold; font-size: 1.2rem;">
+            💰 Lucro Estimado: {lucro:,} ({perc_lucro:.2f}%)
+            </span>
+            <br><b>Investimento:</b> {custo:,} |
+            <b>Venda Estimada (BM):</b> {venda:,}
+            </div>
+            <div style="font-size: 0.95rem; color: #cbd5e1; margin-bottom: 10px;">
+            📍 <b>Foco Craft:</b> {cidade_foco} |
+            🕒 <b>Baseado em:</b> {h_venda}
+            </div>
+            <div style="background: rgba(0,0,0,0.4); padding: 12px; border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1); font-size: 0.9rem;">
+            📦 <b>Detalhamento de Compras:</b> <br>
+            {" | ".join(detalhes)}
+            </div>
+            </div>
+            """, unsafe_allow_html=True)
         st.markdown("---")
         st.caption("Radar Craft Albion - Desenvolvido para análise de mercado via Albion Online Data Project")
