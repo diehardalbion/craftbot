@@ -539,13 +539,19 @@ if btn:
         st.error("Nenhum item encontrado nesta categoria.")
         st.stop()
     
+    # 🔥 1. COLETA DE IDS (INCLUINDO ARTEFATOS)
     ids_para_recursos = set()
     for d in itens.values():
+        # Recursos principais
         for r in ids_recurso_variantes(tier, d[1], encanto):
             ids_para_recursos.add(r)
         if d[3]:
             for r in ids_recurso_variantes(tier, d[3], encanto):
                 ids_para_recursos.add(r)
+        # 🔥 NOVO: Adicionar artefatos na busca da API
+        if d[5]:
+            art_id = f"T{tier}_{d[5]}"
+            ids_para_recursos.add(art_id)
     
     try:
         response = requests.get(
@@ -582,6 +588,7 @@ if btn:
         detalhes = []
         valid_craft = True
         
+        # 🔥 2. CÁLCULO DE RECURSOS BASE
         for recurso, qtd in [(d[1], d[2]), (d[3], d[4])]:
             if not recurso or qtd == 0:
                 continue
@@ -602,16 +609,19 @@ if btn:
         if not valid_craft:
             continue
         
+        # 🔥 3. CÁLCULO DE ARTEFATOS (SEMPRE ADICIONA AO DETALHAMENTO)
         if d[5]:
             art_id = f"T{tier}_{d[5]}"
             preco_artefato = get_historical_price(art_id, location="Caerleon,FortSterling,Thetford,Lymhurst,Bridgewatch,Martlock")
+            qtd_art = d[6] * quantidade
+            
             if preco_artefato > 0:
-                qtd_art = d[6] * quantidade
                 custo += preco_artefato * qtd_art
                 detalhes.append(f"{qtd_art}x Artefato: {preco_artefato:,.0f} (Média Market)")
             else:
-                # 🔥 NÃO invalida o craft se artefato não tiver preço - apenas não adiciona custo
-                pass
+                # 🔥 MOSTRA O ARTEFATO MESMO SEM PREÇO (Para não gerar lucro falso)
+                detalhes.append(f"{qtd_art}x Artefato: Preço não disponível")
+                # Não invalida o craft, apenas avisa que o custo pode estar incompleto
         
         custo_final = int(custo)
         venda_total = int(preco_venda_bm * quantidade)
