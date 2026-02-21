@@ -454,7 +454,7 @@ FILTROS = {
 # ================= FUNÇÕES =================
 def get_historical_price(item_id, location="Black Market"):
     """
-    🔥 FUNÇÃO ATUALIZADA - Usa buy_price_max como fallback quando sell_price_min = 0
+    🔥 FUNÇÃO ATUALIZADA - Busca preços de SELLOS REAIS e ARTEFATOS no mercado
     """
     try:
         # 1️⃣ Tenta preço atual primeiro
@@ -539,7 +539,7 @@ if btn:
         st.error("Nenhum item encontrado nesta categoria.")
         st.stop()
     
-    # 🔥 1. COLETA DE IDS (INCLUINDO ARTEFATOS)
+    # 🔥 1. COLETA DE IDS (INCLUINDO ARTEFATOS E SELOS REAIS)
     ids_para_recursos = set()
     for d in itens.values():
         # Recursos principais
@@ -548,14 +548,15 @@ if btn:
         if d[3]:
             for r in ids_recurso_variantes(tier, d[3], encanto):
                 ids_para_recursos.add(r)
-        # 🔥 NOVO: Adicionar artefatos na busca da API
+        # 🔥 Adicionar artefatos/selos reais na busca da API
         if d[5]:
             art_id = f"T{tier}_{d[5]}"
             ids_para_recursos.add(art_id)
     
     try:
+        # 🔥 2. BUSCAR PREÇOS EM MAIS CIDADES (incluindo onde artifacts podem estar)
         response = requests.get(
-            f"{API_URL}{','.join(ids_para_recursos)}?locations=Thetford,FortSterling,Martlock,Lymhurst,Bridgewatch,Caerleon,Brecilien",
+            f"{API_URL}{','.join(ids_para_recursos)}?locations=Thetford,FortSterling,Martlock,Lymhurst,Bridgewatch,Caerleon,Brecilien,Black Market",
             timeout=20
         )
         data_recursos = response.json()
@@ -563,10 +564,17 @@ if btn:
         st.error("Erro ao conectar com a API de recursos. Tente novamente.")
         st.stop()
     
+    # 🔥 3. PROCESSAR TODOS OS PREÇOS (não apenas sell_price_min)
     precos_recursos = {}
     for p in data_recursos:
         pid = p["item_id"]
+        # 🔥 Usa sell_price_min OU buy_price_max * 1.15 como fallback
         price = p["sell_price_min"]
+        if price <= 0:
+            buy_price = p.get("buy_price_max", 0)
+            if buy_price > 0:
+                price = int(buy_price * 1.15)
+        
         if price > 0:
             if pid not in precos_recursos or price < precos_recursos[pid]["price"]:
                 precos_recursos[pid] = {"price": price, "city": p["city"]}
@@ -588,7 +596,7 @@ if btn:
         detalhes = []
         valid_craft = True
         
-        # 🔥 2. CÁLCULO DE RECURSOS BASE
+        # 🔥 4. CÁLCULO DE RECURSOS BASE
         for recurso, qtd in [(d[1], d[2]), (d[3], d[4])]:
             if not recurso or qtd == 0:
                 continue
@@ -609,19 +617,28 @@ if btn:
         if not valid_craft:
             continue
         
-        # 🔥 3. CÁLCULO DE ARTEFATOS (SEMPRE ADICIONA AO DETALHAMENTO)
+        # 🔥 5. CÁLCULO DE ARTEFATOS/SELOS REAIS (USA PREÇOS JÁ BUSCADOS)
         if d[5]:
             art_id = f"T{tier}_{d[5]}"
-            preco_artefato = get_historical_price(art_id, location="Caerleon,FortSterling,Thetford,Lymhurst,Bridgewatch,Martlock")
-            qtd_art = d[6] * quantidade  # 🔥 Definido ANTES do if/else
+            qtd_art = d[6] * quantidade
             
-            if preco_artefato > 0:
-                custo += preco_artefato * qtd_art
-                detalhes.append(f"{qtd_art}x Artefato: {preco_artefato:,.0f} (Média Market)")
+            # 🔥 Busca nos precos_ja_coletados (mesmas cidades)
+            if art_id in precos_recursos:
+                info_art = precos_recursos[art_id]
+                custo += info_art["price"] * qtd_art
+                detalhes.append(f"{qtd_art}x Artefato/Selo: {info_art['price']:,} ({info_art['city']})")
             else:
-                # 🔥 MOSTRA O ARTEFATO MESMO SEM PREÇO (Para não gerar lucro falso)
-                detalhes.append(f"{qtd_art}x Artefato: Preço não disponível")
-                # Não invalida o craft, apenas avisa que o custo pode estar incompleto
+                # 🔥 Fallback: tenta buscar novamente em mais cidades
+                preco_art_fallback = get_historical_price(
+                    art_id, 
+                    location="Thetford,FortSterling,Martlock,Lymhurst,Bridgewatch,Caerleon,Brecilien,Black Market"
+                )
+                if preco_art_fallback > 0:
+                    custo += preco_art_fallback * qtd_art
+                    detalhes.append(f"{qtd_art}x Artefato/Selo: {preco_art_fallback:,} (Fallback)")
+                else:
+                    # 🔥 Mostra aviso mas NÃO invalida o craft
+                    detalhes.append(f"{qtd_art}x Artefato/Selo: Preço não disponível ⚠️")
         
         custo_final = int(custo)
         venda_total = int(preco_venda_bm * quantidade)
@@ -639,6 +656,12 @@ if btn:
             perc_lucro = (lucro / custo) * 100 if custo > 0 else 0
             cidade_foco = identificar_cidade_bonus(nome)
             cor_destaque = "#2ecc71" if lucro > 0 else "#e74c3c"
+            
+            # 🔥 Alerta visual se tiver artefato sem preço
+            tem_artefato_sem_preco = any("Preço não disponível" in det for det in detalhes)
+            if tem_artefato_sem_preco:
+                cor_destaque = "#f39c12"  # Laranja para alerta
+            
             st.markdown(f"""
             <div class="item-card-custom" style="border-left: 8px solid {cor_destaque};">
             <div style="font-weight: bold; font-size: 1.2rem; margin-bottom: 10px; color: {cor_destaque};">
@@ -652,6 +675,7 @@ if btn:
             </div>
             <div style="font-size: 0.95rem; color: #cbd5e1; margin-bottom: 10px;">
             📍 <b>Foco Craft:</b> {cidade_foco} | 🕒 <b>Baseado em:</b> {h_venda}
+            {"| ⚠️ <b>Atenção:</b> Artefato/Selo sem preço - lucro pode ser menor" if tem_artefato_sem_preco else ""}
             </div>
             <div style="background: rgba(0,0,0,0.4); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); font-size: 0.9rem;">
             📦 <b>Detalhamento de Compras:</b> <br> {" | ".join(detalhes)}
