@@ -112,31 +112,31 @@ RECURSO_MAP = {
     # === CAPAS ===
     "Capa Base": "CAPE",
     "BP Bridgewatch": "CAPEITEM_FW_BRIDGEWATCH_BP",
-    "Token Bridgewatch": "FACTION_DESERT_TOKEN_1",  # ← CORRIGIDO: adicionado _1
+    "Token Bridgewatch": "FACTION_DESERT_TOKEN_1",
     "BP Fort Sterling": "CAPEITEM_FW_FORTSTERLING_BP",
-    "Token Fort Sterling": "FACTION_MOUNTAIN_TOKEN_1",  # ← CORRIGIDO
+    "Token Fort Sterling": "FACTION_MOUNTAIN_TOKEN_1",
     "BP Lymhurst": "CAPEITEM_FW_LYMHURST_BP",
-    "Token Lymhurst": "FACTION_FOREST_TOKEN_1",  # ← CORRIGIDO
+    "Token Lymhurst": "FACTION_FOREST_TOKEN_1",
     "BP Martlock": "CAPEITEM_FW_MARTLOCK_BP",
-    "Token Martlock": "FACTION_HIGHLAND_TOKEN_1",  # ← CORRIGIDO
+    "Token Martlock": "FACTION_HIGHLAND_TOKEN_1",
     "BP Caerleon": "CAPEITEM_FW_CAERLEON_BP",
-    "Token Caerleon": "FACTION_CAERLEON_TOKEN_1",  # ← CORRIGIDO
+    "Token Caerleon": "FACTION_CAERLEON_TOKEN_1",
     "BP Brecilien": "CAPEITEM_FW_BRECILIEN_BP",
-    "Token Brecilien": "FACTION_MISTS_TOKEN_1",  # ← CORRIGIDO
+    "Token Brecilien": "FACTION_MISTS_TOKEN_1",
     "BP Heretic": "CAPEITEM_HERETIC_BP",
-    "Token Heretic": "FACTION_FOREST_TOKEN_1",  # ← CORRIGIDO
+    "Token Heretic": "FACTION_FOREST_TOKEN_1",
     "BP Undead": "CAPEITEM_UNDEAD_BP",
-    "Token Undead": "FACTION_MOUNTAIN_TOKEN_1",  # ← CORRIGIDO
+    "Token Undead": "FACTION_MOUNTAIN_TOKEN_1",
     "BP Keeper": "CAPEITEM_KEEPER_BP",
-    "Token Keeper": "FACTION_HIGHLAND_TOKEN_1",  # ← CORRIGIDO
+    "Token Keeper": "FACTION_HIGHLAND_TOKEN_1",
     "BP Morgana": "CAPEITEM_MORGANA_BP",
-    "Token Morgana": "FACTION_SWAMP_TOKEN_1",  # ← CORRIGIDO
+    "Token Morgana": "FACTION_SWAMP_TOKEN_1",
     "BP Demon": "CAPEITEM_DEMON_BP",
-    "Token Demon": "FACTION_DESERT_TOKEN_1",  # ← CORRIGIDO
+    "Token Demon": "FACTION_DESERT_TOKEN_1",
     "BP Avalon": "CAPEITEM_AVALON_BP",
-    "Token Avalon": "FACTION_MISTS_TOKEN_1",  # ← CORRIGIDO
+    "Token Avalon": "FACTION_MISTS_TOKEN_1",
     "BP Smuggler": "CAPEITEM_SMUGGLER_BP",
-    "Token Smuggler": "FACTION_CAERLEON_TOKEN_1",  # ← CORRIGIDO
+    "Token Smuggler": "FACTION_CAERLEON_TOKEN_1",
 }
 
 BONUS_CIDADE = {
@@ -453,30 +453,42 @@ FILTROS = {
 
 # ================= FUNÇÕES =================
 def get_historical_price(item_id, location="Black Market"):
+    """
+    🔥 FUNÇÃO ATUALIZADA - Usa buy_price_max como fallback quando sell_price_min = 0
+    """
     try:
+        # 1️⃣ Tenta preço atual primeiro
         url_atual = f"{API_URL}{item_id}?locations={location}"
         resp_atual = requests.get(url_atual, timeout=10).json()
         
         if resp_atual and len(resp_atual) > 0:
+            # Pega o menor preço de venda
             sell_price = resp_atual[0].get("sell_price_min", 0)
             if sell_price and sell_price > 0:
                 return sell_price
-            # Fallback: usa buy_price_max * 1.15
+            
+            # 🔥 NOVO: Se não tem venda, usa buy_price_max como referência
             buy_price = resp_atual[0].get("buy_price_max", 0)
             if buy_price and buy_price > 0:
-                return int(buy_price * 1.15)
+                return int(buy_price * 1.15)  # Adiciona 15% para estimar venda
         
+        # 2️⃣ Fallback: histórico 24h
         url_hist = f"{HISTORY_URL}{item_id}?locations={location}&timescale=24"
         resp_hist = requests.get(url_hist, timeout=10).json()
         
         if resp_hist and len(resp_hist) > 0 and "data" in resp_hist[0]:
-            prices = [d["avg_price"] for d in resp_hist[0]["data"] if d.get("avg_price", 0) > 0 and d.get("item_count", 0) >= 3]
+            prices = [
+                d["avg_price"]
+                for d in resp_hist[0]["data"]
+                if d.get("avg_price", 0) > 0 and d.get("item_count", 0) >= 3
+            ]
             if prices:
                 prices.sort()
-                return prices[len(prices) // 2]
+                return prices[len(prices) // 2]  # Mediana
         
         return 0
-    except:
+    except Exception as e:
+        print(f"Erro ao buscar preço de {item_id}: {e}")
         return 0
 
 def id_item(tier, base, enc):
@@ -597,6 +609,9 @@ if btn:
                 qtd_art = d[6] * quantidade
                 custo += preco_artefato * qtd_art
                 detalhes.append(f"{qtd_art}x Artefato: {preco_artefato:,.0f} (Média Market)")
+            else:
+                # 🔥 NÃO invalida o craft se artefato não tiver preço - apenas não adiciona custo
+                pass
         
         custo_final = int(custo)
         venda_total = int(preco_venda_bm * quantidade)
