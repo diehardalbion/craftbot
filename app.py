@@ -407,7 +407,6 @@ ITENS_DB = {
 
     # ================= CAPAS - CONTABANDISTA =================
     "CAPA CONTABANDISTA": ["CAPEITEM_SMUGGLER", "CAPE", 1, "ARTEFACT_CAPE_SMUGGLER", 1, "DARK_CORE", 1],
-}
 
 # ================= FILTROS =================
 FILTROS = {
@@ -422,7 +421,7 @@ FILTROS = {
     "capacete_pano": lambda k, v: "HEAD_CLOTH" in v[0],
     "armas": lambda k, v: v[0].startswith(("MAIN_", "2H_")),
     "secundarias": lambda k, v: v[0].startswith("OFF_"),
-    "capas": lambda k, v: v[0] == "CAPE" or "CAPEITEM" in v[0],
+    "capas": lambda k, v: v[0] == "CAPE" or "CAPEITEM" in v[0],  # <-- ADICIONE ESTA LINHA
 }
 
 # ================= FUNÇÕES =================
