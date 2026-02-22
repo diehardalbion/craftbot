@@ -446,6 +446,8 @@ if btn:
 
         precos_itens = {}
         precos_recursos = {}
+        
+        # ✅ CORREÇÃO AQUI - Linha 449
         for p in 
             pid = p["item_id"]
             if p["city"] == "Black Market":
