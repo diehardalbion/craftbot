@@ -7,178 +7,88 @@ from datetime import datetime, timezone
 st.set_page_config("Radar Craft Albion", layout="wide", page_icon="⚔️")
 
 # ================= CUSTOM CSS (VISUAL) =================
-st.markdown("""
-<style>
-header {visibility: hidden;}
-.main .block-container {
-    padding-top: 0rem;
-    padding-bottom: 0rem;
-}
-.stApp {
-    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)),
-    url("https://i.imgur.com/kVAiMjD.png");
-    background-size: cover;
-    background-attachment: fixed;
-}
-[data-testid="stSidebar"] {
-    background-color: rgba(15, 17, 23, 0.95) !important;
-    border-right: 1px solid #3e4149;
-}
-h1, h2, h3, label, .stMarkdown {
-    color: #ffffff !important;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-.item-card-custom {
-    background-color: rgba(255, 255, 255, 0.05) !important;
-    backdrop-filter: blur(12px);
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-    color: white !important;
-}
-.stButton>button {
-    width: 100%;
-    background-color: #2ecc71 !important;
-    color: white !important;
-    font-weight: bold;
-    border: none;
-    padding: 0.5rem;
-}
-</style>
-""", unsafe_allow_html=True)
+st.markdown("<div style='margin: 40px 0; border-top: 1px solid rgba(255,255,255,0.1);'></div>", unsafe_allow_html=True)
 
-# ================= SISTEMA DE LOGIN / KEYS =================
-def verificar_chave(chave_usuario):
-    try:
-        with open("keys.json", "r") as f:
-            keys_db = json.load(f)
-        if chave_usuario in keys_db:
-            dados = keys_db[chave_usuario]
-            if not dados["ativa"]:
-                return False, "Esta chave foi desativada."
-            if dados["expira"] != "null":
-                data_expira = datetime.strptime(dados["expira"], "%Y-%m-%d").date()
-                if datetime.now().date() > data_expira:
-                    return False, "Esta chave expirou."
-            return True, dados["cliente"]
-        return False, "Chave inválida."
-    except Exception as e:
-        return False, f"Erro ao acessar keys.json: {e}"
-
-if "autenticado" not in st.session_state:
-    st.session_state.autenticado = False
-
-if not st.session_state.autenticado:
-    st.title("🛡️ Radar Craft - Acesso Restrito")
+# ================= SEÇÃO PROMOCIONAL =================
+html_promocional = """
+<div style="
+    background: linear-gradient(135deg, rgba(46, 204, 113, 0.1), rgba(26, 188, 156, 0.1));
+    padding: 30px;
+    border-radius: 16px;
+    border: 1px solid rgba(46, 204, 113, 0.3);
+    margin: 20px 0;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+">
+    <h2 style="text-align: center; color: #2ecc71; margin-bottom: 25px; font-size: 1.8rem;">
+        ⚔️ RADAR CRAFT – A FERRAMENTA DEFINITIVA PARA DOMINAR O MARKET!
+    </h2>
     
-    col1, col2 = st.columns([1, 1])
+    <p style="text-align: center; color: #ecf0f1; font-size: 1.1rem; margin-bottom: 25px; line-height: 1.6;">
+        Chega de perder prata tentando adivinhar qual craft vale a pena. 
+        Com o <strong style="color: #2ecc71;">Radar Craft</strong>, você transforma informação em lucro — 
+        <em>rápido, simples e eficiente</em>.
+    </p>
     
-    with col1:
-        st.markdown("### 🔑 Já possui acesso?")
-        key_input = st.text_input("Insira sua Chave:", type="password", key="login_key")
-        if st.button("🚀 LIBERAR ACESSO", key="btn_login"):
-            sucesso, mensagem = verificar_chave(key_input)
-            if sucesso:
-                st.session_state.autenticado = True
-                st.session_state.cliente = mensagem
-                st.rerun()
-            else:
-                st.error(mensagem)
-    
-    with col2:
-        st.markdown("### 💎 Adquirir Nova Chave")
-        st.markdown("""
-        <div style="background: rgba(46, 204, 113, 0.15); padding: 20px; border-radius: 12px; border: 2px solid #2ecc71; text-align: center; box-shadow: 0 4px 20px rgba(46, 204, 113, 0.3);">
-            <h2 style="margin:0; color: #2ecc71; font-size: 2rem;">R$ 15,00</h2>
-            <p style="color: white; margin: 10px 0; font-size: 1.1rem;">Acesso Mensal (30 dias)</p>
-            <p style="color: #bdc3c7; font-size: 0.9rem; margin-bottom: 15px;">✅ Atualizações inclusas<br>✅ Suporte via WhatsApp</p>
-            <a href="https://wa.me/5521983042557?text=Olá! Gostaria de comprar uma key para o Radar Craft Albion." target="_blank" style="text-decoration: none;">
-                <div style="background: linear-gradient(135deg, #25d366, #128c7e); color: white; padding: 14px 20px; border-radius: 8px; font-weight: bold; font-size: 1.1rem;">
-                    📱 COMPRAR VIA WHATSAPP
-                </div>
-            </a>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    st.markdown("<div style='margin: 40px 0; border-top: 1px solid rgba(255,255,255,0.1);'></div>", unsafe_allow_html=True)
-    
-    # ================= SEÇÃO PROMOCIONAL =================
-    st.markdown("""
-    <div style="
-        background: linear-gradient(135deg, rgba(46, 204, 113, 0.1), rgba(26, 188, 156, 0.1));
-        padding: 30px;
-        border-radius: 16px;
-        border: 1px solid rgba(46, 204, 113, 0.3);
-        margin: 20px 0;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-    ">
-        <h2 style="text-align: center; color: #2ecc71; margin-bottom: 25px; font-size: 1.8rem;">
-            ⚔️ RADAR CRAFT – A FERRAMENTA DEFINITIVA PARA DOMINAR O MARKET!
-        </h2>
+    <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 12px; margin: 20px 0;">
+        <h3 style="color: #2ecc71; margin-bottom: 15px; text-align: center;">🎯 O que o Radar Craft faz por você:</h3>
         
-        <p style="text-align: center; color: #ecf0f1; font-size: 1.1rem; margin-bottom: 25px; line-height: 1.6;">
-            Chega de perder prata tentando adivinhar qual craft vale a pena. 
-            Com o <strong style="color: #2ecc71;">Radar Craft</strong>, você transforma informação em lucro — 
-            <em>rápido, simples e eficiente</em>.
+        <div style="margin: 10px 0; padding: 10px; background: rgba(46, 204, 113, 0.1); border-radius: 8px; border-left: 4px solid #2ecc71;">
+            <strong style="color: #2ecc71;">✔ Escolha inteligente de craft</strong><br>
+            <span style="color: #bdc3c7; font-size: 0.95rem;">Selecione o item que deseja produzir e deixe o sistema fazer o resto.</span>
+        </div>
+        
+        <div style="margin: 10px 0; padding: 10px; background: rgba(46, 204, 113, 0.1); border-radius: 8px; border-left: 4px solid #2ecc71;">
+            <strong style="color: #2ecc71;">✔ Busca automática de recursos</strong><br>
+            <span style="color: #bdc3c7; font-size: 0.95rem;">O Radar analisa todas as cidades e encontra os materiais com o menor preço.</span>
+        </div>
+        
+        <div style="margin: 10px 0; padding: 10px; background: rgba(46, 204, 113, 0.1); border-radius: 8px; border-left: 4px solid #2ecc71;">
+            <strong style="color: #2ecc71;">✔ Cidade ideal para craftar</strong><br>
+            <span style="color: #bdc3c7; font-size: 0.95rem;">Descubra exatamente onde craftar para aproveitar os melhores bônus de produção.</span>
+        </div>
+        
+        <div style="margin: 10px 0; padding: 10px; background: rgba(46, 204, 113, 0.1); border-radius: 8px; border-left: 4px solid #2ecc71;">
+            <strong style="color: #2ecc71;">✔ Cálculo de investimento e lucro</strong><br>
+            <span style="color: #bdc3c7; font-size: 0.95rem;">Veja quanto você vai gastar e quanto pode ganhar antes mesmo de começar.</span>
+        </div>
+        
+        <div style="margin: 10px 0; padding: 10px; background: rgba(46, 204, 113, 0.1); border-radius: 8px; border-left: 4px solid #2ecc71;">
+            <strong style="color: #2ecc71;">✔ Preço de venda otimizado</strong><br>
+            <span style="color: #bdc3c7; font-size: 0.95rem;">Receba o valor ideal para vender baseado no Black Market atualizado em 24h, garantindo mais lucro e menos risco.</span>
+        </div>
+    </div>
+    
+    <div style="text-align: center; margin: 25px 0;">
+        <p style="color: #ecf0f1; font-size: 1.2rem; margin: 10px 0;">
+            🚀 <strong>Maximize seus ganhos, minimize seu esforço</strong>
         </p>
-        
-        <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 12px; margin: 20px 0;">
-            <h3 style="color: #2ecc71; margin-bottom: 15px; text-align: center;">🎯 O que o Radar Craft faz por você:</h3>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px;">
-                <div style="padding: 12px; background: rgba(46, 204, 113, 0.1); border-radius: 8px; border-left: 4px solid #2ecc71;">
-                    <strong style="color: #2ecc71;">✔ Escolha inteligente de craft</strong><br>
-                    <span style="color: #bdc3c7; font-size: 0.95rem;">Selecione o item que deseja produzir e deixe o sistema fazer o resto.</span>
-                </div>
-                <div style="padding: 12px; background: rgba(46, 204, 113, 0.1); border-radius: 8px; border-left: 4px solid #2ecc71;">
-                    <strong style="color: #2ecc71;">✔ Busca automática de recursos</strong><br>
-                    <span style="color: #bdc3c7; font-size: 0.95rem;">O Radar analisa todas as cidades e encontra os materiais com o menor preço.</span>
-                </div>
-                <div style="padding: 12px; background: rgba(46, 204, 113, 0.1); border-radius: 8px; border-left: 4px solid #2ecc71;">
-                    <strong style="color: #2ecc71;">✔ Cidade ideal para craftar</strong><br>
-                    <span style="color: #bdc3c7; font-size: 0.95rem;">Descubra exatamente onde craftar para aproveitar os melhores bônus de produção.</span>
-                </div>
-                <div style="padding: 12px; background: rgba(46, 204, 113, 0.1); border-radius: 8px; border-left: 4px solid #2ecc71;">
-                    <strong style="color: #2ecc71;">✔ Cálculo de investimento e lucro</strong><br>
-                    <span style="color: #bdc3c7; font-size: 0.95rem;">Veja quanto você vai gastar e quanto pode ganhar antes mesmo de começar.</span>
-                </div>
-                <div style="padding: 12px; background: rgba(46, 204, 113, 0.1); border-radius: 8px; border-left: 4px solid #2ecc71; grid-column: 1 / -1;">
-                    <strong style="color: #2ecc71;">✔ Preço de venda otimizado</strong><br>
-                    <span style="color: #bdc3c7; font-size: 0.95rem;">Receba o valor ideal para vender baseado no Black Market atualizado em 24h, garantindo mais lucro e menos risco.</span>
-                </div>
-            </div>
-        </div>
-        
-        <div style="text-align: center; margin: 25px 0;">
-            <p style="color: #ecf0f1; font-size: 1.2rem; margin: 10px 0;">
-                🚀 <strong>Maximize seus ganhos, minimize seu esforço</strong>
-            </p>
-            <p style="color: #bdc3c7; font-size: 1rem;">
-                Com o Radar Craft, você toma decisões com dados reais, evitando prejuízos e aproveitando as melhores oportunidades do mercado.
-            </p>
-        </div>
-        
-        <div style="
-            background: linear-gradient(135deg, rgba(231, 76, 60, 0.2), rgba(192, 57, 43, 0.2));
-            padding: 20px;
-            border-radius: 12px;
-            border-left: 5px solid #e74c3c;
-            text-align: center;
-            margin: 25px 0;
-        ">
-            <p style="color: #ecf0f1; font-size: 1.1rem; margin: 0; font-weight: 500;">
-                ⚠️ Pare de jogar no escuro — <strong style="color: #2ecc71;">comece a lucrar com estratégia.</strong>
-            </p>
-        </div>
-        
-        <p style="text-align: center; color: #2ecc71; font-size: 1.3rem; font-weight: bold; margin-top: 30px;">
-            🎯 Radar Craft: onde cada craft vira lucro.
+        <p style="color: #bdc3c7; font-size: 1rem;">
+            Com o Radar Craft, você toma decisões com dados reais, evitando prejuízos e aproveitando as melhores oportunidades do mercado.
         </p>
     </div>
-    """, unsafe_allow_html=True)
     
-    st.stop()
+    <div style="
+        background: linear-gradient(135deg, rgba(231, 76, 60, 0.2), rgba(192, 57, 43, 0.2));
+        padding: 20px;
+        border-radius: 12px;
+        border-left: 5px solid #e74c3c;
+        text-align: center;
+        margin: 25px 0;
+    ">
+        <p style="color: #ecf0f1; font-size: 1.1rem; margin: 0; font-weight: 500;">
+            ⚠️ Pare de jogar no escuro — <strong style="color: #2ecc71;">comece a lucrar com estratégia.</strong>
+        </p>
+    </div>
+    
+    <p style="text-align: center; color: #2ecc71; font-size: 1.3rem; font-weight: bold; margin-top: 30px;">
+        🎯 Radar Craft: onde cada craft vira lucro.
+    </p>
+</div>
+"""
+
+st.markdown(html_promocional, unsafe_allow_html=True)
+
+st.stop()
 
 # ================= CONFIG DE DADOS =================
 API_URL = "https://west.albion-online-data.com/api/v2/stats/prices/"
