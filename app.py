@@ -448,7 +448,7 @@ if btn:
         precos_recursos = {}
         
         # ✅ CORREÇÃO AQUI - Linha 449
-        for p in 
+        for p in data:
             pid = p["item_id"]
             if p["city"] == "Black Market":
                 price = p["buy_price_max"]
