@@ -405,8 +405,9 @@ ITENS_DB = {
     # ================= CAPAS - AVALONIANA =================
     "CAPA AVALONIANA": ["CAPEITEM_AVALON", "CAPE", 1, "ARTEFACT_CAPE_AVALON", 1, "FAERIE_FIRE", 1],
 
-    # ================= CAPAS - CONTABANDISTA =================
+       # ================= CAPAS - CONTABANDISTA =================
     "CAPA CONTABANDISTA": ["CAPEITEM_SMUGGLER", "CAPE", 1, "ARTEFACT_CAPE_SMUGGLER", 1, "DARK_CORE", 1],
+}  # <-- FECHAMENTO DO ITENS_DB (ESTE ERA O PROBLEMA!)
 
 # ================= FILTROS =================
 FILTROS = {
@@ -421,7 +422,7 @@ FILTROS = {
     "capacete_pano": lambda k, v: "HEAD_CLOTH" in v[0],
     "armas": lambda k, v: v[0].startswith(("MAIN_", "2H_")),
     "secundarias": lambda k, v: v[0].startswith("OFF_"),
-    "capas": lambda k, v: v[0] == "CAPE" or "CAPEITEM" in v[0],  # <-- ADICIONE ESTA LINHA
+    "capas": lambda k, v: v[0] == "CAPE" or "CAPEITEM" in v[0],
 }
 
 # ================= FUNÇÕES =================
