@@ -9,55 +9,55 @@ st.set_page_config("Radar Craft Albion", layout="wide", page_icon="⚔️")
 # ================= CUSTOM CSS (VISUAL) =================
 st.markdown("""
 <style>
-    /* REMOVER FAIXA BRANCA DO TOPO */
-    header {visibility: hidden;}
-    .main .block-container {
-        padding-top: 2rem;
-        padding-bottom: 2rem;
-    }
+/* REMOVER FAIXA BRANCA DO TOPO */
+header {visibility: hidden;}
+.main .block-container {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
 
-    /* FUNDO DA APLICAÇÃO */
-    .stApp {
-        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)), 
-                    url("https://i.imgur.com/kVAiMjD.png");
-        background-size: cover;
-        background-attachment: fixed;
-    }
+/* FUNDO DA APLICAÇÃO */
+.stApp {
+    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)), 
+                url("https://i.imgur.com/kVAiMjD.png");
+    background-size: cover;
+    background-attachment: fixed;
+}
 
-    /* BARRA LATERAL */
-    [data-testid="stSidebar"] {
-        background-color: rgba(15, 17, 23, 0.95) !important;
-        border-right: 1px solid #3e4149;
-    }
+/* BARRA LATERAL */
+[data-testid="stSidebar"] {
+    background-color: rgba(15, 17, 23, 0.95) !important;
+    border-right: 1px solid #3e4149;
+}
 
-    /* TÍTULOS E TEXTOS */
-    h1, h2, h3, label, .stMarkdown {
-        color: #ffffff !important;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
+/* TÍTULOS E TEXTOS */
+h1, h2, h3, label, .stMarkdown {
+    color: #ffffff !important;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
 
-    /* CARD DE RESULTADO PERSONALIZADO */
-    .item-card-custom { 
-        background-color: rgba(255, 255, 255, 0.05) !important;
-        backdrop-filter: blur(12px);
-        border-radius: 12px; 
-        padding: 20px; 
-        margin-bottom: 20px; 
-        border: 1px solid rgba(46, 204, 113, 0.2);
-        border-left: 8px solid #2ecc71;
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-        color: white !important;
-    }
+/* CARD DE RESULTADO PERSONALIZADO */
+.item-card-custom { 
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    backdrop-filter: blur(12px);
+    border-radius: 12px; 
+    padding: 20px; 
+    margin-bottom: 20px; 
+    border: 1px solid rgba(46, 204, 113, 0.2);
+    border-left: 8px solid #2ecc71;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    color: white !important;
+}
 
-    /* INPUTS E BOTÕES */
-    .stButton>button {
-        width: 100%;
-        background-color: #2ecc71 !important;
-        color: white !important;
-        font-weight: bold;
-        border: none;
-        padding: 0.5rem;
-    }
+/* INPUTS E BOTÕES */
+.stButton>button {
+    width: 100%;
+    background-color: #2ecc71 !important;
+    color: white !important;
+    font-weight: bold;
+    border: none;
+    padding: 0.5rem;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -145,9 +145,6 @@ CIDADES = ["Martlock", "Thetford", "FortSterling", "Lymhurst", "Bridgewatch", "B
 RECURSO_MAP = {
     "Tecido Fino": "CLOTH", "Couro Trabalhado": "LEATHER",
     "Barra de Aço": "METALBAR", "Tábuas de Pinho": "PLANKS",
-    # Mapeamento para tiers superiores de capas
-    "T4_CLOTH": "CLOTH", "T5_CLOTH": "CLOTH", "T6_CLOTH": "CLOTH", "T7_CLOTH": "CLOTH", "T8_CLOTH": "CLOTH",
-    "T4_LEATHER": "LEATHER", "T5_LEATHER": "LEATHER", "T6_LEATHER": "LEATHER", "T7_LEATHER": "LEATHER", "T8_LEATHER": "LEATHER",
 }
 
 BONUS_CIDADE = {
@@ -362,110 +359,54 @@ ITENS_DB = {
     "ALVORADA": ["MAIN_SPEAR_AVALON", "Tábuas de Pinho", 16, "Barra de Aço", 8, "ARTEFACT_MAIN_SPEAR_AVALON", 1],
     "ARCHA FRATURADA": ["2H_SPEAR_CRYSTAL", "Tábuas de Pinho", 12, "Barra de Aço", 20, "QUESTITEM_TOKEN_CRYSTAL_SPEAR", 1],
 
-    # ================= CAPAS - BASE =================
-    "CAPA DO ADEPTO": ["CAPE", "T4_CLOTH", 4, "T4_LEATHER", 4, None, 0],
-    "CAPA DO PERITO": ["CAPE", "T5_CLOTH", 4, "T5_LEATHER", 4, None, 0],
-    "CAPA DO MESTRE": ["CAPE", "T6_CLOTH", 4, "T6_LEATHER", 4, None, 0],
-    "CAPA DO GRÃO-MESTRE": ["CAPE", "T7_CLOTH", 4, "T7_LEATHER", 4, None, 0],
-    "CAPA DO ANCIÃO": ["CAPE", "T8_CLOTH", 4, "T8_LEATHER", 4, None, 0],
+    # ================= CAPAS - BASE (T4-T8) =================
+    "CAPA DO ADEPTO": ["CAPE", "Tecido Fino", 4, "Couro Trabalhado", 4, None, 0],
+    "CAPA DO PERITO": ["CAPE", "Tecido Ornado", 4, "Couro Curtido", 4, None, 0],
+    "CAPA DO MESTRE": ["CAPE", "Tecido Rico", 4, "Couro Endurecido", 4, None, 0],
+    "CAPA DO GRÃO-MESTRE": ["CAPE", "Tecido Opulento", 4, "Couro Reforçado", 4, None, 0],
+    "CAPA DO ANCIÃO": ["CAPE", "Tecido Barroco", 4, "Couro Fortificado", 4, None, 0],
 
-    # ================= CAPAS - BRIDGEWATCH (CORACAO BESTIAL) =================
-    "CAPA DE BRIDGEWATCH DO ADEPTO": ["CAPEITEM_FW_BRIDGEWATCH", "CAPE", 1, "ARTEFACT_CAPE_FW_BRIDGEWATCH", 1, "CORRUPTED_CORE", 1],
-    "CAPA DE BRIDGEWATCH DO PERITO": ["CAPEITEM_FW_BRIDGEWATCH", "CAPE", 1, "ARTEFACT_CAPE_FW_BRIDGEWATCH", 1, "CORRUPTED_CORE", 1],
-    "CAPA DE BRIDGEWATCH DO MESTRE": ["CAPEITEM_FW_BRIDGEWATCH", "CAPE", 1, "ARTEFACT_CAPE_FW_BRIDGEWATCH", 1, "CORRUPTED_CORE", 3],
-    "CAPA DE BRIDGEWATCH DO GRÃO-MESTRE": ["CAPEITEM_FW_BRIDGEWATCH", "CAPE", 1, "ARTEFACT_CAPE_FW_BRIDGEWATCH", 1, "CORRUPTED_CORE", 5],
-    "CAPA DE BRIDGEWATCH DO ANCIÃO": ["CAPEITEM_FW_BRIDGEWATCH", "CAPE", 1, "ARTEFACT_CAPE_FW_BRIDGEWATCH", 1, "CORRUPTED_CORE", 10],
+    # ================= CAPAS - BRIDGEWATCH =================
+    "CAPA DE BRIDGEWATCH": ["CAPEITEM_FW_BRIDGEWATCH", "CAPE", 1, "ARTEFACT_CAPE_FW_BRIDGEWATCH", 1, "CORRUPTED_CORE", 1],
 
-    # ================= CAPAS - FORT STERLING (CORACAO MONTANHOSO) =================
-    "CAPA DE FORT STERLING DO ADEPTO": ["CAPEITEM_FW_FORTSTERLING", "CAPE", 1, "ARTEFACT_CAPE_FW_FORTSTERLING", 1, "FROST_CORE", 1],
-    "CAPA DE FORT STERLING DO PERITO": ["CAPEITEM_FW_FORTSTERLING", "CAPE", 1, "ARTEFACT_CAPE_FW_FORTSTERLING", 1, "FROST_CORE", 1],
-    "CAPA DE FORT STERLING DO MESTRE": ["CAPEITEM_FW_FORTSTERLING", "CAPE", 1, "ARTEFACT_CAPE_FW_FORTSTERLING", 1, "FROST_CORE", 3],
-    "CAPA DE FORT STERLING DO GRÃO-MESTRE": ["CAPEITEM_FW_FORTSTERLING", "CAPE", 1, "ARTEFACT_CAPE_FW_FORTSTERLING", 1, "FROST_CORE", 5],
-    "CAPA DE FORT STERLING DO ANCIÃO": ["CAPEITEM_FW_FORTSTERLING", "CAPE", 1, "ARTEFACT_CAPE_FW_FORTSTERLING", 1, "FROST_CORE", 10],
+    # ================= CAPAS - FORT STERLING =================
+    "CAPA DE FORT STERLING": ["CAPEITEM_FW_FORTSTERLING", "CAPE", 1, "ARTEFACT_CAPE_FW_FORTSTERLING", 1, "FROST_CORE", 1],
 
-    # ================= CAPAS - LYMHURST (CORACAO ARBOREO) =================
-    "CAPA DE LYMHURST DO ADEPTO": ["CAPEITEM_FW_LYMHURST", "CAPE", 1, "ARTEFACT_CAPE_FW_LYMHURST", 1, "NATURE_CORE", 1],
-    "CAPA DE LYMHURST DO PERITO": ["CAPEITEM_FW_LYMHURST", "CAPE", 1, "ARTEFACT_CAPE_FW_LYMHURST", 1, "NATURE_CORE", 1],
-    "CAPA DE LYMHURST DO MESTRE": ["CAPEITEM_FW_LYMHURST", "CAPE", 1, "ARTEFACT_CAPE_FW_LYMHURST", 1, "NATURE_CORE", 3],
-    "CAPA DE LYMHURST DO GRÃO-MESTRE": ["CAPEITEM_FW_LYMHURST", "CAPE", 1, "ARTEFACT_CAPE_FW_LYMHURST", 1, "NATURE_CORE", 5],
-    "CAPA DE LYMHURST DO ANCIÃO": ["CAPEITEM_FW_LYMHURST", "CAPE", 1, "ARTEFACT_CAPE_FW_LYMHURST", 1, "NATURE_CORE", 10],
+    # ================= CAPAS - LYMHURST =================
+    "CAPA DE LYMHURST": ["CAPEITEM_FW_LYMHURST", "CAPE", 1, "ARTEFACT_CAPE_FW_LYMHURST", 1, "NATURE_CORE", 1],
 
-    # ================= CAPAS - MARTLOCK (CORACAO EMPEDRADO) =================
-    "CAPA DE MARTLOCK DO ADEPTO": ["CAPEITEM_FW_MARTLOCK", "CAPE", 1, "ARTEFACT_CAPE_FW_MARTLOCK", 1, "ROCK_CORE", 1],
-    "CAPA DE MARTLOCK DO PERITO": ["CAPEITEM_FW_MARTLOCK", "CAPE", 1, "ARTEFACT_CAPE_FW_MARTLOCK", 1, "ROCK_CORE", 1],
-    "CAPA DE MARTLOCK DO MESTRE": ["CAPEITEM_FW_MARTLOCK", "CAPE", 1, "ARTEFACT_CAPE_FW_MARTLOCK", 1, "ROCK_CORE", 3],
-    "CAPA DE MARTLOCK DO GRÃO-MESTRE": ["CAPEITEM_FW_MARTLOCK", "CAPE", 1, "ARTEFACT_CAPE_FW_MARTLOCK", 1, "ROCK_CORE", 5],
-    "CAPA DE MARTLOCK DO ANCIÃO": ["CAPEITEM_FW_MARTLOCK", "CAPE", 1, "ARTEFACT_CAPE_FW_MARTLOCK", 1, "ROCK_CORE", 10],
+    # ================= CAPAS - MARTLOCK =================
+    "CAPA DE MARTLOCK": ["CAPEITEM_FW_MARTLOCK", "CAPE", 1, "ARTEFACT_CAPE_FW_MARTLOCK", 1, "ROCK_CORE", 1],
 
-    # ================= CAPAS - THETFORD (CORACAO VIDEIRA) =================
-    "CAPA DE THETFORD DO ADEPTO": ["CAPEITEM_FW_THETFORD", "CAPE", 1, "ARTEFACT_CAPE_FW_THETFORD", 1, "VINE_CORE", 1],
-    "CAPA DE THETFORD DO PERITO": ["CAPEITEM_FW_THETFORD", "CAPE", 1, "ARTEFACT_CAPE_FW_THETFORD", 1, "VINE_CORE", 1],
-    "CAPA DE THETFORD DO MESTRE": ["CAPEITEM_FW_THETFORD", "CAPE", 1, "ARTEFACT_CAPE_FW_THETFORD", 1, "VINE_CORE", 3],
-    "CAPA DE THETFORD DO GRÃO-MESTRE": ["CAPEITEM_FW_THETFORD", "CAPE", 1, "ARTEFACT_CAPE_FW_THETFORD", 1, "VINE_CORE", 5],
-    "CAPA DE THETFORD DO ANCIÃO": ["CAPEITEM_FW_THETFORD", "CAPE", 1, "ARTEFACT_CAPE_FW_THETFORD", 1, "VINE_CORE", 10],
+    # ================= CAPAS - THETFORD =================
+    "CAPA DE THETFORD": ["CAPEITEM_FW_THETFORD", "CAPE", 1, "ARTEFACT_CAPE_FW_THETFORD", 1, "VINE_CORE", 1],
 
-    # ================= CAPAS - CAERLEON (CORACAO SOMBRIO) =================
-    "CAPA DE CAERLEON DO ADEPTO": ["CAPEITEM_FW_CAERLEON", "CAPE", 1, "ARTEFACT_CAPE_FW_CAERLEON", 1, "DARK_CORE", 1],
-    "CAPA DE CAERLEON DO PERITO": ["CAPEITEM_FW_CAERLEON", "CAPE", 1, "ARTEFACT_CAPE_FW_CAERLEON", 1, "DARK_CORE", 1],
-    "CAPA DE CAERLEON DO MESTRE": ["CAPEITEM_FW_CAERLEON", "CAPE", 1, "ARTEFACT_CAPE_FW_CAERLEON", 1, "DARK_CORE", 3],
-    "CAPA DE CAERLEON DO GRÃO-MESTRE": ["CAPEITEM_FW_CAERLEON", "CAPE", 1, "ARTEFACT_CAPE_FW_CAERLEON", 1, "DARK_CORE", 5],
-    "CAPA DE CAERLEON DO ANCIÃO": ["CAPEITEM_FW_CAERLEON", "CAPE", 1, "ARTEFACT_CAPE_FW_CAERLEON", 1, "DARK_CORE", 10],
+    # ================= CAPAS - CAERLEON =================
+    "CAPA DE CAERLEON": ["CAPEITEM_FW_CAERLEON", "CAPE", 1, "ARTEFACT_CAPE_FW_CAERLEON", 1, "DARK_CORE", 1],
 
     # ================= CAPAS - HEREGE =================
-    "CAPA HEREGE DO ADEPTO": ["CAPEITEM_HERETIC", "CAPE", 1, "ARTEFACT_CAPE_HERETIC", 1, "NATURE_CORE", 1],
-    "CAPA HEREGE DO PERITO": ["CAPEITEM_HERETIC", "CAPE", 1, "ARTEFACT_CAPE_HERETIC", 1, "NATURE_CORE", 1],
-    "CAPA HEREGE DO MESTRE": ["CAPEITEM_HERETIC", "CAPE", 1, "ARTEFACT_CAPE_HERETIC", 1, "NATURE_CORE", 3],
-    "CAPA HEREGE DO GRÃO-MESTRE": ["CAPEITEM_HERETIC", "CAPE", 1, "ARTEFACT_CAPE_HERETIC", 1, "NATURE_CORE", 5],
-    "CAPA HEREGE DO ANCIÃO": ["CAPEITEM_HERETIC", "CAPE", 1, "ARTEFACT_CAPE_HERETIC", 1, "NATURE_CORE", 10],
+    "CAPA HEREGE": ["CAPEITEM_HERETIC", "CAPE", 1, "ARTEFACT_CAPE_HERETIC", 1, "NATURE_CORE", 1],
 
     # ================= CAPAS - MORTA-VIVA =================
-    "CAPA MORTA-VIVA DO ADEPTO": ["CAPEITEM_UNDEAD", "CAPE", 1, "ARTEFACT_CAPE_UNDEAD", 1, "FROST_CORE", 1],
-    "CAPA MORTA-VIVA DO PERITO": ["CAPEITEM_UNDEAD", "CAPE", 1, "ARTEFACT_CAPE_UNDEAD", 1, "FROST_CORE", 1],
-    "CAPA MORTA-VIVA DO MESTRE": ["CAPEITEM_UNDEAD", "CAPE", 1, "ARTEFACT_CAPE_UNDEAD", 1, "FROST_CORE", 3],
-    "CAPA MORTA-VIVA DO GRÃO-MESTRE": ["CAPEITEM_UNDEAD", "CAPE", 1, "ARTEFACT_CAPE_UNDEAD", 1, "FROST_CORE", 5],
-    "CAPA MORTA-VIVA DO ANCIÃO": ["CAPEITEM_UNDEAD", "CAPE", 1, "ARTEFACT_CAPE_UNDEAD", 1, "FROST_CORE", 10],
+    "CAPA MORTA-VIVA": ["CAPEITEM_UNDEAD", "CAPE", 1, "ARTEFACT_CAPE_UNDEAD", 1, "FROST_CORE", 1],
 
     # ================= CAPAS - PROTETORA =================
-    "CAPA PROTETORA DO ADEPTO": ["CAPEITEM_KEEPER", "CAPE", 1, "ARTEFACT_CAPE_KEEPER", 1, "ROCK_CORE", 1],
-    "CAPA PROTETORA DO PERITO": ["CAPEITEM_KEEPER", "CAPE", 1, "ARTEFACT_CAPE_KEEPER", 1, "ROCK_CORE", 1],
-    "CAPA PROTETORA DO MESTRE": ["CAPEITEM_KEEPER", "CAPE", 1, "ARTEFACT_CAPE_KEEPER", 1, "ROCK_CORE", 3],
-    "CAPA PROTETORA DO GRÃO-MESTRE": ["CAPEITEM_KEEPER", "CAPE", 1, "ARTEFACT_CAPE_KEEPER", 1, "ROCK_CORE", 5],
-    "CAPA PROTETORA DO ANCIÃO": ["CAPEITEM_KEEPER", "CAPE", 1, "ARTEFACT_CAPE_KEEPER", 1, "ROCK_CORE", 10],
+    "CAPA PROTETORA": ["CAPEITEM_KEEPER", "CAPE", 1, "ARTEFACT_CAPE_KEEPER", 1, "ROCK_CORE", 1],
 
     # ================= CAPAS - MORGANA =================
-    "CAPA MORGANA DO ADEPTO": ["CAPEITEM_MORGANA", "CAPE", 1, "ARTEFACT_CAPE_MORGANA", 1, "VINE_CORE", 1],
-    "CAPA MORGANA DO PERITO": ["CAPEITEM_MORGANA", "CAPE", 1, "ARTEFACT_CAPE_MORGANA", 1, "VINE_CORE", 1],
-    "CAPA MORGANA DO MESTRE": ["CAPEITEM_MORGANA", "CAPE", 1, "ARTEFACT_CAPE_MORGANA", 1, "VINE_CORE", 3],
-    "CAPA MORGANA DO GRÃO-MESTRE": ["CAPEITEM_MORGANA", "CAPE", 1, "ARTEFACT_CAPE_MORGANA", 1, "VINE_CORE", 5],
-    "CAPA MORGANA DO ANCIÃO": ["CAPEITEM_MORGANA", "CAPE", 1, "ARTEFACT_CAPE_MORGANA", 1, "VINE_CORE", 10],
+    "CAPA MORGANA": ["CAPEITEM_MORGANA", "CAPE", 1, "ARTEFACT_CAPE_MORGANA", 1, "VINE_CORE", 1],
 
     # ================= CAPAS - DEMONÍACA =================
-    "CAPA DEMONÍACA DO ADEPTO": ["CAPEITEM_HELL", "CAPE", 1, "ARTEFACT_CAPE_HELL", 1, "CORRUPTED_CORE", 1],
-    "CAPA DEMONÍACA DO PERITO": ["CAPEITEM_HELL", "CAPE", 1, "ARTEFACT_CAPE_HELL", 1, "CORRUPTED_CORE", 1],
-    "CAPA DEMONÍACA DO MESTRE": ["CAPEITEM_HELL", "CAPE", 1, "ARTEFACT_CAPE_HELL", 1, "CORRUPTED_CORE", 3],
-    "CAPA DEMONÍACA DO GRÃO-MESTRE": ["CAPEITEM_HELL", "CAPE", 1, "ARTEFACT_CAPE_HELL", 1, "CORRUPTED_CORE", 5],
-    "CAPA DEMONÍACA DO ANCIÃO": ["CAPEITEM_HELL", "CAPE", 1, "ARTEFACT_CAPE_HELL", 1, "CORRUPTED_CORE", 10],
+    "CAPA DEMONÍACA": ["CAPEITEM_HELL", "CAPE", 1, "ARTEFACT_CAPE_HELL", 1, "CORRUPTED_CORE", 1],
 
     # ================= CAPAS - BRECI LIEN =================
-    "CAPA DE BRECI LIEN DO ADEPTO": ["CAPEITEM_FW_BRECILIEN", "CAPE", 1, "ARTEFACT_CAPE_FW_BRECILIEN", 1, "FAERIE_FIRE", 1],
-    "CAPA DE BRECI LIEN DO PERITO": ["CAPEITEM_FW_BRECILIEN", "CAPE", 1, "ARTEFACT_CAPE_FW_BRECILIEN", 1, "FAERIE_FIRE", 1],
-    "CAPA DE BRECI LIEN DO MESTRE": ["CAPEITEM_FW_BRECILIEN", "CAPE", 1, "ARTEFACT_CAPE_FW_BRECILIEN", 1, "FAERIE_FIRE", 3],
-    "CAPA DE BRECI LIEN DO GRÃO-MESTRE": ["CAPEITEM_FW_BRECILIEN", "CAPE", 1, "ARTEFACT_CAPE_FW_BRECILIEN", 1, "FAERIE_FIRE", 5],
-    "CAPA DE BRECI LIEN DO ANCIÃO": ["CAPEITEM_FW_BRECILIEN", "CAPE", 1, "ARTEFACT_CAPE_FW_BRECILIEN", 1, "FAERIE_FIRE", 10],
+    "CAPA DE BRECI LIEN": ["CAPEITEM_FW_BRECILIEN", "CAPE", 1, "ARTEFACT_CAPE_FW_BRECILIEN", 1, "FAERIE_FIRE", 1],
 
     # ================= CAPAS - AVALONIANA =================
-    "CAPA AVALONIANA DO ADEPTO": ["CAPEITEM_AVALON", "CAPE", 1, "ARTEFACT_CAPE_AVALON", 1, "FAERIE_FIRE", 1],
-    "CAPA AVALONIANA DO PERITO": ["CAPEITEM_AVALON", "CAPE", 1, "ARTEFACT_CAPE_AVALON", 1, "FAERIE_FIRE", 1],
-    "CAPA AVALONIANA DO MESTRE": ["CAPEITEM_AVALON", "CAPE", 1, "ARTEFACT_CAPE_AVALON", 1, "FAERIE_FIRE", 3],
-    "CAPA AVALONIANA DO GRÃO-MESTRE": ["CAPEITEM_AVALON", "CAPE", 1, "ARTEFACT_CAPE_AVALON", 1, "FAERIE_FIRE", 5],
-    "CAPA AVALONIANA DO ANCIÃO": ["CAPEITEM_AVALON", "CAPE", 1, "ARTEFACT_CAPE_AVALON", 1, "FAERIE_FIRE", 10],
+    "CAPA AVALONIANA": ["CAPEITEM_AVALON", "CAPE", 1, "ARTEFACT_CAPE_AVALON", 1, "FAERIE_FIRE", 1],
 
     # ================= CAPAS - CONTABANDISTA =================
-    "CAPA CONTABANDISTA DO ADEPTO": ["CAPEITEM_SMUGGLER", "CAPE", 1, "ARTEFACT_CAPE_SMUGGLER", 1, "DARK_CORE", 1],
-    "CAPA CONTABANDISTA DO PERITO": ["CAPEITEM_SMUGGLER", "CAPE", 1, "ARTEFACT_CAPE_SMUGGLER", 1, "DARK_CORE", 1],
-    "CAPA CONTABANDISTA DO MESTRE": ["CAPEITEM_SMUGGLER", "CAPE", 1, "ARTEFACT_CAPE_SMUGGLER", 1, "DARK_CORE", 3],
-    "CAPA CONTABANDISTA DO GRÃO-MESTRE": ["CAPEITEM_SMUGGLER", "CAPE", 1, "ARTEFACT_CAPE_SMUGGLER", 1, "DARK_CORE", 5],
-    "CAPA CONTABANDISTA DO ANCIÃO": ["CAPEITEM_SMUGGLER", "CAPE", 1, "ARTEFACT_CAPE_SMUGGLER", 1, "DARK_CORE", 10],
+    "CAPA CONTABANDISTA": ["CAPEITEM_SMUGGLER", "CAPE", 1, "ARTEFACT_CAPE_SMUGGLER", 1, "DARK_CORE", 1],
 }
 
 # ================= FILTROS =================
@@ -491,25 +432,35 @@ def calcular_horas(data_iso):
         data_agora = datetime.now(timezone.utc)
         diff = data_agora.replace(tzinfo=None) - data_api.replace(tzinfo=None)
         return int(diff.total_seconds() / 3600)
-    except: return 999
+    except: 
+        return 999
 
 def id_item(tier, base, enc):
     return f"T{tier}_{base}@{enc}" if enc > 0 else f"T{tier}_{base}"
 
 def ids_recurso_variantes(tier, nome, enc):
-    # Se já for um ID da API direto (começa com letra maiúscula e não está no RECURSO_MAP)
-    if nome not in RECURSO_MAP and not nome.startswith("T"):
-        base = f"T{tier}_{nome}"
-        if enc > 0: return [f"{base}@{enc}", f"{base}_LEVEL{enc}@{enc}"]
-        return [base]
-    # Se for um ID já formatado (ex: T4_CLOTH)
-    if nome.startswith("T"):
-        if enc > 0: return [f"{nome}@{enc}", f"{nome}_LEVEL{enc}@{enc}"]
+    # Se já for um ID direto da API (começa com T e tem _)
+    if nome.startswith("T") and "_" in nome:
+        if enc > 0: 
+            return [f"{nome}@{enc}", f"{nome}_LEVEL{enc}@{enc}"]
         return [nome]
+    
+    # Se for "CAPE" (capa base), converte para T{tier}_CAPE
+    if nome == "CAPE":
+        base = f"T{tier}_CAPE"
+        if enc > 0: 
+            return [f"{base}@{enc}", f"{base}_LEVEL{enc}@{enc}"]
+        return [base]
+    
     # Caso padrão: nome em português -> converte via RECURSO_MAP
-    base = f"T{tier}_{RECURSO_MAP[nome]}"
-    if enc > 0: return [f"{base}@{enc}", f"{base}_LEVEL{enc}@{enc}"]
-    return [base]
+    if nome in RECURSO_MAP:
+        base = f"T{tier}_{RECURSO_MAP[nome]}"
+        if enc > 0: 
+            return [f"{base}@{enc}", f"{base}_LEVEL{enc}@{enc}"]
+        return [base]
+    
+    # Se não encontrou no mapa, retorna vazio
+    return []
 
 def identificar_cidade_bonus(nome_item):
     for cidade, sufixos in BONUS_CIDADE.items():
@@ -542,10 +493,13 @@ if btn:
     ids = set()
     for d in itens.values():
         ids.add(id_item(tier, d[0], encanto))
-        for r in ids_recurso_variantes(tier, d[1], encanto): ids.add(r)
+        for r in ids_recurso_variantes(tier, d[1], encanto): 
+            ids.add(r)
         if d[3]:
-            for r in ids_recurso_variantes(tier, d[3], encanto): ids.add(r)
-        if d[5]: ids.add(f"T{tier}_{d[5]}")
+            for r in ids_recurso_variantes(tier, d[3], encanto): 
+                ids.add(r)
+        if d[5]: 
+            ids.add(f"T{tier}_{d[5]}")
 
     try:
         response = requests.get(f"{API_URL}{','.join(ids)}?locations={','.join(CIDADES)}", timeout=20)
@@ -575,14 +529,16 @@ if btn:
     resultados = []
     for nome, d in itens.items():
         item_id = id_item(tier, d[0], encanto)
-        if item_id not in precos_itens: continue
+        if item_id not in precos_itens: 
+            continue
 
         custo = 0
         detalhes = []
         valid_craft = True
 
         for recurso, qtd in [(d[1], d[2]), (d[3], d[4])]:
-            if not recurso: continue
+            if not recurso: 
+                continue
             found = False
             for rid in ids_recurso_variantes(tier, recurso, encanto):
                 if rid in precos_recursos:
@@ -595,14 +551,16 @@ if btn:
                 valid_craft = False
                 break
         
-        if not valid_craft: continue
+        if not valid_craft: 
+            continue
 
         if d[5]:
             art = f"T{tier}_{d[5]}"
             if art in precos_recursos:
                 custo += precos_recursos[art]["price"] * d[6] * quantidade
                 detalhes.append(f"Artefato: {precos_recursos[art]['price']:,} ({precos_recursos[art]['city']})")
-            else: continue
+            else: 
+                continue
 
         custo_final = int(custo * 0.752)
         venda = precos_itens[item_id]["price"] * quantidade
