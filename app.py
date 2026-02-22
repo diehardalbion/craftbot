@@ -1,12 +1,12 @@
 import streamlit as st
 import requests
 import json
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 
 # ================= CONFIGURAÇÃO DA PÁGINA =================
 st.set_page_config("Radar Craft Albion", layout="wide", page_icon="⚔️")
 
-# ================= CUSTOM CSS (VISUAL) =================
+# ================= CUSTOM CSS =================
 st.markdown("""
 <style>
 header {visibility: hidden;}
@@ -35,9 +35,6 @@ h1, h2, h3, label, .stMarkdown {
     width: 100%; background-color: #2ecc71 !important; color: white !important;
     font-weight: bold; border: none; padding: 0.5rem;
 }
-.trend-up { color: #2ecc71; font-weight: bold; }
-.trend-down { color: #e74c3c; font-weight: bold; }
-.trend-stable { color: #f39c12; font-weight: bold; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -58,76 +55,6 @@ def verificar_chave(chave_usuario):
         return False, "Chave inválida."
     except Exception as e:
         return False, f"Erro ao acessar keys.json: {e}"
-
-def calcular_horas(data_iso):
-    try:
-        data_api = datetime.fromisoformat(data_iso.replace("Z", "+00:00"))
-        data_agora = datetime.now(timezone.utc)
-        diff = data_agora.replace(tzinfo=None) - data_api.replace(tzinfo=None)
-        return int(diff.total_seconds() / 3600)
-    except: 
-        return 999
-
-def id_item(tier, base, enc):
-    return f"T{tier}_{base}@{enc}" if enc > 0 else f"T{tier}_{base}"
-
-def ids_recurso_variantes(tier, nome, enc):
-    # ID direto da API (já formatado)
-    if nome.startswith("T") and "_" in nome:
-        if enc > 0: 
-            return [f"{nome}@{enc}", f"{nome}_LEVEL{enc}@{enc}"]
-        return [nome]
-    
-    # Cape base
-    if nome == "CAPE":
-        base = f"T{tier}_CAPE"
-        if enc > 0: 
-            return [f"{base}@{enc}", f"{base}_LEVEL{enc}@{enc}"]
-        return [base]
-    
-    # Artefatos e corações (não usam encanto)
-    if nome not in RECURSO_MAP and nome != "CAPE":
-        return [f"T{tier}_{nome}"]
-    
-    # Recursos em português
-    if nome in RECURSO_MAP:
-        base = f"T{tier}_{RECURSO_MAP[nome]}"
-        if enc > 0: 
-            return [f"{base}@{enc}", f"{base}_LEVEL{enc}@{enc}"]
-        return [base]
-    return []
-
-def identificar_cidade_bonus(nome_item):
-    for cidade, sufixos in BONUS_CIDADE.items():
-        for s in sufixos:
-            if s in ITENS_DB[nome_item][0]:
-                return cidade
-    return "Caerleon"
-
-def buscar_historico(item_id, days=7):
-    """Busca histórico de preços para análise de tendência"""
-    try:
-        url = f"https://west.albion-online-data.com/api/v2/stats/history/{item_id}?locations=Black Market&time-scale=24"
-        response = requests.get(url, timeout=10)
-        if response.status_code == 200:
-            data = response.json()
-            if data:
-                # Pega últimos 7 dias de dados
-                recent = [d for d in data if d["item_id"] == item_id][-days:]
-                if len(recent) >= 2:
-                    prices = [d["avg_price"] for d in recent if d["avg_price"] > 0]
-                    if len(prices) >= 2:
-                        diff = prices[-1] - prices[0]
-                        pct = (diff / prices[0]) * 100 if prices[0] > 0 else 0
-                        if pct > 5:
-                            return f"📈 +{pct:.1f}%", "trend-up"
-                        elif pct < -5:
-                            return f"📉 {pct:.1f}%", "trend-down"
-                        else:
-                            return f"➡️ {pct:+.1f}%", "trend-stable"
-        return "➡️ Estável", "trend-stable"
-    except:
-        return "❓ N/A", "trend-stable"
 
 # ================= SISTEMA DE LOGIN =================
 if "autenticado" not in st.session_state:
@@ -171,7 +98,6 @@ st.write(f"Bem-vindo, {st.session_state.cliente}!")
 
 # ================= CONFIGURAÇÕES =================
 API_URL = "https://west.albion-online-data.com/api/v2/stats/prices/"
-HISTORY_URL = "https://west.albion-online-data.com/api/v2/stats/history/"
 CIDADES = ["Martlock", "Thetford", "FortSterling", "Lymhurst", "Bridgewatch", "Brecilien", "Caerleon", "Black Market"]
 
 RECURSO_MAP = {
@@ -395,7 +321,7 @@ ITENS_DB = {
     "ALVORADA": ["MAIN_SPEAR_AVALON", "Tábuas de Pinho", 16, "Barra de Aço", 8, "ARTEFACT_MAIN_SPEAR_AVALON", 1],
     "ARCHA FRATURADA": ["2H_SPEAR_CRYSTAL", "Tábuas de Pinho", 12, "Barra de Aço", 20, "QUESTITEM_TOKEN_CRYSTAL_SPEAR", 1],
 
-    # ================= CAPAS - BASE =================
+    # ================= CAPAS - BASE (T4-T8) =================
     "CAPA DO ADEPTO": ["CAPE", "Tecido Fino", 4, "Couro Trabalhado", 4, None, 0],
     "CAPA DO PERITO": ["CAPE", "Tecido Ornado", 4, "Couro Curtido", 4, None, 0],
     "CAPA DO MESTRE": ["CAPE", "Tecido Rico", 4, "Couro Endurecido", 4, None, 0],
@@ -421,7 +347,7 @@ ITENS_DB = {
     "CAPA DE BRECI LIEN": ["CAPEITEM_FW_BRECILIEN", "CAPE", 1, "ARTEFACT_CAPE_FW_BRECILIEN", 1, "FAERIE_FIRE", 1],
     "CAPA AVALONIANA": ["CAPEITEM_AVALON", "CAPE", 1, "ARTEFACT_CAPE_AVALON", 1, "FAERIE_FIRE", 1],
     "CAPA CONTABANDISTA": ["CAPEITEM_SMUGGLER", "CAPE", 1, "ARTEFACT_CAPE_SMUGGLER", 1, "DARK_CORE", 1],
-}
+}  # <-- FIM DO ITENS_DB
 
 # ================= FILTROS =================
 FILTROS = {
@@ -439,6 +365,47 @@ FILTROS = {
     "capas": lambda k, v: v[0] == "CAPE" or "CAPEITEM" in v[0],
 }
 
+# ================= FUNÇÕES =================
+def calcular_horas(data_iso):
+    try:
+        data_api = datetime.fromisoformat(data_iso.replace("Z", "+00:00"))
+        data_agora = datetime.now(timezone.utc)
+        diff = data_agora.replace(tzinfo=None) - data_api.replace(tzinfo=None)
+        return int(diff.total_seconds() / 3600)
+    except: 
+        return 999
+
+def id_item(tier, base, enc):
+    return f"T{tier}_{base}@{enc}" if enc > 0 else f"T{tier}_{base}"
+
+def ids_recurso_variantes(tier, nome, enc):
+    # ID direto da API
+    if nome.startswith("T") and "_" in nome:
+        if enc > 0: 
+            return [f"{nome}@{enc}", f"{nome}_LEVEL{enc}@{enc}"]
+        return [nome]
+    # Cape base
+    if nome == "CAPE":
+        base = f"T{tier}_CAPE"
+        if enc > 0: 
+            return [f"{base}@{enc}", f"{base}_LEVEL{enc}@{enc}"]
+        return [base]
+    # Artefatos/corações (não usam encanto)
+    if nome not in RECURSO_MAP:
+        return [f"T{tier}_{nome}"]
+    # Recursos em português
+    base = f"T{tier}_{RECURSO_MAP[nome]}"
+    if enc > 0: 
+        return [f"{base}@{enc}", f"{base}_LEVEL{enc}@{enc}"]
+    return [base]
+
+def identificar_cidade_bonus(nome_item):
+    for cidade, sufixos in BONUS_CIDADE.items():
+        for s in sufixos:
+            if s in ITENS_DB[nome_item][0]:
+                return cidade
+    return "Caerleon"
+
 # ================= SIDEBAR =================
 with st.sidebar:
     st.markdown("### ⚙️ Configurações")
@@ -446,7 +413,6 @@ with st.sidebar:
     tier = st.number_input("Tier", 4, 8, 4)
     encanto = st.number_input("Encanto", 0, 4, 0)
     quantidade = st.number_input("Quantidade", 1, 999, 1)
-    usar_historico = st.checkbox("📊 Analisar tendência (7 dias)", value=False)
     st.markdown("---")
     btn = st.button("🚀 ESCANEAR MERCADO", type="primary")
 
@@ -454,7 +420,7 @@ st.title("⚔️ Radar Craft — Royal Cities + Black Market")
 
 # ================= EXECUÇÃO =================
 if btn:
-    with st.spinner("🔍 Buscando preços no mercado..."):
+    with st.spinner("🔍 Buscando preços..."):
         filtro = FILTROS[categoria]
         itens = {k: v for k, v in ITENS_DB.items() if filtro(k, v)}
 
@@ -462,7 +428,6 @@ if btn:
             st.error("Nenhum item encontrado.")
             st.stop()
 
-        # Coletar IDs para busca
         ids = set()
         for d in itens.values():
             ids.add(id_item(tier, d[0], encanto))
@@ -472,18 +437,16 @@ if btn:
             if d[5]: 
                 ids.add(f"T{tier}_{d[5]}")
 
-        # Buscar preços
         try:
             response = requests.get(f"{API_URL}{','.join(ids)}?locations={','.join(CIDADES)}", timeout=30)
             data = response.json()
         except Exception as e:
-            st.error(f"Erro ao conectar com a API: {e}")
+            st.error(f"Erro na API: {e}")
             st.stop()
 
-        # Processar preços
         precos_itens = {}
         precos_recursos = {}
-        for p in data:
+        for p in 
             pid = p["item_id"]
             if p["city"] == "Black Market":
                 price = p["buy_price_max"]
@@ -498,7 +461,6 @@ if btn:
                     if pid not in precos_recursos or price < precos_recursos[pid]["price"]:
                         precos_recursos[pid] = {"price": price, "city": p["city"], "horas": horas}
 
-        # Calcular lucros
         resultados = []
         for nome, d in itens.items():
             item_id = id_item(tier, d[0], encanto)
@@ -536,29 +498,19 @@ if btn:
             lucro = int((venda * 0.935) - custo_final)
 
             if lucro > 0:
-                tendencia = None
-                if usar_historico:
-                    trend_text, trend_class = buscar_historico(item_id)
-                    tendencia = (trend_text, trend_class)
-                resultados.append((nome, lucro, venda, custo_final, detalhes, precos_itens[item_id]["horas"], tendencia))
+                resultados.append((nome, lucro, venda, custo_final, detalhes, precos_itens[item_id]["horas"]))
 
         resultados.sort(key=lambda x: x[1], reverse=True)
 
-        # Exibir resultados
         if not resultados:
-            st.warning("❌ Nenhum lucro encontrado para os filtros atuais.")
+            st.warning("❌ Nenhum lucro encontrado.")
         else:
             st.subheader(f"📊 Resultados: {categoria.upper()} T{tier}.{encanto}")
-            st.info(f"💡 Encontrados {len(resultados)} crafts lucrativos")
+            st.info(f"💡 {len(resultados)} crafts lucrativos encontrados")
             
-            for i, (nome, lucro, venda, custo, detalhes, h_venda, tendencia) in enumerate(resultados[:20], 1):
+            for i, (nome, lucro, venda, custo, detalhes, h_venda) in enumerate(resultados[:20], 1):
                 perc_lucro = (lucro / custo) * 100 if custo > 0 else 0
                 cidade_foco = identificar_cidade_bonus(nome)
-                
-                trend_html = ""
-                if tendencia:
-                    trend_text, trend_class = tendencia
-                    trend_html = f'<span class="{trend_class}"> | {trend_text}</span>'
                 
                 st.markdown(f"""
                 <div class="item-card-custom">
@@ -566,7 +518,7 @@ if btn:
                         #{i} ⚔️ {nome} [T{tier}.{encanto}] x{quantidade}
                     </div>
                     <div style="font-size: 1.05rem; margin-bottom: 8px;">
-                        <span style="color: #2ecc71; font-weight: bold; font-size: 1.2rem;">💰 Lucro: {lucro:,} ({perc_lucro:.2f}%)</span>{trend_html}
+                        <span style="color: #2ecc71; font-weight: bold; font-size: 1.2rem;">💰 Lucro: {lucro:,} ({perc_lucro:.2f}%)</span>
                         <br><b>Investimento:</b> {custo:,} | <b>Venda BM:</b> {venda:,}
                     </div>
                     <div style="font-size: 0.95rem; color: #cbd5e1; margin-bottom: 10px;">
@@ -579,4 +531,4 @@ if btn:
                 """, unsafe_allow_html=True)
 
 st.markdown("---")
-st.caption("⚔️ Radar Craft Albion | API: Albion Online Data Project | Atualizado em tempo real")
+st.caption("⚔️ Radar Craft Albion | API: Albion Online Data Project")
