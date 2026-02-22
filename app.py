@@ -11,40 +11,40 @@ st.markdown("""
 <style>
 header {visibility: hidden;}
 .main .block-container {
-padding-top: 0rem;
-padding-bottom: 0rem;
+    padding-top: 0rem;
+    padding-bottom: 0rem;
 }
 .stApp {
-background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)),
-url("https://i.imgur.com/kVAiMjD.png");
-background-size: cover;
-background-attachment: fixed;
+    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)),
+    url("https://i.imgur.com/kVAiMjD.png");
+    background-size: cover;
+    background-attachment: fixed;
 }
 [data-testid="stSidebar"] {
-background-color: rgba(15, 17, 23, 0.95) !important;
-border-right: 1px solid #3e4149;
+    background-color: rgba(15, 17, 23, 0.95) !important;
+    border-right: 1px solid #3e4149;
 }
 h1, h2, h3, label, .stMarkdown {
-color: #ffffff !important;
-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #ffffff !important;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 .item-card-custom {
-background-color: rgba(255, 255, 255, 0.05) !important;
-backdrop-filter: blur(12px);
-border-radius: 12px;
-padding: 20px;
-margin-bottom: 20px;
-border: 1px solid rgba(255, 255, 255, 0.1);
-box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-color: white !important;
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    backdrop-filter: blur(12px);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    color: white !important;
 }
 .stButton>button {
-width: 100%;
-background-color: #2ecc71 !important;
-color: white !important;
-font-weight: bold;
-border: none;
-padding: 0.5rem;
+    width: 100%;
+    background-color: #2ecc71 !important;
+    color: white !important;
+    font-weight: bold;
+    border: none;
+    padding: 0.5rem;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -184,7 +184,6 @@ if not st.session_state.autenticado:
 API_URL = "https://west.albion-online-data.com/api/v2/stats/prices/"
 HISTORY_URL = "https://west.albion-online-data.com/api/v2/stats/history/"
 CIDADES = ["Martlock", "Thetford", "FortSterling", "Lymhurst", "Bridgewatch", "Brecilien", "Caerleon", "Black Market"]
-
 RECURSO_MAP = {
     "Tecido Fino": "CLOTH",
     "Couro Trabalhado": "LEATHER",
@@ -219,47 +218,42 @@ RECURSO_MAP = {
     "BP Smuggler": "CAPEITEM_SMUGGLER_BP",
     "Token Smuggler": "FACTION_CAERLEON_TOKEN_1",
     # Artefatos de Botas
-"ARTEFACT_SHOES_LEATHER_FEY": "ARTEFACT_SHOES_LEATHER_FEY",
-"ARTEFACT_SHOES_LEATHER_MORGANA": "ARTEFACT_SHOES_LEATHER_MORGANA",
-"ARTEFACT_SHOES_LEATHER_UNDEAD": "ARTEFACT_SHOES_LEATHER_UNDEAD",
-"ARTEFACT_SHOES_PLATE_UNDEAD": "ARTEFACT_SHOES_PLATE_UNDEAD",
-"ARTEFACT_SHOES_PLATE_HELL": "ARTEFACT_SHOES_PLATE_HELL",
-"ARTEFACT_SHOES_PLATE_KEEPER": "ARTEFACT_SHOES_PLATE_KEEPER",
-"ARTEFACT_SHOES_CLOTH_HELL": "ARTEFACT_SHOES_CLOTH_HELL",
-"ARTEFACT_SHOES_CLOTH_KEEPER": "ARTEFACT_SHOES_CLOTH_KEEPER",
-"ARTEFACT_SHOES_CLOTH_MORGANA": "ARTEFACT_SHOES_CLOTH_MORGANA",
-
-# Artefatos de Armaduras
-"ARTEFACT_ARMOR_LEATHER_FEY": "ARTEFACT_ARMOR_LEATHER_FEY",
-"ARTEFACT_ARMOR_LEATHER_MORGANA": "ARTEFACT_ARMOR_LEATHER_MORGANA",
-"ARTEFACT_ARMOR_LEATHER_UNDEAD": "ARTEFACT_ARMOR_LEATHER_UNDEAD",
-"ARTEFACT_ARMOR_LEATHER_HELL": "ARTEFACT_ARMOR_LEATHER_HELL",
-"ARTEFACT_ARMOR_PLATE_UNDEAD": "ARTEFACT_ARMOR_PLATE_UNDEAD",
-"ARTEFACT_ARMOR_PLATE_HELL": "ARTEFACT_ARMOR_PLATE_HELL",
-"ARTEFACT_ARMOR_PLATE_KEEPER": "ARTEFACT_ARMOR_PLATE_KEEPER",
-"ARTEFACT_ARMOR_CLOTH_HELL": "ARTEFACT_ARMOR_CLOTH_HELL",
-"ARTEFACT_ARMOR_CLOTH_KEEPER": "ARTEFACT_ARMOR_CLOTH_KEEPER",
-"ARTEFACT_ARMOR_CLOTH_MORGANA": "ARTEFACT_ARMOR_CLOTH_MORGANA",
-
-# Artefatos de Elmos/Capacetes
-"ARTEFACT_HEAD_LEATHER_FEY": "ARTEFACT_HEAD_LEATHER_FEY",
-"ARTEFACT_HEAD_LEATHER_MORGANA": "ARTEFACT_HEAD_LEATHER_MORGANA",
-"ARTEFACT_HEAD_LEATHER_UNDEAD": "ARTEFACT_HEAD_LEATHER_UNDEAD",
-"ARTEFACT_HEAD_LEATHER_HELL": "ARTEFACT_HEAD_LEATHER_HELL",
-"ARTEFACT_HEAD_PLATE_UNDEAD": "ARTEFACT_HEAD_PLATE_UNDEAD",
-"ARTEFACT_HEAD_PLATE_HELL": "ARTEFACT_HEAD_PLATE_HELL",
-"ARTEFACT_HEAD_PLATE_KEEPER": "ARTEFACT_HEAD_PLATE_KEEPER",
-"ARTEFACT_HEAD_CLOTH_HELL": "ARTEFACT_HEAD_CLOTH_HELL",
-"ARTEFACT_HEAD_CLOTH_KEEPER": "ARTEFACT_HEAD_CLOTH_KEEPER",
-"ARTEFACT_HEAD_CLOTH_MORGANA": "ARTEFACT_HEAD_CLOTH_MORGANA",
-
-# Artefatos de Armas (exemplos)
-"ARTEFACT_MAIN_CURSEDSTAFF_UNDEAD": "ARTEFACT_MAIN_CURSEDSTAFF_UNDEAD",
-"ARTEFACT_2H_SKULLPANE_HELL": "ARTEFACT_2H_SKULLPANE_HELL",
-"ARTEFACT_2H_CURSEDSTAFF_MORGANA": "ARTEFACT_2H_CURSEDSTAFF_MORGANA",
-# ... adicione conforme necessário
+    "ARTEFACT_SHOES_LEATHER_FEY": "ARTEFACT_SHOES_LEATHER_FEY",
+    "ARTEFACT_SHOES_LEATHER_MORGANA": "ARTEFACT_SHOES_LEATHER_MORGANA",
+    "ARTEFACT_SHOES_LEATHER_UNDEAD": "ARTEFACT_SHOES_LEATHER_UNDEAD",
+    "ARTEFACT_SHOES_PLATE_UNDEAD": "ARTEFACT_SHOES_PLATE_UNDEAD",
+    "ARTEFACT_SHOES_PLATE_HELL": "ARTEFACT_SHOES_PLATE_HELL",
+    "ARTEFACT_SHOES_PLATE_KEEPER": "ARTEFACT_SHOES_PLATE_KEEPER",
+    "ARTEFACT_SHOES_CLOTH_HELL": "ARTEFACT_SHOES_CLOTH_HELL",
+    "ARTEFACT_SHOES_CLOTH_KEEPER": "ARTEFACT_SHOES_CLOTH_KEEPER",
+    "ARTEFACT_SHOES_CLOTH_MORGANA": "ARTEFACT_SHOES_CLOTH_MORGANA",
+    # Artefatos de Armaduras
+    "ARTEFACT_ARMOR_LEATHER_FEY": "ARTEFACT_ARMOR_LEATHER_FEY",
+    "ARTEFACT_ARMOR_LEATHER_MORGANA": "ARTEFACT_ARMOR_LEATHER_MORGANA",
+    "ARTEFACT_ARMOR_LEATHER_UNDEAD": "ARTEFACT_ARMOR_LEATHER_UNDEAD",
+    "ARTEFACT_ARMOR_LEATHER_HELL": "ARTEFACT_ARMOR_LEATHER_HELL",
+    "ARTEFACT_ARMOR_PLATE_UNDEAD": "ARTEFACT_ARMOR_PLATE_UNDEAD",
+    "ARTEFACT_ARMOR_PLATE_HELL": "ARTEFACT_ARMOR_PLATE_HELL",
+    "ARTEFACT_ARMOR_PLATE_KEEPER": "ARTEFACT_ARMOR_PLATE_KEEPER",
+    "ARTEFACT_ARMOR_CLOTH_HELL": "ARTEFACT_ARMOR_CLOTH_HELL",
+    "ARTEFACT_ARMOR_CLOTH_KEEPER": "ARTEFACT_ARMOR_CLOTH_KEEPER",
+    "ARTEFACT_ARMOR_CLOTH_MORGANA": "ARTEFACT_ARMOR_CLOTH_MORGANA",
+    # Artefatos de Elmos/Capacetes
+    "ARTEFACT_HEAD_LEATHER_FEY": "ARTEFACT_HEAD_LEATHER_FEY",
+    "ARTEFACT_HEAD_LEATHER_MORGANA": "ARTEFACT_HEAD_LEATHER_MORGANA",
+    "ARTEFACT_HEAD_LEATHER_UNDEAD": "ARTEFACT_HEAD_LEATHER_UNDEAD",
+    "ARTEFACT_HEAD_LEATHER_HELL": "ARTEFACT_HEAD_LEATHER_HELL",
+    "ARTEFACT_HEAD_PLATE_UNDEAD": "ARTEFACT_HEAD_PLATE_UNDEAD",
+    "ARTEFACT_HEAD_PLATE_HELL": "ARTEFACT_HEAD_PLATE_HELL",
+    "ARTEFACT_HEAD_PLATE_KEEPER": "ARTEFACT_HEAD_PLATE_KEEPER",
+    "ARTEFACT_HEAD_CLOTH_HELL": "ARTEFACT_HEAD_CLOTH_HELL",
+    "ARTEFACT_HEAD_CLOTH_KEEPER": "ARTEFACT_HEAD_CLOTH_KEEPER",
+    "ARTEFACT_HEAD_CLOTH_MORGANA": "ARTEFACT_HEAD_CLOTH_MORGANA",
+    # Artefatos de Armas (exemplos)
+    "ARTEFACT_MAIN_CURSEDSTAFF_UNDEAD": "ARTEFACT_MAIN_CURSEDSTAFF_UNDEAD",
+    "ARTEFACT_2H_SKULLPANE_HELL": "ARTEFACT_2H_SKULLPANE_HELL",
+    "ARTEFACT_2H_CURSEDSTAFF_MORGANA": "ARTEFACT_2H_CURSEDSTAFF_MORGANA",
 }
-
 BONUS_CIDADE = {
     "Martlock": ["AXE", "QUARTERSTAFF", "FROSTSTAFF", "SHOES_PLATE", "OFF_", "CAPEITEM_FW_MARTLOCK", "CAPEITEM_KEEPER"],
     "Bridgewatch": ["CROSSBOW", "DAGGER", "CURSEDSTAFF", "ARMOR_PLATE", "SHOES_CLOTH", "CAPEITEM_FW_BRIDGEWATCH", "CAPEITEM_DEMON"],
@@ -269,7 +263,6 @@ BONUS_CIDADE = {
     "Caerleon": ["KNUCKLES", "SHAPESHIFTER", "CAPEITEM_FW_CAERLEON", "CAPEITEM_SMUGGLER"],
     "Brecilien": ["CAPE", "BAG", "CAPEITEM_FW_BRECILIEN", "CAPEITEM_AVALON"]
 }
-
 NOMES_RECURSOS_TIER = {
     "Barra de Aço": {4: "Barra de Aço", 5: "Barra de Titânio", 6: "Barra de Runita", 7: "Barra de Meteorito", 8: "Barra de Adamante"},
     "Tábuas de Pinho": {4: "Tábuas de Pinho", 5: "Tábuas de Cedro", 6: "Tábuas de Carvalho-Sangue", 7: "Tábuas de Freixo", 8: "Tábuas de Pau-branco"},
@@ -277,7 +270,6 @@ NOMES_RECURSOS_TIER = {
     "Tecido Fino": {4: "Tecido Fino", 5: "Tecido Ornado", 6: "Tecido Rico", 7: "Tecido Opulento", 8: "Tecido Barroco"},
     "Capa Base": {4: "Capa do Adepto", 5: "Capa do Perito", 6: "Capa do Mestre", 7: "Capa do Grão-Mestre", 8: "Capa do Ancião"}
 }
-
 ITENS_DB = {
     # ================= CAJADOS AMALDIÇOADOS (CURSED) =================
     "Cajado Amaldiçoado": ["MAIN_CURSEDSTAFF", "Tábuas de Pinho", 16, "Barra de Aço", 8, None, 0],
@@ -539,7 +531,6 @@ ITENS_DB = {
     "Capa Avaloniana": ["CAPEITEM_AVALON", "Capa Base", 1, "BP Avalon", 1, "Token Avalon", 1],
     "Capa de Contrabandista": ["CAPEITEM_SMUGGLER", "Capa Base", 1, "BP Smuggler", 1, "Token Smuggler", 1],
 }
-
 FILTROS = {
     "armadura_placa": lambda k, v: "ARMOR_PLATE" in v[0],
     "armadura_couro": lambda k, v: "ARMOR_LEATHER" in v[0],
@@ -574,39 +565,23 @@ FILTROS = {
 
 # ================= FUNÇÕES =================
 def get_historical_price(item_id, location="Black Market"):
-    """
-    🔥 FUNÇÃO ATUALIZADA - Busca preços de SELLOS REAIS e ARTEFATOS no mercado
-    """
     try:
-        # 1️⃣ Tenta preço atual primeiro
         url_atual = f"{API_URL}{item_id}?locations={location}"
         resp_atual = requests.get(url_atual, timeout=10).json()
-        
         if resp_atual and len(resp_atual) > 0:
-            # Pega o menor preço de venda
             sell_price = resp_atual[0].get("sell_price_min", 0)
             if sell_price and sell_price > 0:
                 return sell_price
-            
-            # 🔥 NOVO: Se não tem venda, usa buy_price_max como referência
             buy_price = resp_atual[0].get("buy_price_max", 0)
             if buy_price and buy_price > 0:
-                return int(buy_price * 1.15)  # Adiciona 15% para estimar venda
-        
-        # 2️⃣ Fallback: histórico 24h
+                return int(buy_price * 1.15)
         url_hist = f"{HISTORY_URL}{item_id}?locations={location}&timescale=24"
         resp_hist = requests.get(url_hist, timeout=10).json()
-        
         if resp_hist and len(resp_hist) > 0 and "data" in resp_hist[0]:
-            prices = [
-                d["avg_price"]
-                for d in resp_hist[0]["data"]
-                if d.get("avg_price", 0) > 0 and d.get("item_count", 0) >= 3
-            ]
+            prices = [d["avg_price"] for d in resp_hist[0]["data"] if d.get("avg_price", 0) > 0 and d.get("item_count", 0) >= 3]
             if prices:
                 prices.sort()
-                return prices[len(prices) // 2]  # Mediana
-        
+                return prices[len(prices) // 2]
         return 0
     except Exception as e:
         print(f"Erro ao buscar preço de {item_id}: {e}")
@@ -616,18 +591,13 @@ def id_item(tier, base, enc):
     return f"T{tier}_{base}@{enc}" if enc > 0 else f"T{tier}_{base}"
 
 def ids_recurso_variantes(tier, nome, enc):
-    """Gera IDs corretos para a API - trata tokens/blueprints separadamente"""
     base_id = RECURSO_MAP.get(nome)
     if not base_id:
         return []
-    
-    # 🔥 Tokens e Blueprints de facção: formato especial
     if "TOKEN" in base_id or "_BP" in base_id:
         if enc > 0:
             return [f"T{tier}_{base_id}@{enc}"]
         return [f"T{tier}_{base_id}"]
-    
-    # Recursos padrão (tecido, couro, capa base)
     base = f"T{tier}_{base_id}"
     if enc > 0:
         return [f"{base}@{enc}", f"{base}_LEVEL{enc}@{enc}"]
@@ -660,22 +630,18 @@ if btn:
         st.error("Nenhum item encontrado nesta categoria.")
         st.stop()
     
-    # 🔥 1. COLETA DE IDS (INCLUINDO ARTEFATOS E SELOS REAIS)
     ids_para_recursos = set()
     for d in itens.values():
-        # Recursos principais
         for r in ids_recurso_variantes(tier, d[1], encanto):
             ids_para_recursos.add(r)
         if d[3]:
             for r in ids_recurso_variantes(tier, d[3], encanto):
                 ids_para_recursos.add(r)
-        # 🔥 Adicionar artefatos/selos reais na busca da API
         if d[5]:
             art_id = f"T{tier}_{d[5]}"
             ids_para_recursos.add(art_id)
     
     try:
-        # 🔥 2. BUSCAR PREÇOS EM MAIS CIDADES (incluindo onde artifacts podem estar)
         response = requests.get(
             f"{API_URL}{','.join(ids_para_recursos)}?locations=Thetford,FortSterling,Martlock,Lymhurst,Bridgewatch,Caerleon,Brecilien,Black Market",
             timeout=20
@@ -685,17 +651,14 @@ if btn:
         st.error("Erro ao conectar com a API de recursos. Tente novamente.")
         st.stop()
     
-    # 🔥 3. PROCESSAR TODOS OS PREÇOS (não apenas sell_price_min)
     precos_recursos = {}
     for p in data_recursos:
         pid = p["item_id"]
-        # 🔥 Usa sell_price_min OU buy_price_max * 1.15 como fallback
         price = p["sell_price_min"]
         if price <= 0:
             buy_price = p.get("buy_price_max", 0)
             if buy_price > 0:
                 price = int(buy_price * 1.15)
-        
         if price > 0:
             if pid not in precos_recursos or price < precos_recursos[pid]["price"]:
                 precos_recursos[pid] = {"price": price, "city": p["city"]}
@@ -709,15 +672,11 @@ if btn:
         item_id = id_item(tier, d[0], encanto)
         preco_venda_bm = get_historical_price(item_id)
         my_bar.progress((i + 1) / total_itens, text=f"Analisando: {nome}")
-        
         if preco_venda_bm <= 0:
             continue
-        
         custo = 0
         detalhes = []
         valid_craft = True
-        
-        # 🔥 4. CÁLCULO DE RECURSOS BASE
         for recurso, qtd in [(d[1], d[2]), (d[3], d[4])]:
             if not recurso or qtd == 0:
                 continue
@@ -730,37 +689,25 @@ if btn:
                     detalhes.append(f"{qtd * quantidade}x T{tier}.{encanto} {nome_recurso}: {info['price']:,} ({info['city']})")
                     found = True
                     break
-            # Permite continuar se for token/BP sem preço
             if not found and "Token" not in recurso and "BP" not in recurso:
                 valid_craft = False
                 break
-        
         if not valid_craft:
             continue
-        
-        # 🔥 5. CÁLCULO DE ARTEFATOS/SELOS REAIS (USA PREÇOS JÁ BUSCADOS)
         if d[5]:
             art_id = f"T{tier}_{d[5]}"
             qtd_art = d[6] * quantidade
-            
-            # 🔥 Busca nos precos_ja_coletados (mesmas cidades)
             if art_id in precos_recursos:
                 info_art = precos_recursos[art_id]
                 custo += info_art["price"] * qtd_art
                 detalhes.append(f"{qtd_art}x Artefato/Selo: {info_art['price']:,} ({info_art['city']})")
             else:
-                # 🔥 Fallback: tenta buscar novamente em mais cidades
-                preco_art_fallback = get_historical_price(
-                    art_id, 
-                    location="Thetford,FortSterling,Martlock,Lymhurst,Bridgewatch,Caerleon,Brecilien,Black Market"
-                )
+                preco_art_fallback = get_historical_price(art_id, location="Thetford,FortSterling,Martlock,Lymhurst,Bridgewatch,Caerleon,Brecilien,Black Market")
                 if preco_art_fallback > 0:
                     custo += preco_art_fallback * qtd_art
                     detalhes.append(f"{qtd_art}x Artefato/Selo: {preco_art_fallback:,} (Fallback)")
                 else:
-                    # 🔥 Mostra aviso mas NÃO invalida o craft
                     detalhes.append(f"{qtd_art}x Artefato/Selo: Preço não disponível ⚠️")
-        
         custo_final = int(custo)
         venda_total = int(preco_venda_bm * quantidade)
         lucro = int((venda_total * 0.935) - custo_final)
@@ -777,30 +724,27 @@ if btn:
             perc_lucro = (lucro / custo) * 100 if custo > 0 else 0
             cidade_foco = identificar_cidade_bonus(nome)
             cor_destaque = "#2ecc71" if lucro > 0 else "#e74c3c"
-            
-            # 🔥 Alerta visual se tiver artefato sem preço
             tem_artefato_sem_preco = any("Preço não disponível" in det for det in detalhes)
             if tem_artefato_sem_preco:
-                cor_destaque = "#f39c12"  # Laranja para alerta
-            
+                cor_destaque = "#f39c12"
             st.markdown(f"""
             <div class="item-card-custom" style="border-left: 8px solid {cor_destaque};">
-            <div style="font-weight: bold; font-size: 1.2rem; margin-bottom: 10px; color: {cor_destaque};">
-            ⚔️ {nome} [T{tier}.{encanto}] x{quantidade}
-            </div>
-            <div style="font-size: 1.05rem; margin-bottom: 8px;">
-            <span style="color: {cor_destaque}; font-weight: bold; font-size: 1.2rem;">
-            💰 Lucro Estimado: {lucro:,} ({perc_lucro:.2f}%)
-            </span>
-            <br><b>Investimento:</b> {custo:,} | <b>Venda Estimada (BM):</b> {venda:,}
-            </div>
-            <div style="font-size: 0.95rem; color: #cbd5e1; margin-bottom: 10px;">
-            📍 <b>Foco Craft:</b> {cidade_foco} | 🕒 <b>Baseado em:</b> {h_venda}
-            {"| ⚠️ <b>Atenção:</b> Artefato/Selo sem preço - lucro pode ser menor" if tem_artefato_sem_preco else ""}
-            </div>
-            <div style="background: rgba(0,0,0,0.4); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); font-size: 0.9rem;">
-            📦 <b>Detalhamento de Compras:</b> <br> {" | ".join(detalhes)}
-            </div>
+                <div style="font-weight: bold; font-size: 1.2rem; margin-bottom: 10px; color: {cor_destaque};">
+                    ⚔️ {nome} [T{tier}.{encanto}] x{quantidade}
+                </div>
+                <div style="font-size: 1.05rem; margin-bottom: 8px;">
+                    <span style="color: {cor_destaque}; font-weight: bold; font-size: 1.2rem;">
+                        💰 Lucro Estimado: {lucro:,} ({perc_lucro:.2f}%)
+                    </span>
+                    <br><b>Investimento:</b> {custo:,} | <b>Venda Estimada (BM):</b> {venda:,}
+                </div>
+                <div style="font-size: 0.95rem; color: #cbd5e1; margin-bottom: 10px;">
+                    📍 <b>Foco Craft:</b> {cidade_foco} | 🕒 <b>Baseado em:</b> {h_venda}
+                    {"| ⚠️ <b>Atenção:</b> Artefato/Selo sem preço - lucro pode ser menor" if tem_artefato_sem_preco else ""}
+                </div>
+                <div style="background: rgba(0,0,0,0.4); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); font-size: 0.9rem;">
+                    📦 <b>Detalhamento de Compras:</b> <br> {" | ".join(detalhes)}
+                </div>
             </div>
             """, unsafe_allow_html=True)
         st.markdown("---")
