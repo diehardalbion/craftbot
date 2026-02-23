@@ -147,9 +147,6 @@ NOMES_RECURSOS_TIER = {
 }
 
 # ================= MAPA DE CAPAS - ESTRUTURA ESPECIAL =================
-# Estrutura: [ID_Base, ID_Ornamento, Tipo_Coração, Quantidade_Coração_por_Tier]
-# Tipos de coração: BEASTHEART, MOUNTAINHEART, TREEHEART, ROCKHEART, VINEHEART, SHADOWHEART, FAIRYFIRE
-
 CAPAS_DB = {
     # CAPAS NORMAIS (Craft direto com recursos)
     "Capa Normal": {
@@ -163,7 +160,7 @@ CAPAS_DB = {
         "id_base": "CAPEITEM_FW_BRIDGEWATCH",
         "tipo": "faction",
         "cidade": "Bridgewatch",
-        "id_ornamento": "CAPEITEM_FW_BRIDGEWATCH_BP",  # Crest
+        "id_ornamento": "CAPEITEM_FW_BRIDGEWATCH_BP",
         "coracao": "BEASTHEART",
         "qtd_coracao": {4: 1, 5: 1, 6: 3, 7: 5, 8: 10}
     },
@@ -213,35 +210,35 @@ CAPAS_DB = {
         "id_base": "CAPEITEM_HERETIC",
         "tipo": "faction_mob",
         "id_ornamento": "CAPEITEM_HERETIC_BP",
-        "coracao": "TREEHEART",  # Coração arbóreo
+        "coracao": "TREEHEART",
         "qtd_coracao": {4: 1, 5: 1, 6: 3, 7: 5, 8: 10}
     },
     "Capa Morta-viva": {
         "id_base": "CAPEITEM_UNDEAD",
         "tipo": "faction_mob",
         "id_ornamento": "CAPEITEM_UNDEAD_BP",
-        "coracao": "MOUNTAINHEART",  # Coração montanhoso
+        "coracao": "MOUNTAINHEART",
         "qtd_coracao": {4: 1, 5: 1, 6: 3, 7: 5, 8: 10}
     },
-    "Capa Protetora": {  # Keeper
+    "Capa Protetora": {
         "id_base": "CAPEITEM_KEEPER",
         "tipo": "faction_mob",
         "id_ornamento": "CAPEITEM_KEEPER_BP",
-        "coracao": "ROCKHEART",  # Coração empedrado
+        "coracao": "ROCKHEART",
         "qtd_coracao": {4: 1, 5: 1, 6: 3, 7: 5, 8: 10}
     },
     "Capa Morgana": {
         "id_base": "CAPEITEM_MORGANA",
         "tipo": "faction_mob",
         "id_ornamento": "CAPEITEM_MORGANA_BP",
-        "coracao": "VINEHEART",  # Coração videira
+        "coracao": "VINEHEART",
         "qtd_coracao": {4: 1, 5: 1, 6: 3, 7: 5, 8: 10}
     },
     "Capa Demoníaca": {
         "id_base": "CAPEITEM_DEMON",
         "tipo": "faction_mob",
         "id_ornamento": "CAPEITEM_DEMON_BP",
-        "coracao": "BEASTHEART",  # Coração bestial
+        "coracao": "BEASTHEART",
         "qtd_coracao": {4: 1, 5: 1, 6: 3, 7: 5, 8: 10}
     },
     
@@ -250,21 +247,21 @@ CAPAS_DB = {
         "id_base": "CAPEITEM_FW_BRECILIEN",
         "tipo": "especial",
         "id_ornamento": "CAPEITEM_FW_BRECILIEN_BP",
-        "recurso_especial": "FAIRYFIRE",  # Fogo de fada
+        "recurso_especial": "FAIRYFIRE",
         "qtd_recurso": {4: 1, 5: 1, 6: 3, 7: 5, 8: 10}
     },
     "Capa Avaloniana": {
         "id_base": "CAPEITEM_AVALON",
         "tipo": "especial",
         "id_ornamento": "CAPEITEM_AVALON_BP",
-        "recurso_especial": "FAIRYFIRE",  # Fogo de fada
+        "recurso_especial": "FAIRYFIRE",
         "qtd_recurso": {4: 1, 5: 1, 6: 3, 7: 5, 8: 10}
     },
-    "Capa Contrabandista": {  # Smuggler
+    "Capa Contrabandista": {
         "id_base": "CAPEITEM_SMUGGLER",
         "tipo": "especial",
         "id_ornamento": "CAPEITEM_SMUGGLER_BP",
-        "recurso_especial": "SHADOWHEART",  # Coração sombrio
+        "recurso_especial": "SHADOWHEART",
         "qtd_recurso": {4: 1, 5: 1, 6: 3, 7: 5, 8: 10}
     }
 }
@@ -570,15 +567,11 @@ FILTROS = {
     # BOLSAS
     "bolsas": lambda k, v: "BAG" in v[0],
     
-    # CAPAS - NOVA CATEGORIA
-    "capas": lambda k, v: k in CAPAS_DB,
-
+    # CAPAS - será tratado especialmente fora do ITENS_DB
+    "capas": None,  # None indica tratamento especial
 }
 
-# Pronto! Agora você pode enviar os itens do Bordão para eu formatar e adicionar na DB.
-
 # ================= FUNÇÕES =================
-# MUDANÇA 1 IMPLEMENTADA: Prioriza preço de venda direto se histórico estiver defasado
 def get_historical_price(item_id, location="Black Market"):
     try:
         # 1️⃣ Tenta preço atual primeiro (sempre prioridade)
@@ -640,26 +633,14 @@ def identificar_cidade_bonus(nome_item):
     return "Caerleon"
 
 # ================= FUNÇÕES ESPECIAIS PARA CAPAS =================
-def get_capa_base_id(tier):
-    """Retorna o ID da capa base (normal) para o tier especificado"""
-    return f"T{tier}_CAPE"
-
 def get_capa_item_id(tier, base_id, enc):
     """Retorna o ID completo da capa com tier e encantamento"""
     if enc > 0:
         return f"T{tier}_{base_id}@{enc}"
     return f"T{tier}_{base_id}"
 
-def get_ornamento_id(tier, ornamento_base, enc):
-    """Retorna o ID do ornamento/crest com tier e encantamento"""
-    if enc > 0:
-        return f"T{tier}_{ornamento_base}@{enc}"
-    return f"T{tier}_{ornamento_base}"
-
 def get_coracao_id(tier, tipo_coracao, enc):
     """Retorna o ID do coração com tier e encantamento"""
-    # Corações são itens especiais que seguem o padrão TIER_TIPO
-    # Ex: T4_BEASTHEART, T5_BEASTHEART_LEVEL1@1 (se encantado)
     if enc > 0:
         return f"T{tier}_{tipo_coracao}_LEVEL{enc}@{enc}"
     return f"T{tier}_{tipo_coracao}"
@@ -676,52 +657,40 @@ def calcular_craft_capa(nome_capa, tier, encanto, quantidade, precos_recursos):
     
     # 1. CAPA BASE (para capas especiais - faction, mob, etc)
     if dados["tipo"] in ["faction", "faction_mob", "especial"]:
-        # Precisa comprar a capa base do tier anterior ou mesmo tier?
-        # Na verdade, a receita pede "1 Capa do Adpeto" (T4), "1 Capa do perito" (T5), etc
-        # Então é a capa NORMAL do mesmo tier
-        capa_base_id = get_capa_base_id(tier)
+        # Precisa comprar a capa base do mesmo tier
+        capa_base_id = get_capa_item_id(tier, "CAPE", encanto)
         
-        # Buscar preço da capa base (Tecido + Couro)
-        # A capa base é craftada, então precisamos calcular seu custo ou buscar preço de venda
-        # Vamos buscar o preço de venda da capa base no mercado
-        preco_capa_base = get_historical_price(capa_base_id, location="Caerleon,FortSterling,Thetford,Lymhurst,Bridgewatch,Martlock")
+        # Buscar preço da capa base no mercado
+        preco_capa_base = get_historical_price(
+            capa_base_id, 
+            location="Caerleon,FortSterling,Thetford,Lymhurst,Bridgewatch,Martlock"
+        )
         
         if preco_capa_base > 0:
             custo += preco_capa_base * quantidade
-            detalhes.append(f"{quantidade}x Capa Base T{tier}: {preco_capa_base:,} (Market)")
+            detalhes.append(f"{quantidade}x Capa Base T{tier}.{encanto}: {preco_capa_base:,} (Market)")
         else:
-            # Se não achou preço, tenta calcular pelo craft (4 tecido + 4 couro)
-            # Isso é um fallback
-            custo_tecido = 0
-            custo_couro = 0
-            
-            # Buscar tecido
+            # Fallback: calcular pelo craft (4 tecido + 4 couro)
             tecido_id = f"T{tier}_CLOTH"
+            couro_id = f"T{tier}_LEATHER"
+            
             if encanto > 0:
                 tecido_id = f"T{tier}_CLOTH_LEVEL{encanto}@{encanto}"
-            
-            if tecido_id in precos_recursos:
-                custo_tecido = precos_recursos[tecido_id]["price"] * 4 * quantidade
-                detalhes.append(f"{4 * quantidade}x {NOMES_RECURSOS_TIER['Tecido Fino'].get(tier, 'Tecido')} T{tier}.{encanto}: {precos_recursos[tecido_id]['price']:,} ({precos_recursos[tecido_id]['city']})")
-            else:
-                valid = False
-            
-            # Buscar couro
-            couro_id = f"T{tier}_LEATHER"
-            if encanto > 0:
                 couro_id = f"T{tier}_LEATHER_LEVEL{encanto}@{encanto}"
             
-            if couro_id in precos_recursos:
-                custo_couro = precos_recursos[couro_id]["price"] * 4 * quantidade
-                detalhes.append(f"{4 * quantidade}x {NOMES_RECURSOS_TIER['Couro Trabalhado'].get(tier, 'Couro')} T{tier}.{encanto}: {precos_recursos[couro_id]['price']:,} ({precos_recursos[couro_id]['city']})")
+            preco_tecido = precos_recursos.get(tecido_id, {}).get("price", 0)
+            preco_couro = precos_recursos.get(couro_id, {}).get("price", 0)
+            
+            if preco_tecido > 0 and preco_couro > 0:
+                custo_base = (preco_tecido * 4 + preco_couro * 4) * quantidade
+                custo += custo_base
+                detalhes.append(f"{quantidade}x Capa Base (Craft) T{tier}.{encanto}: {custo_base:,}")
             else:
                 valid = False
-            
-            custo += custo_tecido + custo_couro
     
     # 2. ORNAMENTO/CREST
     if "id_ornamento" in dados:
-        ornamento_id = get_ornamento_id(tier, dados["id_ornamento"], encanto)
+        ornamento_id = get_capa_item_id(tier, dados["id_ornamento"], encanto)
         preco_ornamento = get_historical_price(
             ornamento_id, 
             location="Caerleon,FortSterling,Thetford,Lymhurst,Bridgewatch,Martlock"
@@ -768,7 +737,6 @@ def calcular_craft_capa(nome_capa, tier, encanto, quantidade, precos_recursos):
     
     # 4. CAPA NORMAL (craft direto com recursos)
     if dados["tipo"] == "normal":
-        # 4 tecido + 4 couro
         tecido_id = f"T{tier}_CLOTH"
         couro_id = f"T{tier}_LEATHER"
         
@@ -806,20 +774,18 @@ st.title("⚔️ Radar Craft — Black Market")
 
 # ================= EXECUÇÃO =================
 if btn:
-    filtro = FILTROS[categoria]
-    
-    # Verifica se é categoria de capas
     is_capas = (categoria == "capas")
     
     if is_capas:
-        itens_capas = {k: v for k, v in CAPAS_DB.items() if filtro(k, v)}
-        itens_db = {}  # Não usa ITENS_DB para capas
+        # Para capas, usamos diretamente o CAPAS_DB (TODAS as capas)
+        itens_capas = dict(CAPAS_DB)
+        itens_db = {}
+        total_itens = len(itens_capas)
     else:
+        filtro = FILTROS[categoria]
         itens_db = {k: v for k, v in ITENS_DB.items() if filtro(k, v)}
         itens_capas = {}
-    
-    # Combina os itens (se não for capas, itens_capas estará vazio)
-    total_itens = len(itens_db) + len(itens_capas)
+        total_itens = len(itens_db)
     
     if total_itens == 0:
         st.error("Nenhum item encontrado nesta categoria.")
@@ -837,9 +803,8 @@ if btn:
                 for r in ids_recurso_variantes(tier, d[3], encanto):
                     ids_para_recursos.add(r)
     
-    # Para capas normais (precisam de tecido e couro)
+    # Para capas (precisam de tecido e couro para as normais e base das especiais)
     if is_capas:
-        # Adiciona tecido e couro para todas as capas
         for r in ids_recurso_variantes(tier, "Tecido Fino", encanto):
             ids_para_recursos.add(r)
         for r in ids_recurso_variantes(tier, "Couro Trabalhado", encanto):
@@ -868,7 +833,6 @@ if btn:
     progress_text = "Analisando Mercado e Calculando Lucros..."
     my_bar = st.progress(0, text=progress_text)
 
-    total_itens = len(itens_db) + len(itens_capas)
     idx = 0
 
     # Processa itens normais (ITENS_DB)
