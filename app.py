@@ -16,7 +16,7 @@ st.markdown("""
     }
     .stApp {
         background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)), 
-                    url("https://i.imgur.com/kVAiMjD.png");
+                    url("https://i.imgur.com/kVAiMjD.png ");
         background-size: cover;
         background-attachment: fixed;
     }
@@ -90,7 +90,7 @@ if not st.session_state.autenticado:
         <div style="background: rgba(46, 204, 113, 0.1); padding: 20px; border-radius: 10px; border: 1px solid #2ecc71; text-align: center;">
             <h2 style="margin:0; color: #2ecc71;">R$ 15,00</h2>
             <p style="color: white;">Acesso Mensal (30 dias)</p>
-            <a href="https://wa.me/5521983042557?text=Olá! Gostaria de comprar uma key para o Radar Craft Albion." target="_blank" style="text-decoration: none;">
+            <a href="https://wa.me/5521983042557?text=Ol á! Gostaria de comprar uma key para o Radar Craft Albion." target="_blank" style="text-decoration: none;">
                 <div style="background-color: #25d366; color: white; padding: 12px; border-radius: 5px; font-weight: bold; margin-top: 10px;">
                     COMPRAR VIA WHATSAPP
                 </div>
@@ -100,8 +100,8 @@ if not st.session_state.autenticado:
     st.stop()
 
 # ================= CONFIG DE DADOS =================
-API_URL = "https://west.albion-online-data.com/api/v2/stats/prices/"
-HISTORY_URL = "https://west.albion-online-data.com/api/v2/stats/history/"
+API_URL = "https://west.albion-online-data.com/api/v2/stats/prices/ "
+HISTORY_URL = "https://west.albion-online-data.com/api/v2/stats/history/ "
 CIDADES = ["Martlock", "Thetford", "FortSterling", "Lymhurst", "Bridgewatch", "Brecilien", "Caerleon", "Black Market"]
 RECURSO_MAP = {"Tecido Fino": "CLOTH", "Couro Trabalhado": "LEATHER", "Barra de Aço": "METALBAR", "Tábuas de Pinho": "PLANKS"}
 BONUS_CIDADE = {
@@ -398,8 +398,112 @@ ITENS_DB = {
     "CAÇA-ESPÍRITOS": ["2H_SPEAR_HELL", "Tábuas de Pinho", 20, "Barra de Aço", 12, "ARTEFACT_2H_HARPOON_HELL", 1],
     "LANÇA TRINA": ["2H_GLAIVE_HELL", "Tábuas de Pinho", 20, "Barra de Aço", 12, "ARTEFACT_2H_TRIDENT_UNDEAD", 1],
     "ALVORADA": ["MAIN_SPEAR_AVALON", "Tábuas de Pinho", 16, "Barra de Aço", 8, "ARTEFACT_MAIN_SPEAR_LANCE_AVALON", 1],
-    "ARCHA FRATURADA": ["2H_SPEAR_CRYSTAL", "Tábuas de Pinho", 12, "Barra de Aço", 20, "QUESTITEM_TOKEN_CRYSTAL_SPEAR", 1]
+    "ARCHA FRATURADA": ["2H_SPEAR_CRYSTAL", "Tábuas de Pinho", 12, "Barra de Aço", 20, "QUESTITEM_TOKEN_CRYSTAL_SPEAR", 1],
 
+    # ================= CAPAS NORMAIS =================
+    "Capa do Adepto": ["CAPEITEM_LEVEL1", "Tecido Fino", 4, "Couro Trabalhado", 4, None, 0],
+    "Capa do Perito": ["CAPEITEM_LEVEL2", "Tecido Ornado", 4, "Couro Curtido", 4, None, 0],
+    "Capa do Mestre": ["CAPEITEM_LEVEL3", "Tecido Rico", 4, "Couro Endurecido", 4, None, 0],
+    "Capa do Grão-Mestre": ["CAPEITEM_LEVEL4", "Tecido Opulento", 4, "Couro Reforçado", 4, None, 0],
+    "Capa do Ancião": ["CAPEITEM_LEVEL5", "Tecido Barroco", 4, "Couro Fortificado", 4, None, 0],
+
+    # ================= CAPAS BRIDGEWATCH =================
+    "Capa de Bridgewatch do Adepto": ["CAPEITEM_FW_BRIDGEWATCH_LEVEL1", "Capa do Adepto", 1, None, 0, "CAPEITEM_FW_BRIDGEWATCH_BP_LEVEL1", 1],
+    "Capa de Bridgewatch do Perito": ["CAPEITEM_FW_BRIDGEWATCH_LEVEL2", "Capa do Perito", 1, None, 0, "CAPEITEM_FW_BRIDGEWATCH_BP_LEVEL2", 1],
+    "Capa de Bridgewatch do Mestre": ["CAPEITEM_FW_BRIDGEWATCH_LEVEL3", "Capa do Mestre", 1, None, 0, "CAPEITEM_FW_BRIDGEWATCH_BP_LEVEL3", 1],
+    "Capa de Bridgewatch do Grão-Mestre": ["CAPEITEM_FW_BRIDGEWATCH_LEVEL4", "Capa do Grão-Mestre", 1, None, 0, "CAPEITEM_FW_BRIDGEWATCH_BP_LEVEL4", 1],
+    "Capa de Bridgewatch do Ancião": ["CAPEITEM_FW_BRIDGEWATCH_LEVEL5", "Capa do Ancião", 1, None, 0, "CAPEITEM_FW_BRIDGEWATCH_BP_LEVEL5", 1],
+
+    # ================= CAPAS FORT STERLING =================
+    "Capa de Fort Sterling do Adepto": ["CAPEITEM_FW_FORTSTERLING_LEVEL1", "Capa do Adepto", 1, None, 0, "CAPEITEM_FW_FORTSTERLING_BP_LEVEL1", 1],
+    "Capa de Fort Sterling do Perito": ["CAPEITEM_FW_FORTSTERLING_LEVEL2", "Capa do Perito", 1, None, 0, "CAPEITEM_FW_FORTSTERLING_BP_LEVEL2", 1],
+    "Capa de Fort Sterling do Mestre": ["CAPEITEM_FW_FORTSTERLING_LEVEL3", "Capa do Mestre", 1, None, 0, "CAPEITEM_FW_FORTSTERLING_BP_LEVEL3", 1],
+    "Capa de Fort Sterling do Grão-Mestre": ["CAPEITEM_FW_FORTSTERLING_LEVEL4", "Capa do Grão-Mestre", 1, None, 0, "CAPEITEM_FW_FORTSTERLING_BP_LEVEL4", 1],
+    "Capa de Fort Sterling do Ancião": ["CAPEITEM_FW_FORTSTERLING_LEVEL5", "Capa do Ancião", 1, None, 0, "CAPEITEM_FW_FORTSTERLING_BP_LEVEL5", 1],
+
+    # ================= CAPAS LYMHURST =================
+    "Capa de Lymhurst do Adepto": ["CAPEITEM_FW_LYMHURST_LEVEL1", "Capa do Adepto", 1, None, 0, "CAPEITEM_FW_LYMHURST_BP_LEVEL1", 1],
+    "Capa de Lymhurst do Perito": ["CAPEITEM_FW_LYMHURST_LEVEL2", "Capa do Perito", 1, None, 0, "CAPEITEM_FW_LYMHURST_BP_LEVEL2", 1],
+    "Capa de Lymhurst do Mestre": ["CAPEITEM_FW_LYMHURST_LEVEL3", "Capa do Mestre", 1, None, 0, "CAPEITEM_FW_LYMHURST_BP_LEVEL3", 1],
+    "Capa de Lymhurst do Grão-Mestre": ["CAPEITEM_FW_LYMHURST_LEVEL4", "Capa do Grão-Mestre", 1, None, 0, "CAPEITEM_FW_LYMHURST_BP_LEVEL4", 1],
+    "Capa de Lymhurst do Ancião": ["CAPEITEM_FW_LYMHURST_LEVEL5", "Capa do Ancião", 1, None, 0, "CAPEITEM_FW_LYMHURST_BP_LEVEL5", 1],
+
+    # ================= CAPAS MARTLOCK =================
+    "Capa de Martlock do Adepto": ["CAPEITEM_FW_MARTLOCK_LEVEL1", "Capa do Adepto", 1, None, 0, "CAPEITEM_FW_MARTLOCK_BP_LEVEL1", 1],
+    "Capa de Martlock do Perito": ["CAPEITEM_FW_MARTLOCK_LEVEL2", "Capa do Perito", 1, None, 0, "CAPEITEM_FW_MARTLOCK_BP_LEVEL2", 1],
+    "Capa de Martlock do Mestre": ["CAPEITEM_FW_MARTLOCK_LEVEL3", "Capa do Mestre", 1, None, 0, "CAPEITEM_FW_MARTLOCK_BP_LEVEL3", 1],
+    "Capa de Martlock do Grão-Mestre": ["CAPEITEM_FW_MARTLOCK_LEVEL4", "Capa do Grão-Mestre", 1, None, 0, "CAPEITEM_FW_MARTLOCK_BP_LEVEL4", 1],
+    "Capa de Martlock do Ancião": ["CAPEITEM_FW_MARTLOCK_LEVEL5", "Capa do Ancião", 1, None, 0, "CAPEITEM_FW_MARTLOCK_BP_LEVEL5", 1],
+
+    # ================= CAPAS THETFORD =================
+    "Capa de Thetford do Adepto": ["CAPEITEM_FW_THETFORD_LEVEL1", "Capa do Adepto", 1, None, 0, "CAPEITEM_FW_THETFORD_BP_LEVEL1", 1],
+    "Capa de Thetford do Perito": ["CAPEITEM_FW_THETFORD_LEVEL2", "Capa do Perito", 1, None, 0, "CAPEITEM_FW_THETFORD_BP_LEVEL2", 1],
+    "Capa de Thetford do Mestre": ["CAPEITEM_FW_THETFORD_LEVEL3", "Capa do Mestre", 1, None, 0, "CAPEITEM_FW_THETFORD_BP_LEVEL3", 1],
+    "Capa de Thetford do Grão-Mestre": ["CAPEITEM_FW_THETFORD_LEVEL4", "Capa do Grão-Mestre", 1, None, 0, "CAPEITEM_FW_THETFORD_BP_LEVEL4", 1],
+    "Capa de Thetford do Ancião": ["CAPEITEM_FW_THETFORD_LEVEL5", "Capa do Ancião", 1, None, 0, "CAPEITEM_FW_THETFORD_BP_LEVEL5", 1],
+
+    # ================= CAPAS CAERLEON =================
+    "Capa de Caerleon do Adepto": ["CAPEITEM_FW_CAERLEON_LEVEL1", "Capa do Adepto", 1, None, 0, "CAPEITEM_FW_CAERLEON_BP_LEVEL1", 1],
+    "Capa de Caerleon do Perito": ["CAPEITEM_FW_CAERLEON_LEVEL2", "Capa do Perito", 1, None, 0, "CAPEITEM_FW_CAERLEON_BP_LEVEL2", 1],
+    "Capa de Caerleon do Mestre": ["CAPEITEM_FW_CAERLEON_LEVEL3", "Capa do Mestre", 1, None, 0, "CAPEITEM_FW_CAERLEON_BP_LEVEL3", 1],
+    "Capa de Caerleon do Grão-Mestre": ["CAPEITEM_FW_CAERLEON_LEVEL4", "Capa do Grão-Mestre", 1, None, 0, "CAPEITEM_FW_CAERLEON_BP_LEVEL4", 1],
+    "Capa de Caerleon do Ancião": ["CAPEITEM_FW_CAERLEON_LEVEL5", "Capa do Ancião", 1, None, 0, "CAPEITEM_FW_CAERLEON_BP_LEVEL5", 1],
+
+    # ================= CAPAS HERETIC (HEREGE) =================
+    "Capa Herege do Adepto": ["CAPEITEM_HERETIC_LEVEL1", "Capa do Adepto", 1, None, 0, "CAPEITEM_HERETIC_BP_LEVEL1", 1],
+    "Capa Herege do Perito": ["CAPEITEM_HERETIC_LEVEL2", "Capa do Perito", 1, None, 0, "CAPEITEM_HERETIC_BP_LEVEL2", 1],
+    "Capa Herege do Mestre": ["CAPEITEM_HERETIC_LEVEL3", "Capa do Mestre", 1, None, 0, "CAPEITEM_HERETIC_BP_LEVEL3", 1],
+    "Capa Herege do Grão-Mestre": ["CAPEITEM_HERETIC_LEVEL4", "Capa do Grão-Mestre", 1, None, 0, "CAPEITEM_HERETIC_BP_LEVEL4", 1],
+    "Capa Herege do Ancião": ["CAPEITEM_HERETIC_LEVEL5", "Capa do Ancião", 1, None, 0, "CAPEITEM_HERETIC_BP_LEVEL5", 1],
+
+    # ================= CAPAS UNDEAD (MORTA-VIVA) =================
+    "Capa Morta-Viva do Adepto": ["CAPEITEM_UNDEAD_LEVEL1", "Capa do Adepto", 1, None, 0, "CAPEITEM_UNDEAD_BP_LEVEL1", 1],
+    "Capa Morta-Viva do Perito": ["CAPEITEM_UNDEAD_LEVEL2", "Capa do Perito", 1, None, 0, "CAPEITEM_UNDEAD_BP_LEVEL2", 1],
+    "Capa Morta-Viva do Mestre": ["CAPEITEM_UNDEAD_LEVEL3", "Capa do Mestre", 1, None, 0, "CAPEITEM_UNDEAD_BP_LEVEL3", 1],
+    "Capa Morta-Viva do Grão-Mestre": ["CAPEITEM_UNDEAD_LEVEL4", "Capa do Grão-Mestre", 1, None, 0, "CAPEITEM_UNDEAD_BP_LEVEL4", 1],
+    "Capa Morta-Viva do Ancião": ["CAPEITEM_UNDEAD_LEVEL5", "Capa do Ancião", 1, None, 0, "CAPEITEM_UNDEAD_BP_LEVEL5", 1],
+
+    # ================= CAPAS KEEPER (PROTETORA) =================
+    "Capa Protetora do Adepto": ["CAPEITEM_KEEPER_LEVEL1", "Capa do Adepto", 1, None, 0, "CAPEITEM_KEEPER_BP_LEVEL1", 1],
+    "Capa Protetora do Perito": ["CAPEITEM_KEEPER_LEVEL2", "Capa do Perito", 1, None, 0, "CAPEITEM_KEEPER_BP_LEVEL2", 1],
+    "Capa Protetora do Mestre": ["CAPEITEM_KEEPER_LEVEL3", "Capa do Mestre", 1, None, 0, "CAPEITEM_KEEPER_BP_LEVEL3", 1],
+    "Capa Protetora do Grão-Mestre": ["CAPEITEM_KEEPER_LEVEL4", "Capa do Grão-Mestre", 1, None, 0, "CAPEITEM_KEEPER_BP_LEVEL4", 1],
+    "Capa Protetora do Ancião": ["CAPEITEM_KEEPER_LEVEL5", "Capa do Ancião", 1, None, 0, "CAPEITEM_KEEPER_BP_LEVEL5", 1],
+
+    # ================= CAPAS MORGANA =================
+    "Capa Morgana do Adepto": ["CAPEITEM_MORGANA_LEVEL1", "Capa do Adepto", 1, None, 0, "CAPEITEM_MORGANA_BP_LEVEL1", 1],
+    "Capa Morgana do Perito": ["CAPEITEM_MORGANA_LEVEL2", "Capa do Perito", 1, None, 0, "CAPEITEM_MORGANA_BP_LEVEL2", 1],
+    "Capa Morgana do Mestre": ["CAPEITEM_MORGANA_LEVEL3", "Capa do Mestre", 1, None, 0, "CAPEITEM_MORGANA_BP_LEVEL3", 1],
+    "Capa Morgana do Grão-Mestre": ["CAPEITEM_MORGANA_LEVEL4", "Capa do Grão-Mestre", 1, None, 0, "CAPEITEM_MORGANA_BP_LEVEL4", 1],
+    "Capa Morgana do Ancião": ["CAPEITEM_MORGANA_LEVEL5", "Capa do Ancião", 1, None, 0, "CAPEITEM_MORGANA_BP_LEVEL5", 1],
+
+    # ================= CAPAS DEMON (DEMONÍACA) =================
+    "Capa Demoníaca do Adepto": ["CAPEITEM_DEMON_LEVEL1", "Capa do Adepto", 1, None, 0, "CAPEITEM_DEMON_BP_LEVEL1", 1],
+    "Capa Demoníaca do Perito": ["CAPEITEM_DEMON_LEVEL2", "Capa do Perito", 1, None, 0, "CAPEITEM_DEMON_BP_LEVEL2", 1],
+    "Capa Demoníaca do Mestre": ["CAPEITEM_DEMON_LEVEL3", "Capa do Mestre", 1, None, 0, "CAPEITEM_DEMON_BP_LEVEL3", 1],
+    "Capa Demoníaca do Grão-Mestre": ["CAPEITEM_DEMON_LEVEL4", "Capa do Grão-Mestre", 1, None, 0, "CAPEITEM_DEMON_BP_LEVEL4", 1],
+    "Capa Demoníaca do Ancião": ["CAPEITEM_DEMON_LEVEL5", "Capa do Ancião", 1, None, 0, "CAPEITEM_DEMON_BP_LEVEL5", 1],
+
+    # ================= CAPAS BRECILIEN =================
+    "Capa de Brecilien do Adepto": ["CAPEITEM_BRECILIEN_LEVEL1", "Capa do Adepto", 1, None, 0, "CAPEITEM_BRECILIEN_BP_LEVEL1", 1],
+    "Capa de Brecilien do Perito": ["CAPEITEM_BRECILIEN_LEVEL2", "Capa do Perito", 1, None, 0, "CAPEITEM_BRECILIEN_BP_LEVEL2", 1],
+    "Capa de Brecilien do Mestre": ["CAPEITEM_BRECILIEN_LEVEL3", "Capa do Mestre", 1, None, 0, "CAPEITEM_BRECILIEN_BP_LEVEL3", 1],
+    "Capa de Brecilien do Grão-Mestre": ["CAPEITEM_BRECILIEN_LEVEL4", "Capa do Grão-Mestre", 1, None, 0, "CAPEITEM_BRECILIEN_BP_LEVEL4", 1],
+    "Capa de Brecilien do Ancião": ["CAPEITEM_BRECILIEN_LEVEL5", "Capa do Ancião", 1, None, 0, "CAPEITEM_BRECILIEN_BP_LEVEL5", 1],
+
+    # ================= CAPAS AVALONIANA =================
+    "Capa Avaloniana do Adepto": ["CAPEITEM_AVALON_LEVEL1", "Capa do Adepto", 1, None, 0, "CAPEITEM_AVALON_BP_LEVEL1", 1],
+    "Capa Avaloniana do Perito": ["CAPEITEM_AVALON_LEVEL2", "Capa do Perito", 1, None, 0, "CAPEITEM_AVALON_BP_LEVEL2", 1],
+    "Capa Avaloniana do Mestre": ["CAPEITEM_AVALON_LEVEL3", "Capa do Mestre", 1, None, 0, "CAPEITEM_AVALON_BP_LEVEL3", 1],
+    "Capa Avaloniana do Grão-Mestre": ["CAPEITEM_AVALON_LEVEL4", "Capa do Grão-Mestre", 1, None, 0, "CAPEITEM_AVALON_BP_LEVEL4", 1],
+    "Capa Avaloniana do Ancião": ["CAPEITEM_AVALON_LEVEL5", "Capa do Ancião", 1, None, 0, "CAPEITEM_AVALON_BP_LEVEL5", 1],
+
+    # ================= CAPAS CONTRABANDISTA (SMUGGLER) =================
+    "Capa de Contrabandista do Adepto": ["CAPEITEM_SMUGGLER_LEVEL1", "Capa do Adepto", 1, None, 0, "CAPEITEM_SMUGGLER_BP_LEVEL1", 1],
+    "Capa de Contrabandista do Perito": ["CAPEITEM_SMUGGLER_LEVEL2", "Capa do Perito", 1, None, 0, "CAPEITEM_SMUGGLER_BP_LEVEL2", 1],
+    "Capa de Contrabandista do Mestre": ["CAPEITEM_SMUGGLER_LEVEL3", "Capa do Mestre", 1, None, 0, "CAPEITEM_SMUGGLER_BP_LEVEL3", 1],
+    "Capa de Contrabandista do Grão-Mestre": ["CAPEITEM_SMUGGLER_LEVEL4", "Capa do Grão-Mestre", 1, None, 0, "CAPEITEM_SMUGGLER_BP_LEVEL4", 1],
+    "Capa de Contrabandista do Ancião": ["CAPEITEM_SMUGGLER_LEVEL5", "Capa do Ancião", 1, None, 0, "CAPEITEM_SMUGGLER_BP_LEVEL5", 1],
 }
 
 # ================= FILTROS CORRIGIDOS =================
@@ -446,6 +550,19 @@ FILTROS = {
     "secundarias": lambda k, v: v[0].startswith("OFF_"),
     # BOLSAS
     "bolsas": lambda k, v: "BAG" in v[0],
+
+    # CAPAS
+    "capas_normais": lambda k, v: "CAPEITEM_LEVEL" in v[0] and "FW_" not in v[0] and "HERETIC" not in v[0] and "UNDEAD" not in v[0] and "KEEPER" not in v[0] and "MORGANA" not in v[0] and "DEMON" not in v[0] and "BRECILIEN" not in v[0] and "AVALON" not in v[0] and "SMUGGLER" not in v[0],
+    "capas_cidade": lambda k, v: "CAPEITEM_FW_" in v[0],
+    "capas_herege": lambda k, v: "CAPEITEM_HERETIC" in v[0],
+    "capas_mortaviva": lambda k, v: "CAPEITEM_UNDEAD" in v[0],
+    "capas_protetora": lambda k, v: "CAPEITEM_KEEPER" in v[0],
+    "capas_morgana": lambda k, v: "CAPEITEM_MORGANA" in v[0],
+    "capas_demoniaca": lambda k, v: "CAPEITEM_DEMON" in v[0],
+    "capas_brecilien": lambda k, v: "CAPEITEM_BRECILIEN" in v[0],
+    "capas_avaloniana": lambda k, v: "CAPEITEM_AVALON" in v[0],
+    "capas_contrabandista": lambda k, v: "CAPEITEM_SMUGGLER" in v[0],
+    "todas_capas": lambda k, v: "CAPEITEM" in v[0],
 
 }
 
