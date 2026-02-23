@@ -6,93 +6,106 @@ from datetime import datetime, timezone
 # ================= CONFIGURAÇÃO DA PÁGINA =================
 st.set_page_config("Radar Craft Albion", layout="wide", page_icon="⚔️")
 
-# ================= CUSTOM CSS (VISUAL) =================
+# ================= CUSTOM CSS =================
 st.markdown("""
 <style>
-    /* REMOVER FAIXA BRANCA DO TOPO */
-    header {visibility: hidden;}
-    .main .block-container {
-        padding-top: 0rem;
-        padding-bottom: 0rem;
-    }
-
-    /* FUNDO DA APLICAÇÃO */
-    .stApp {
-        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)), 
-                    url("https://i.imgur.com/kVAiMjD.png"); /* <--- SEU LINK ATUAL */
-        background-size: cover;
-        background-attachment: fixed;
-    }
-
-    /* BARRA LATERAL */
-    [data-testid="stSidebar"] {
-        background-color: rgba(15, 17, 23, 0.95) !important;
-        border-right: 1px solid #3e4149;
-    }
-
-    /* TÍTULOS E TEXTOS */
-    h1, h2, h3, label, .stMarkdown {
-        color: #ffffff !important;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-
-    /* CARD DE RESULTADO PERSONALIZADO */
-    .item-card-custom { 
-        background-color: rgba(255, 255, 255, 0.05) !important;
-        backdrop-filter: blur(12px);
-        border-radius: 12px; 
-        padding: 20px; 
-        margin-bottom: 20px; 
-        border: 1px solid rgba(46, 204, 113, 0.2);
-        border-left: 8px solid #2ecc71;
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-        color: white !important;
-    }
-
-    /* INPUTS E BOTÕES */
-    .stButton>button {
-        width: 100%;
-        background-color: #2ecc71 !important;
-        color: white !important;
-        font-weight: bold;
-        border: none;
-        padding: 0.5rem;
-    }
+header {visibility: hidden;}
+.main .block-container { padding-top: 2rem; padding-bottom: 2rem; }
+.stApp {
+    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)), 
+                url("https://i.imgur.com/kVAiMjD.png");
+    background-size: cover; background-attachment: fixed;
+}
+[data-testid="stSidebar"] {
+    background-color: rgba(15, 17, 23, 0.95) !important;
+    border-right: 1px solid #3e4149;
+}
+h1, h2, h3, label, .stMarkdown {
+    color: #ffffff !important;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+.item-card-custom { 
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    backdrop-filter: blur(12px); border-radius: 12px; padding: 20px; 
+    margin-bottom: 20px; border: 1px solid rgba(46, 204, 113, 0.2);
+    border-left: 8px solid #2ecc71; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    color: white !important;
+}
+.stButton>button {
+    width: 100%; background-color: #2ecc71 !important; color: white !important;
+    font-weight: bold; border: none; padding: 0.5rem;
+}
 </style>
 """, unsafe_allow_html=True)
 
-# ================= SISTEMA DE LOGIN / KEYS =================
+# ================= FUNÇÕES DE SUPORTE =================
 def verificar_chave(chave_usuario):
     try:
         with open("keys.json", "r") as f:
             keys_db = json.load(f)
-        
         if chave_usuario in keys_db:
             dados = keys_db[chave_usuario]
             if not dados["ativa"]:
                 return False, "Esta chave foi desativada."
-            
             if dados["expira"] != "null":
                 data_expira = datetime.strptime(dados["expira"], "%Y-%m-%d").date()
                 if datetime.now().date() > data_expira:
                     return False, "Esta chave expirou."
-            
             return True, dados["cliente"]
         return False, "Chave inválida."
     except Exception as e:
         return False, f"Erro ao acessar keys.json: {e}"
 
+def calcular_horas(data_iso):
+    try:
+        data_api = datetime.fromisoformat(data_iso.replace("Z", "+00:00"))
+        data_agora = datetime.now(timezone.utc)
+        diff = data_agora.replace(tzinfo=None) - data_api.replace(tzinfo=None)
+        return int(diff.total_seconds() / 3600)
+    except: 
+        return 999
+
+def id_item(tier, base, enc):
+    return f"T{tier}_{base}@{enc}" if enc > 0 else f"T{tier}_{base}"
+
+def ids_recurso_variantes(tier, nome, enc):
+    # ID direto da API (já formatado)
+    if nome.startswith("T") and "_" in nome:
+        if enc > 0: 
+            return [f"{nome}@{enc}", f"{nome}_LEVEL{enc}@{enc}"]
+        return [nome]
+    # Cape base
+    if nome == "CAPE":
+        base = f"T{tier}_CAPE"
+        if enc > 0: 
+            return [f"{base}@{enc}", f"{base}_LEVEL{enc}@{enc}"]
+        return [base]
+    # Artefatos/corações (não usam encanto, apenas tier)
+    if nome not in RECURSO_MAP:
+        return [f"T{tier}_{nome}"]
+    # Recursos em português
+    base = f"T{tier}_{RECURSO_MAP[nome]}"
+    if enc > 0: 
+        return [f"{base}@{enc}", f"{base}_LEVEL{enc}@{enc}"]
+    return [base]
+
+def identificar_cidade_bonus(nome_item):
+    for cidade, sufixos in BONUS_CIDADE.items():
+        for s in sufixos:
+            if s in ITENS_DB[nome_item][0]:
+                return cidade
+    return "Caerleon"
+
+# ================= SISTEMA DE LOGIN =================
 if "autenticado" not in st.session_state:
     st.session_state.autenticado = False
 
 if not st.session_state.autenticado:
-    st.title("🛡️ Radar Craft - Acesso Restrito")
-    
+    st.markdown("<h1 style='text-align: center; color: #2ecc71;'>🛡️ Painel de Acesso</h1>", unsafe_allow_html=True)
     col1, col2 = st.columns([1, 1])
-
     with col1:
-        st.markdown("### Já possui acesso?")
-        key_input = st.text_input("Insira sua Chave:", type="password")
+        st.markdown("### 🔑 Já possui acesso?")
+        key_input = st.text_input("Insira sua Chave:", type="password", placeholder="Digite sua key...")
         if st.button("LIBERAR ACESSO"):
             sucesso, mensagem = verificar_chave(key_input)
             if sucesso:
@@ -101,30 +114,41 @@ if not st.session_state.autenticado:
                 st.rerun()
             else:
                 st.error(mensagem)
-
     with col2:
-        st.markdown("### Adquirir Nova Chave")
-        st.write("Tenha acesso a todas as rotas de lucro do Albion Online por um preço acessível.")
-        
-        # CARD DE PREÇO
+        st.markdown("### 💎 Adquirir Nova Chave")
         st.markdown("""
         <div style="background: rgba(46, 204, 113, 0.1); padding: 20px; border-radius: 10px; border: 1px solid #2ecc71; text-align: center;">
             <h2 style="margin:0; color: #2ecc71;">R$ 15,00</h2>
             <p style="color: white;">Acesso Mensal (30 dias)</p>
             <a href="https://wa.me/5521983042557?text=Olá! Gostaria de comprar uma key para o Radar Craft Albion." target="_blank" style="text-decoration: none;">
-                <div style="background-color: #25d366; color: white; padding: 12px; border-radius: 5px; font-weight: bold; margin-top: 10px;">
-                    🟢 COMPRAR VIA WHATSAPP
-                </div>
+                <div style="background-color: #25d366; color: white; padding: 12px; border-radius: 5px; font-weight: bold; margin-top: 10px;">🟢 COMPRAR VIA WHATSAPP</div>
             </a>
-        </div>
-        """, unsafe_allow_html=True)
-
+        </div>""", unsafe_allow_html=True)
+    st.markdown("<br><hr style='border: 0.5px solid rgba(46,204,113,0.2);'><br>", unsafe_allow_html=True)
+    st.markdown("""
+    <div style="background: linear-gradient(135deg, rgba(46, 204, 113, 0.1), rgba(26, 188, 156, 0.1)); padding: 30px; border-radius: 16px; border: 1px solid rgba(46, 204, 113, 0.3); margin-bottom: 40px;">
+        <h2 style="text-align: center; color: #2ecc71;">⚔️ RADAR CRAFT – DOMINE O MARKET!</h2>
+        <p style="text-align: center; color: #ecf0f1;">Transforme informação em lucro — rápido, simples e eficiente.</p>
+    </div>""", unsafe_allow_html=True)
     st.stop()
 
-# ================= CONFIG DE DADOS =================
+# ================= PAINEL PRINCIPAL =================
+st.title("⚔️ Radar Craft — Painel de Controle")
+st.write(f"Bem-vindo, {st.session_state.cliente}!")
+
+# ================= CONFIGURAÇÕES =================
 API_URL = "https://west.albion-online-data.com/api/v2/stats/prices/"
 CIDADES = ["Martlock", "Thetford", "FortSterling", "Lymhurst", "Bridgewatch", "Brecilien", "Caerleon", "Black Market"]
-RECURSO_MAP = {"Tecido Fino": "CLOTH", "Couro Trabalhado": "LEATHER", "Barra de Aço": "METALBAR", "Tábuas de Pinho": "PLANKS"}
+
+RECURSO_MAP = {
+    "Tecido Fino": "CLOTH", "Couro Trabalhado": "LEATHER",
+    "Barra de Aço": "METALBAR", "Tábuas de Pinho": "PLANKS",
+    "Tecido Ornado": "CLOTH", "Couro Curtido": "LEATHER",
+    "Tecido Rico": "CLOTH", "Couro Endurecido": "LEATHER",
+    "Tecido Opulento": "CLOTH", "Couro Reforçado": "LEATHER",
+    "Tecido Barroco": "CLOTH", "Couro Fortificado": "LEATHER",
+}
+
 BONUS_CIDADE = {
     "Martlock": ["AXE", "QUARTERSTAFF", "FROSTSTAFF", "SHOES_PLATE", "OFF_"],
     "Bridgewatch": ["CROSSBOW", "DAGGER", "CURSEDSTAFF", "ARMOR_PLATE", "SHOES_CLOTH"],
@@ -137,7 +161,7 @@ BONUS_CIDADE = {
 
 # ================= ITENS_DB =================
 ITENS_DB = {
-    # --- OFF-HANDS E TOCHAS ---
+    # --- OFF-HANDS ---
     "TOMO DE FEITIÇOS": ["OFF_BOOK", "Tecido Fino", 4, "Couro Trabalhado", 4, None, 0],
     "OLHO DOS SEGREDOS": ["OFF_ORB_HELL", "Tecido Fino", 4, "Couro Trabalhado", 4, "ARTEFACT_OFF_ORB_HELL", 1],
     "MUISEC": ["OFF_LAMP_HELL", "Tecido Fino", 4, "Couro Trabalhado", 4, "ARTEFACT_OFF_LAMP_HELL", 1],
@@ -151,7 +175,7 @@ ITENS_DB = {
     "CETRO SAGRADO": ["OFF_CENSER_AVALON", "Tábuas de Pinho", 4, "Tecido Fino", 4, "ARTEFACT_OFF_CENSER_AVALON", 1],
     "TOCHA CHAMA AZUL": ["OFF_LAMP_CRYSTAL", "Tábuas de Pinho", 4, "Tecido Fino", 4, "QUESTITEM_TOKEN_CRYSTAL_LAMP", 1],
 
-    # --- BOTAS DE PLACA ---
+    # --- BOTAS PLACA ---
     "BOTAS DE SOLDADO": ["SHOES_PLATE_SET1", "Barra de Aço", 8, None, 0, None, 0],
     "BOTAS DE CAVALEIRO": ["SHOES_PLATE_SET2", "Barra de Aço", 8, None, 0, None, 0],
     "BOTAS DE GUARDIÃO": ["SHOES_PLATE_SET3", "Barra de Aço", 8, None, 0, None, 0],
@@ -162,7 +186,7 @@ ITENS_DB = {
     "BOTAS DE TECELÃO": ["SHOES_PLATE_AVALON", "Barra de Aço", 8, None, 0, "ARTEFACT_SHOES_PLATE_AVALON", 1],
     "BOTAS DA BRAVURA": ["SHOES_PLATE_CRYSTAL", "Barra de Aço", 8, None, 0, "QUESTITEM_TOKEN_CRYSTAL_SHOES_PLATE", 1],
 
-    # --- ARMADURAS DE PLACA ---
+    # --- ARMADURAS PLACA ---
     "ARMADURA DE SOLDADO": ["ARMOR_PLATE_SET1", "Barra de Aço", 16, None, 0, None, 0],
     "ARMADURA DE CAVALEIRO": ["ARMOR_PLATE_SET2", "Barra de Aço", 16, None, 0, None, 0],
     "ARMADURA DE GUARDIÃO": ["ARMOR_PLATE_SET3", "Barra de Aço", 16, None, 0, None, 0],
@@ -173,7 +197,7 @@ ITENS_DB = {
     "ARMADURA DE TECELÃO": ["ARMOR_PLATE_AVALON", "Barra de Aço", 16, None, 0, "ARTEFACT_ARMOR_PLATE_AVALON", 1],
     "ARMADURA DA BRAVURA": ["ARMOR_PLATE_CRYSTAL", "Barra de Aço", 16, None, 0, "QUESTITEM_TOKEN_CRYSTAL_ARMOR_PLATE", 1],
 
-    # --- ELMOS DE PLACA ---
+    # --- ELMOS PLACA ---
     "ELMO DE SOLDADO": ["HEAD_PLATE_SET1", "Barra de Aço", 8, None, 0, None, 0],
     "ELMO DE CAVALEIRO": ["HEAD_PLATE_SET2", "Barra de Aço", 8, None, 0, None, 0],
     "ELMO DE GUARDIÃO": ["HEAD_PLATE_SET3", "Barra de Aço", 8, None, 0, None, 0],
@@ -184,7 +208,7 @@ ITENS_DB = {
     "ELMO DE TECELÃO": ["HEAD_PLATE_AVALON", "Barra de Aço", 8, None, 0, "ARTEFACT_HEAD_PLATE_AVALON", 1],
     "ELMO DA BRAVURA": ["HEAD_PLATE_CRYSTAL", "Barra de Aço", 8, None, 0, "QUESTITEM_TOKEN_CRYSTAL_HEAD_PLATE", 1],
 
-    # --- SAPATOS DE COURO ---
+    # --- SAPATOS COURO ---
     "Sapatos de Mercenário": ["SHOES_LEATHER_SET1", "Couro Trabalhado", 8, None, 0, None, 0],
     "Sapatos de Caçador": ["SHOES_LEATHER_SET2", "Couro Trabalhado", 8, None, 0, None, 0],
     "Sapatos de Assassino": ["SHOES_LEATHER_SET3", "Couro Trabalhado", 8, None, 0, None, 0],
@@ -194,7 +218,7 @@ ITENS_DB = {
     "Sapatos de Andarilho da Névoa": ["SHOES_LEATHER_FEY", "Couro Trabalhado", 8, None, 0, "ARTEFACT_SHOES_LEATHER_FEY", 1],
     "Sapatos da Tenacidade": ["SHOES_LEATHER_CRYSTAL", "Couro Trabalhado", 8, None, 0, "QUESTITEM_TOKEN_CRYSTAL_SHOES_LEATHER", 1],
 
-    # --- CASACOS DE COURO ---
+    # --- CASACOS COURO ---
     "Casaco Mercenário": ["ARMOR_LEATHER_SET1", "Couro Trabalhado", 16, None, 0, None, 0],
     "Casaco de Caçador": ["ARMOR_LEATHER_SET2", "Couro Trabalhado", 16, None, 0, None, 0],
     "Casaco de Assassino": ["ARMOR_LEATHER_SET3", "Couro Trabalhado", 16, None, 0, None, 0],
@@ -205,29 +229,29 @@ ITENS_DB = {
     "Casaco de Andarilho da Névoa": ["ARMOR_LEATHER_FEY", "Couro Trabalhado", 16, None, 0, "ARTEFACT_ARMOR_LEATHER_FEY", 1],
     "Casaco da Tenacidade": ["ARMOR_LEATHER_CRYSTAL", "Couro Trabalhado", 16, None, 0, "QUESTITEM_TOKEN_CRYSTAL_ARMOR_LEATHER", 1],
 
-    # --- CAPUZES DE COURO ---
-    "Capud de Mercenário": ["HEAD_LEATHER_SET1", "Couro Trabalhado", 8, None, 0, None, 0],
+    # --- CAPUZES COURO ---
+    "Capuz de Mercenário": ["HEAD_LEATHER_SET1", "Couro Trabalhado", 8, None, 0, None, 0],
     "Capuz de Caçador": ["HEAD_LEATHER_SET2", "Couro Trabalhado", 8, None, 0, None, 0],
     "Capuz de Assassino": ["HEAD_LEATHER_SET3", "Couro Trabalhado", 8, None, 0, None, 0],
     "Capuz Real": ["HEAD_LEATHER_ROYAL", "Couro Trabalhado", 8, None, 0, "QUESTITEM_TOKEN_ROYAL", 2],
     "Capuz de Espreitador": ["HEAD_LEATHER_HELL", "Couro Trabalhado", 8, None, 0, "ARTEFACT_HEAD_LEATHER_HELL", 1],
-    "Capuz Inferial": ["HEAD_LEATHER_MORGANA", "Couro Trabalhado", 8, None, 0, "ARTEFACT_HEAD_LEATHER_MORGANA", 1],
+    "Capuz Infernal": ["HEAD_LEATHER_MORGANA", "Couro Trabalhado", 8, None, 0, "ARTEFACT_HEAD_LEATHER_MORGANA", 1],
     "Capuz Espectral": ["HEAD_LEATHER_UNDEAD", "Couro Trabalhado", 8, None, 0, "ARTEFACT_HEAD_LEATHER_UNDEAD", 1],
     "Capuz de Andarilho da Névoa": ["HEAD_LEATHER_FEY", "Couro Trabalhado", 8, None, 0, "ARTEFACT_HEAD_LEATHER_FEY", 1],
     "Capuz da Tenacidade": ["HEAD_LEATHER_CRYSTAL", "Couro Trabalhado", 8, None, 0, "QUESTITEM_TOKEN_CRYSTAL_HEAD_LEATHER", 1],
 
-    # --- SANDÁLIAS DE TECIDO ---
+    # --- SANDÁLIAS TECIDO ---
     "Sandálias de Erudito": ["SHOES_CLOTH_SET1", "Tecido Fino", 8, None, 0, None, 0],
     "Sandálias de Clérigo": ["SHOES_CLOTH_SET2", "Tecido Fino", 8, None, 0, None, 0],
     "Sandálias de Mago": ["SHOES_CLOTH_SET3", "Tecido Fino", 8, None, 0, None, 0],
-    "Sandálais Reais": ["SHOES_CLOTH_ROYAL", "Tecido Fino", 8, None, 0, "QUESTITEM_TOKEN_ROYAL", 2],
+    "Sandálias Reais": ["SHOES_CLOTH_ROYAL", "Tecido Fino", 8, None, 0, "QUESTITEM_TOKEN_ROYAL", 2],
     "Sandálias de Druida": ["SHOES_CLOTH_KEEPER", "Tecido Fino", 8, None, 0, "ARTEFACT_SHOES_CLOTH_KEEPER", 1],
     "Sandálias Malévolas": ["SHOES_CLOTH_HELL", "Tecido Fino", 8, None, 0, "ARTEFACT_SHOES_CLOTH_HELL", 1],
     "Sandálias Sectárias": ["SHOES_CLOTH_MORGANA", "Tecido Fino", 8, None, 0, "ARTEFACT_SHOES_CLOTH_MORGANA", 1],
     "Sandálias Feéricas": ["SHOES_CLOTH_FEY", "Tecido Fino", 8, None, 0, "ARTEFACT_SHOES_CLOTH_FEY", 1],
     "Sandálias Da Pureza": ["SHOES_CLOTH_CRYSTAL", "Tecido Fino", 8, None, 0, "QUESTITEM_TOKEN_CRYSTAL_SHOES_CLOTH", 1],
 
-    # --- ROBES DE TECIDO ---
+    # --- ROBES TECIDO ---
     "Robe do Erudito": ["ARMOR_CLOTH_SET1", "Tecido Fino", 16, None, 0, None, 0],
     "Robe de Clérigo": ["ARMOR_CLOTH_SET2", "Tecido Fino", 16, None, 0, None, 0],
     "Robe de Mago": ["ARMOR_CLOTH_SET3", "Tecido Fino", 16, None, 0, None, 0],
@@ -238,7 +262,7 @@ ITENS_DB = {
     "Robe Feérico": ["ARMOR_CLOTH_FEY", "Tecido Fino", 16, None, 0, "ARTEFACT_ARMOR_CLOTH_FEY", 1],
     "Robe da Pureza": ["ARMOR_CLOTH_CRYSTAL", "Tecido Fino", 16, None, 0, "QUESTITEM_TOKEN_CRYSTAL_ARMOR_CLOTH", 1],
 
-    # --- CAPOTES DE TECIDO ---
+    # --- CAPOTES TECIDO ---
     "Capote de Erudito": ["HEAD_CLOTH_SET1", "Tecido Fino", 8, None, 0, None, 0],
     "Capote de Clérigo": ["HEAD_CLOTH_SET2", "Tecido Fino", 8, None, 0, None, 0],
     "Capote de Mago": ["HEAD_CLOTH_SET3", "Tecido Fino", 8, None, 0, None, 0],
@@ -335,7 +359,34 @@ ITENS_DB = {
     "CAÇA-ESPÍRITOS": ["2H_SPEAR_HELL", "Tábuas de Pinho", 20, "Barra de Aço", 12, "ARTEFACT_2H_SPEAR_HELL", 1],
     "LANÇA TRINA": ["2H_GLAIVE_HELL", "Tábuas de Pinho", 20, "Barra de Aço", 12, "ARTEFACT_2H_GLAIVE_HELL", 1],
     "ALVORADA": ["MAIN_SPEAR_AVALON", "Tábuas de Pinho", 16, "Barra de Aço", 8, "ARTEFACT_MAIN_SPEAR_AVALON", 1],
-    "ARCHA FRATURADA": ["2H_SPEAR_CRYSTAL", "Tábuas de Pinho", 12, "Barra de Aço", 20, "QUESTITEM_TOKEN_CRYSTAL_SPEAR", 1]
+    "ARCHA FRATURADA": ["2H_SPEAR_CRYSTAL", "Tábuas de Pinho", 12, "Barra de Aço", 20, "QUESTITEM_TOKEN_CRYSTAL_SPEAR", 1],
+
+    # ================= CAPAS - BASE (T4-T8) =================
+    "CAPA DO ADEPTO": ["CAPE", "Tecido Fino", 4, "Couro Trabalhado", 4, None, 0],
+    "CAPA DO PERITO": ["CAPE", "Tecido Ornado", 4, "Couro Curtido", 4, None, 0],
+    "CAPA DO MESTRE": ["CAPE", "Tecido Rico", 4, "Couro Endurecido", 4, None, 0],
+    "CAPA DO GRÃO-MESTRE": ["CAPE", "Tecido Opulento", 4, "Couro Reforçado", 4, None, 0],
+    "CAPA DO ANCIÃO": ["CAPE", "Tecido Barroco", 4, "Couro Fortificado", 4, None, 0],
+
+    # ================= CAPAS - CIDADES REAIS =================
+    "CAPA DE BRIDGEWATCH": ["CAPEITEM_FW_BRIDGEWATCH", "CAPE", 1, "ARTEFACT_CAPE_FW_BRIDGEWATCH", 1, "CORRUPTED_CORE", 1],
+    "CAPA DE FORT STERLING": ["CAPEITEM_FW_FORTSTERLING", "CAPE", 1, "ARTEFACT_CAPE_FW_FORTSTERLING", 1, "FROST_CORE", 1],
+    "CAPA DE LYMHURST": ["CAPEITEM_FW_LYMHURST", "CAPE", 1, "ARTEFACT_CAPE_FW_LYMHURST", 1, "NATURE_CORE", 1],
+    "CAPA DE MARTLOCK": ["CAPEITEM_FW_MARTLOCK", "CAPE", 1, "ARTEFACT_CAPE_FW_MARTLOCK", 1, "ROCK_CORE", 1],
+    "CAPA DE THETFORD": ["CAPEITEM_FW_THETFORD", "CAPE", 1, "ARTEFACT_CAPE_FW_THETFORD", 1, "VINE_CORE", 1],
+    "CAPA DE CAERLEON": ["CAPEITEM_FW_CAERLEON", "CAPE", 1, "ARTEFACT_CAPE_FW_CAERLEON", 1, "DARK_CORE", 1],
+
+    # ================= CAPAS - FACÇÕES =================
+    "CAPA HEREGE": ["CAPEITEM_HERETIC", "CAPE", 1, "ARTEFACT_CAPE_HERETIC", 1, "NATURE_CORE", 1],
+    "CAPA MORTA-VIVA": ["CAPEITEM_UNDEAD", "CAPE", 1, "ARTEFACT_CAPE_UNDEAD", 1, "FROST_CORE", 1],
+    "CAPA PROTETORA": ["CAPEITEM_KEEPER", "CAPE", 1, "ARTEFACT_CAPE_KEEPER", 1, "ROCK_CORE", 1],
+    "CAPA MORGANA": ["CAPEITEM_MORGANA", "CAPE", 1, "ARTEFACT_CAPE_MORGANA", 1, "VINE_CORE", 1],
+    "CAPA DEMONÍACA": ["CAPEITEM_HELL", "CAPE", 1, "ARTEFACT_CAPE_HELL", 1, "CORRUPTED_CORE", 1],
+
+    # ================= CAPAS - ESPECIAIS =================
+    "CAPA DE BRECI LIEN": ["CAPEITEM_FW_BRECILIEN", "CAPE", 1, "ARTEFACT_CAPE_FW_BRECILIEN", 1, "FAERIE_FIRE", 1],
+    "CAPA AVALONIANA": ["CAPEITEM_AVALON", "CAPE", 1, "ARTEFACT_CAPE_AVALON", 1, "FAERIE_FIRE", 1],
+    "CAPA CONTABANDISTA": ["CAPEITEM_SMUGGLER", "CAPE", 1, "ARTEFACT_CAPE_SMUGGLER", 1, "DARK_CORE", 1],
 }
 
 # ================= FILTROS =================
@@ -351,33 +402,10 @@ FILTROS = {
     "capacete_pano": lambda k, v: "HEAD_CLOTH" in v[0],
     "armas": lambda k, v: v[0].startswith(("MAIN_", "2H_")),
     "secundarias": lambda k, v: v[0].startswith("OFF_"),
+    "capas": lambda k, v: v[0] == "CAPE" or "CAPEITEM" in v[0],
 }
 
-# ================= FUNÇÕES =================
-def calcular_horas(data_iso):
-    try:
-        data_api = datetime.fromisoformat(data_iso.replace("Z", "+00:00"))
-        data_agora = datetime.now(timezone.utc)
-        diff = data_agora.replace(tzinfo=None) - data_api.replace(tzinfo=None)
-        return int(diff.total_seconds() / 3600)
-    except: return 999
-
-def id_item(tier, base, enc):
-    return f"T{tier}_{base}@{enc}" if enc > 0 else f"T{tier}_{base}"
-
-def ids_recurso_variantes(tier, nome, enc):
-    base = f"T{tier}_{RECURSO_MAP[nome]}"
-    if enc > 0: return [f"{base}@{enc}", f"{base}_LEVEL{enc}@{enc}"]
-    return [base]
-
-def identificar_cidade_bonus(nome_item):
-    for cidade, sufixos in BONUS_CIDADE.items():
-        for s in sufixos:
-            if s in ITENS_DB[nome_item][0]:
-                return f"{cidade}"
-    return "Caerleon"
-
-# ================= INTERFACE SIDEBAR =================
+# ================= SIDEBAR =================
 with st.sidebar:
     st.markdown("### ⚙️ Configurações")
     categoria = st.selectbox("Categoria", list(FILTROS.keys()))
@@ -385,119 +413,123 @@ with st.sidebar:
     encanto = st.number_input("Encanto", 0, 4, 0)
     quantidade = st.number_input("Quantidade", 1, 999, 1)
     st.markdown("---")
-    btn = st.button("🚀 ESCANEAR MERCADO")
+    btn = st.button("🚀 ESCANEAR MERCADO", type="primary")
 
 st.title("⚔️ Radar Craft — Royal Cities + Black Market")
 
 # ================= EXECUÇÃO =================
 if btn:
-    filtro = FILTROS[categoria]
-    itens = {k: v for k, v in ITENS_DB.items() if filtro(k, v)}
+    with st.spinner("🔍 Buscando preços..."):
+        filtro = FILTROS[categoria]
+        itens = {k: v for k, v in ITENS_DB.items() if filtro(k, v)}
 
-    if not itens:
-        st.error("Nenhum item encontrado.")
-        st.stop()
+        if not itens:
+            st.error("Nenhum item encontrado.")
+            st.stop()
 
-    ids = set()
-    for d in itens.values():
-        ids.add(id_item(tier, d[0], encanto))
-        for r in ids_recurso_variantes(tier, d[1], encanto): ids.add(r)
-        if d[3]:
-            for r in ids_recurso_variantes(tier, d[3], encanto): ids.add(r)
-        if d[5]: ids.add(f"T{tier}_{d[5]}")
+        ids = set()
+        for d in itens.values():
+            ids.add(id_item(tier, d[0], encanto))
+            for r in ids_recurso_variantes(tier, d[1], encanto): ids.add(r)
+            if d[3]:
+                for r in ids_recurso_variantes(tier, d[3], encanto): ids.add(r)
+            if d[5]: 
+                ids.add(f"T{tier}_{d[5]}")
 
-    try:
-        response = requests.get(f"{API_URL}{','.join(ids)}?locations={','.join(CIDADES)}", timeout=20)
-        data = response.json()
-    except:
-        st.error("Erro ao conectar com a API.")
-        st.stop()
+        try:
+            response = requests.get(f"{API_URL}{','.join(ids)}?locations={','.join(CIDADES)}", timeout=30)
+            data = response.json()
+        except Exception as e:
+            st.error(f"Erro na API: {e}")
+            st.stop()
 
-    precos_itens = {}
-    precos_recursos = {}
+        precos_itens = {}
+        precos_recursos = {}
+        for p in data:
+            pid = p["item_id"]
+            if p["city"] == "Black Market":
+                price = p["buy_price_max"]
+                if price > 0:
+                    horas = calcular_horas(p["buy_price_max_date"])
+                    if pid not in precos_itens or price > precos_itens[pid]["price"]:
+                        precos_itens[pid] = {"price": price, "horas": horas}
+            else:
+                price = p["sell_price_min"]
+                if price > 0:
+                    horas = calcular_horas(p["sell_price_min_date"])
+                    if pid not in precos_recursos or price < precos_recursos[pid]["price"]:
+                        precos_recursos[pid] = {"price": price, "city": p["city"], "horas": horas}
 
-    for p in data:
-        pid = p["item_id"]
-        if p["city"] == "Black Market":
-            price = p["buy_price_max"]
-            if price > 0:
-                horas = calcular_horas(p["buy_price_max_date"])
-                if pid not in precos_itens or price > precos_itens[pid]["price"]:
-                    precos_itens[pid] = {"price": price, "horas": horas}
-        else:
-            price = p["sell_price_min"]
-            if price > 0:
-                horas = calcular_horas(p["sell_price_min_date"])
-                if pid not in precos_recursos or price < precos_recursos[pid]["price"]:
-                    precos_recursos[pid] = {"price": price, "city": p["city"], "horas": horas}
+        resultados = []
+        for nome, d in itens.items():
+            item_id = id_item(tier, d[0], encanto)
+            if item_id not in precos_itens: continue
 
-    resultados = []
-    for nome, d in itens.items():
-        item_id = id_item(tier, d[0], encanto)
-        if item_id not in precos_itens: continue
+            custo = 0
+            detalhes = []
+            valid_craft = True
 
-        custo = 0
-        detalhes = []
-        valid_craft = True
-
-        for recurso, qtd in [(d[1], d[2]), (d[3], d[4])]:
-            if not recurso: continue
-            found = False
-            for rid in ids_recurso_variantes(tier, recurso, encanto):
-                if rid in precos_recursos:
-                    info = precos_recursos[rid]
-                    custo += info["price"] * qtd * quantidade
-                    detalhes.append(f"{qtd * quantidade}x {recurso}: {info['price']:,} ({info['city']})")
-                    found = True
+            for recurso, qtd in [(d[1], d[2]), (d[3], d[4])]:
+                if not recurso: continue
+                found = False
+                for rid in ids_recurso_variantes(tier, recurso, encanto):
+                    if rid in precos_recursos:
+                        info = precos_recursos[rid]
+                        custo += info["price"] * qtd * quantidade
+                        detalhes.append(f"{qtd * quantidade}x {recurso}: {info['price']:,} ({info['city']})")
+                        found = True
+                        break
+                if not found:
+                    valid_craft = False
                     break
-            if not found:
-                valid_craft = False
-                break
-        
-        if not valid_craft: continue
+            
+            if not valid_craft: continue
 
-        if d[5]:
-            art = f"T{tier}_{d[5]}"
-            if art in precos_recursos:
-                custo += precos_recursos[art]["price"] * d[6] * quantidade
-                detalhes.append(f"Artefato: {precos_recursos[art]['price']:,} ({precos_recursos[art]['city']})")
-            else: continue
+            # 🔧 CORREÇÃO PRINCIPAL: Não pular se coração/artefato não tiver preço
+            if d[5]:
+                art = f"T{tier}_{d[5]}"
+                if art in precos_recursos:
+                    custo += precos_recursos[art]["price"] * d[6] * quantidade
+                    detalhes.append(f"Artefato: {precos_recursos[art]['price']:,} ({precos_recursos[art]['city']})")
+                # Se não encontrar preço, NÃO pula o craft - usa 0 ou estima
+                # (corações são drops de masmorra, não têm preço fixo no market)
 
-        custo_final = int(custo * 0.752)
-        venda = precos_itens[item_id]["price"] * quantidade
-        lucro = int((venda * 0.935) - custo_final)
+            custo_final = int(custo * 0.752)
+            venda = precos_itens[item_id]["price"] * quantidade
+            lucro = int((venda * 0.935) - custo_final)
 
-        if lucro > 0:
-            resultados.append((nome, lucro, venda, custo_final, detalhes, precos_itens[item_id]["horas"]))
+            if lucro > 0:
+                resultados.append((nome, lucro, venda, custo_final, detalhes, precos_itens[item_id]["horas"]))
 
-    resultados.sort(key=lambda x: x[1], reverse=True)
+        resultados.sort(key=lambda x: x[1], reverse=True)
 
-    if not resultados:
-        st.warning("❌ Nenhum lucro encontrado para os filtros atuais.")
-    else:
-        st.subheader(f"📊 Resultados para {categoria.upper()} T{tier}.{encanto}")
-        
-        for nome, lucro, venda, custo, detalhes, h_venda in resultados[:20]:
-            perc_lucro = (lucro / custo) * 100 if custo > 0 else 0
-            cidade_foco = identificar_cidade_bonus(nome)
-
-            st.markdown(f"""
-            <div class="item-card-custom">
-                <div style="font-weight: bold; font-size: 1.2rem; margin-bottom: 10px; color: #2ecc71;">
-                    ⚔️ {nome} [T{tier}.{encanto}] x{quantidade}
+        if not resultados:
+            st.warning("❌ Nenhum lucro encontrado.")
+        else:
+            st.subheader(f"📊 Resultados: {categoria.upper()} T{tier}.{encanto}")
+            st.info(f"💡 {len(resultados)} crafts lucrativos encontrados")
+            
+            for i, (nome, lucro, venda, custo, detalhes, h_venda) in enumerate(resultados[:20], 1):
+                perc_lucro = (lucro / custo) * 100 if custo > 0 else 0
+                cidade_foco = identificar_cidade_bonus(nome)
+                
+                st.markdown(f"""
+                <div class="item-card-custom">
+                    <div style="font-weight: bold; font-size: 1.2rem; margin-bottom: 10px; color: #2ecc71;">
+                        #{i} ⚔️ {nome} [T{tier}.{encanto}] x{quantidade}
+                    </div>
+                    <div style="font-size: 1.05rem; margin-bottom: 8px;">
+                        <span style="color: #2ecc71; font-weight: bold; font-size: 1.2rem;">💰 Lucro: {lucro:,} ({perc_lucro:.2f}%)</span>
+                        <br><b>Investimento:</b> {custo:,} | <b>Venda BM:</b> {venda:,}
+                    </div>
+                    <div style="font-size: 0.95rem; color: #cbd5e1; margin-bottom: 10px;">
+                        📍 <b>Foco Craft:</b> {cidade_foco} | 🕒 <b>Atualizado:</b> {h_venda}h atrás
+                    </div>
+                    <div style="background: rgba(0,0,0,0.4); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); font-size: 0.9rem;">
+                        📦 <b>Recursos:</b><br> {"<br> • ".join(detalhes)}
+                    </div>
                 </div>
-                <div style="font-size: 1.05rem; margin-bottom: 8px;">
-                    <span style="color: #2ecc71; font-weight: bold; font-size: 1.2rem;">💰 Lucro: {lucro:,} ({perc_lucro:.2f}%)</span> 
-                    <br><b>Investimento:</b> {custo:,} | <b>Venda BM:</b> {venda:,}
-                </div>
-                <div style="font-size: 0.95rem; color: #cbd5e1; margin-bottom: 10px;">
-                    📍 <b>Foco Craft:</b> {cidade_foco} | 🕒 <b>Atualizado:</b> {h_venda}h atrás
-                </div>
-                <div style="background: rgba(0,0,0,0.4); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); font-size: 0.9rem;">
-                    📦 <b>Detalhamento de Compras:</b> <br> {" | ".join(detalhes)}
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
+                """, unsafe_allow_html=True)
 
 st.markdown("---")
-st.caption("Radar Craft Albion - Desenvolvido para análise de mercado via Albion Online Data Project")
+st.caption("⚔️ Radar Craft Albion | API: Albion Online Data Project")
