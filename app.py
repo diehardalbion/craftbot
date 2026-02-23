@@ -393,7 +393,7 @@ ITENS_DB = {
     "ELMO REAL": ["HEAD_PLATE_ROYAL", "Barra de Aço", 8, None, 0, "QUESTITEM_TOKEN_ROYAL", 2],
     "ELMO DE GUARDA-TUMBAS": ["HEAD_PLATE_UNDEAD", "Barra de Aço", 8, None, 0, "ARTEFACT_HEAD_PLATE_UNDEAD", 1],
     "ELMO DEMÔNIO": ["HEAD_PLATE_HELL", "Barra de Aço", 8, None, 0, "ARTEFACT_HEAD_PLATE_HELL", 1],
-    "ELMO JUDICANTE": ["HEAD_PLATE_KEEPER", "Barra de Aço", 8, None, 0, "ARTEFACT_HEAD_PLATE_KEEPER", 1],
+    "ELmo JUDICANTE": ["HEAD_PLATE_KEEPER", "Barra de Aço", 8, None, 0, "ARTEFACT_HEAD_PLATE_KEEPER", 1],
     "ELMO DE TECELÃO": ["HEAD_PLATE_AVALON", "Barra de Aço", 8, None, 0, "ARTEFACT_HEAD_PLATE_AVALON", 1],
     "ELMO DA BRAVURA": ["HEAD_PLATE_CRYSTAL", "Barra de Aço", 8, None, 0, "QUESTITEM_TOKEN_CRYSTAL_HEAD_PLATE", 1],
     "Sapatos de Mercenário": ["SHOES_LEATHER_SET1", "Couro Trabalhado", 8, None, 0, None, 0],
@@ -577,21 +577,21 @@ def get_historical_price(item_id, location="Black Market"):
         # 1️⃣ Tenta preço atual primeiro (sempre prioridade)
         url_atual = f"{API_URL}{item_id}?locations={location}"
         resp_atual = requests.get(url_atual, timeout=10).json()
-        if resp_atual and resp_atual[0]["sell_price_min"] > 0:
+        if resp_atual and len(resp_atual) > 0 and resp_atual[0].get("sell_price_min", 0) > 0:
             return resp_atual[0]["sell_price_min"]
 
         # 2️⃣ Histórico das últimas 24h
         url_hist = f"{HISTORY_URL}{item_id}?locations={location}&timescale=24"
         resp_hist = requests.get(url_hist, timeout=10).json()
 
-        if not resp_hist or "data" not in resp_hist[0]:
+        if not resp_hist or len(resp_hist) == 0 or "data" not in resp_hist[0]:
             return 0
 
         # 3️⃣ Filtra preços válidos
         prices = [
             d["avg_price"]
             for d in resp_hist[0]["data"]
-            if d["avg_price"] > 0 and d["item_count"] >= 3
+            if d.get("avg_price", 0) > 0 and d.get("item_count", 0) >= 3
         ]
 
         if not prices:
@@ -602,7 +602,7 @@ def get_historical_price(item_id, location="Black Market"):
         mid = len(prices) // 2
         return prices[mid]
 
-    except:
+    except Exception as e:
         return 0
 
 def calcular_horas(data_iso):
@@ -791,6 +791,11 @@ if btn:
         st.error("Nenhum item encontrado nesta categoria.")
         st.stop()
 
+    # DEBUG: Mostrar quantos itens foram encontrados
+    if is_capas:
+        st.write(f"Debug: Encontradas {len(itens_capas)} capas para processar")
+        st.write(f"Capas: {list(itens_capas.keys())}")
+
     # Coleta de IDs de recursos para a API
     ids_para_recursos = set()
     
@@ -816,18 +821,18 @@ if btn:
             timeout=20
         )
         data_recursos = response.json()
-    except:
-        st.error("Erro ao conectar com a API de recursos. Tente novamente.")
+    except Exception as e:
+        st.error(f"Erro ao conectar com a API de recursos: {e}")
         st.stop()
 
     # Processamento de preços de recursos
     precos_recursos = {}
     for p in data_recursos:
         pid = p["item_id"]
-        price = p["sell_price_min"]
+        price = p.get("sell_price_min", 0)
         if price > 0:
             if pid not in precos_recursos or price < precos_recursos[pid]["price"]:
-                precos_recursos[pid] = {"price": price, "city": p["city"]}
+                precos_recursos[pid] = {"price": price, "city": p.get("city", "Desconhecida")}
 
     resultados = []
     progress_text = "Analisando Mercado e Calculando Lucros..."
@@ -924,11 +929,16 @@ if btn:
                 continue
             
             item_id = get_capa_item_id(tier, dados_capa["id_base"], encanto)
+            
+            # DEBUG
+            st.write(f"Debug: Buscando preço para {nome_capa} - ID: {item_id}")
+            
             preco_venda_bm = get_historical_price(item_id)
 
             my_bar.progress((idx + 1) / total_itens, text=f"Analisando: {nome_capa}")
 
             if preco_venda_bm <= 0:
+                st.write(f"Debug: Sem preço no BM para {nome_capa} (ID: {item_id})")
                 idx += 1
                 continue
 
@@ -938,6 +948,7 @@ if btn:
             )
 
             if not valid_craft or custo == 0:
+                st.write(f"Debug: Craft inválido para {nome_capa} - Custo: {custo}, Valid: {valid_craft}")
                 idx += 1
                 continue
 
