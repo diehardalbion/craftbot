@@ -978,7 +978,7 @@ if btn:
                 continue
 
             custo_final = int(custo)
-            venda_total = int(pco_venda_bm * quantidade)
+            venda_total = int(preco_venda_bm * quantidade)
             lucro = int((venda_total * 0.935) - custo_final)
 
             resultados.append(
