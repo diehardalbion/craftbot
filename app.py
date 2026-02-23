@@ -16,7 +16,7 @@ st.markdown("""
     }
     .stApp {
         background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)), 
-                    url("https://i.imgur.com/kVAiMjD.png ");
+                    url("https://i.imgur.com/kVAiMjD.png");
         background-size: cover;
         background-attachment: fixed;
     }
@@ -90,7 +90,7 @@ if not st.session_state.autenticado:
         <div style="background: rgba(46, 204, 113, 0.1); padding: 20px; border-radius: 10px; border: 1px solid #2ecc71; text-align: center;">
             <h2 style="margin:0; color: #2ecc71;">R$ 15,00</h2>
             <p style="color: white;">Acesso Mensal (30 dias)</p>
-            <a href="https://wa.me/5521983042557?text=Ol á! Gostaria de comprar uma key para o Radar Craft Albion." target="_blank" style="text-decoration: none;">
+            <a href="https://wa.me/5521983042557?text=Olá! Gostaria de comprar uma key para o Radar Craft Albion." target="_blank" style="text-decoration: none;">
                 <div style="background-color: #25d366; color: white; padding: 12px; border-radius: 5px; font-weight: bold; margin-top: 10px;">
                     COMPRAR VIA WHATSAPP
                 </div>
@@ -100,8 +100,8 @@ if not st.session_state.autenticado:
     st.stop()
 
 # ================= CONFIG DE DADOS =================
-API_URL = "https://west.albion-online-data.com/api/v2/stats/prices/ "
-HISTORY_URL = "https://west.albion-online-data.com/api/v2/stats/history/ "
+API_URL = "https://west.albion-online-data.com/api/v2/stats/prices/"
+HISTORY_URL = "https://west.albion-online-data.com/api/v2/stats/history/"
 CIDADES = ["Martlock", "Thetford", "FortSterling", "Lymhurst", "Bridgewatch", "Brecilien", "Caerleon", "Black Market"]
 RECURSO_MAP = {"Tecido Fino": "CLOTH", "Couro Trabalhado": "LEATHER", "Barra de Aço": "METALBAR", "Tábuas de Pinho": "PLANKS"}
 BONUS_CIDADE = {
@@ -398,14 +398,8 @@ ITENS_DB = {
     "CAÇA-ESPÍRITOS": ["2H_SPEAR_HELL", "Tábuas de Pinho", 20, "Barra de Aço", 12, "ARTEFACT_2H_HARPOON_HELL", 1],
     "LANÇA TRINA": ["2H_GLAIVE_HELL", "Tábuas de Pinho", 20, "Barra de Aço", 12, "ARTEFACT_2H_TRIDENT_UNDEAD", 1],
     "ALVORADA": ["MAIN_SPEAR_AVALON", "Tábuas de Pinho", 16, "Barra de Aço", 8, "ARTEFACT_MAIN_SPEAR_LANCE_AVALON", 1],
-    "ARCHA FRATURADA": ["2H_SPEAR_CRYSTAL", "Tábuas de Pinho", 12, "Barra de Aço", 20, "QUESTITEM_TOKEN_CRYSTAL_SPEAR", 1],
+    "ARCHA FRATURADA": ["2H_SPEAR_CRYSTAL", "Tábuas de Pinho", 12, "Barra de Aço", 20, "QUESTITEM_TOKEN_CRYSTAL_SPEAR", 1]
 
-    # ================= CAPAS NORMAIS =================
-    "Capa do Adepto": ["CAPEITEM_LEVEL1", "Tecido Fino", 4, "Couro Trabalhado", 4, None, 0],
-    "Capa do Perito": ["CAPEITEM_LEVEL2", "Tecido Ornado", 4, "Couro Curtido", 4, None, 0],
-    "Capa do Mestre": ["CAPEITEM_LEVEL3", "Tecido Rico", 4, "Couro Endurecido", 4, None, 0],
-    "Capa do Grão-Mestre": ["CAPEITEM_LEVEL4", "Tecido Opulento", 4, "Couro Reforçado", 4, None, 0],
-    "Capa do Ancião": ["CAPEITEM_LEVEL5", "Tecido Barroco", 4, "Couro Fortificado", 4, None, 0],
 }
 
 # ================= FILTROS CORRIGIDOS =================
@@ -453,10 +447,9 @@ FILTROS = {
     # BOLSAS
     "bolsas": lambda k, v: "BAG" in v[0],
 
-    # CAPAS
-    "capas": lambda k, v: "CAPEITEM" in v[0],
-
 }
+
+# Pronto! Agora você pode enviar os itens do Bordão para eu formatar e adicionar na DB.
 
 # ================= FUNÇÕES =================
 # MUDANÇA 1 IMPLEMENTADA: Prioriza preço de venda direto se histórico estiver defasado
