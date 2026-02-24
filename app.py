@@ -105,20 +105,21 @@ HISTORY_URL = "https://west.albion-online-data.com/api/v2/stats/history/"
 CIDADES = ["Martlock", "Thetford", "FortSterling", "Lymhurst", "Bridgewatch", "Brecilien", "Caerleon", "Black Market"]
 RECURSO_MAP = {"Tecido Fino": "CLOTH", "Couro Trabalhado": "LEATHER", "Barra de Aço": "METALBAR", "Tábuas de Pinho": "PLANKS"}
 
-# IDs CORRETOS dos corações por facção
+# IDs CORRETOS dos corações - CHAVES DEVEM CORRESPONDER AO QUE VEM DEPOIS DE "CORACAO_" NOS ITENS
 CORACOES_IDS = {
+    # Cidades
     "Bridgewatch": "T1_FACTION_STEPPE_TOKEN_1",
     "Fort Sterling": "T1_FACTION_MOUNTAIN_TOKEN_1",
     "Lymhurst": "T1_FACTION_FOREST_TOKEN_1",
     "Martlock": "T1_FACTION_HIGHLAND_TOKEN_1",
     "Thetford": "T1_FACTION_SWAMP_TOKEN_1",
     "Caerleon": "T1_FACTION_CAERLEON_TOKEN_1",
-    # Facções usam mesmos corações das cidades
-    "Herege": "T1_FACTION_FOREST_TOKEN_1",  # Mesmo de Lymhurst
-    "Morta-viva": "T1_FACTION_MOUNTAIN_TOKEN_1",  # Mesmo de Fort Sterling
-    "Protetora": "T1_FACTION_HIGHLAND_TOKEN_1",  # Mesmo de Martlock
-    "Morgana": "T1_FACTION_SWAMP_TOKEN_1",  # Mesmo de Thetford
-    "Demoníaca": "T1_FACTION_STEPPE_TOKEN_1"  # Mesmo de Bridgewatch
+    # Facções (chaves em maiúsculo igual no ITENS_DB)
+    "HEREGE": "T1_FACTION_FOREST_TOKEN_1",
+    "MORTAVIVA": "T1_FACTION_MOUNTAIN_TOKEN_1",
+    "PROTETORA": "T1_FACTION_HIGHLAND_TOKEN_1",
+    "MORGANA": "T1_FACTION_SWAMP_TOKEN_1",
+    "DEMONIACA": "T1_FACTION_STEPPE_TOKEN_1"
 }
 
 BONUS_CIDADE = {
@@ -150,22 +151,22 @@ ITENS_DB = {
     "Capa do Ancião": ["CAPE", "Tecido Fino", 4, "Couro Trabalhado", 4, None, 0],
     
     # ================= CAPAS BRIDGEWATCH =================
-    "Capa de Bridgewatch": ["CAPEITEM_FW_BRIDGEWATCH", "CAPE", 1, "CORACAO_BRIDGEWATCH", 1, "CAPEITEM_FW_BRIDGEWATCH_BP", 1],
+    "Capa de Bridgewatch": ["CAPEITEM_FW_BRIDGEWATCH", "CAPE", 1, "CORACAO_Bridgewatch", 1, "CAPEITEM_FW_BRIDGEWATCH_BP", 1],
     
     # ================= CAPAS FORT STERLING =================
-    "Capa de Fort Sterling": ["CAPEITEM_FW_FORTSTERLING", "CAPE", 1, "CORACAO_FORTSTERLING", 1, "CAPEITEM_FW_FORTSTERLING_BP", 1],
+    "Capa de Fort Sterling": ["CAPEITEM_FW_FORTSTERLING", "CAPE", 1, "CORACAO_Fort Sterling", 1, "CAPEITEM_FW_FORTSTERLING_BP", 1],
     
     # ================= CAPAS LYMHURST =================
-    "Capa de Lymhurst": ["CAPEITEM_FW_LYMHURST", "CAPE", 1, "CORACAO_LYMHURST", 1, "CAPEITEM_FW_LYMHURST_BP", 1],
+    "Capa de Lymhurst": ["CAPEITEM_FW_LYMHURST", "CAPE", 1, "CORACAO_Lymhurst", 1, "CAPEITEM_FW_LYMHURST_BP", 1],
     
     # ================= CAPAS MARTLOCK =================
-    "Capa de Martlock": ["CAPEITEM_FW_MARTLOCK", "CAPE", 1, "CORACAO_MARTLOCK", 1, "CAPEITEM_FW_MARTLOCK_BP", 1],
+    "Capa de Martlock": ["CAPEITEM_FW_MARTLOCK", "CAPE", 1, "CORACAO_Martlock", 1, "CAPEITEM_FW_MARTLOCK_BP", 1],
     
     # ================= CAPAS THETFORD =================
-    "Capa de Thetford": ["CAPEITEM_FW_THETFORD", "CAPE", 1, "CORACAO_THETFORD", 1, "CAPEITEM_FW_THETFORD_BP", 1],
+    "Capa de Thetford": ["CAPEITEM_FW_THETFORD", "CAPE", 1, "CORACAO_Thetford", 1, "CAPEITEM_FW_THETFORD_BP", 1],
     
     # ================= CAPAS CAERLEON =================
-    "Capa de Caerleon": ["CAPEITEM_FW_CAERLEON", "CAPE", 1, "CORACAO_CAERLEON", 1, "CAPEITEM_FW_CAERLEON_BP", 1],
+    "Capa de Caerleon": ["CAPEITEM_FW_CAERLEON", "CAPE", 1, "CORACAO_Caerleon", 1, "CAPEITEM_FW_CAERLEON_BP", 1],
     
     # ================= CAPAS HEREGE =================
     "Capa Herege": ["CAPEITEM_HERETIC", "CAPE", 1, "CORACAO_HEREGE", 1, "CAPEITEM_HERETIC_BP", 1],
