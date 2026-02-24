@@ -1,6 +1,3 @@
-# Código corrigido e completo com todas as capas e debug
-
-codigo_completo = '''
 import streamlit as st
 import requests
 import json
