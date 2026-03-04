@@ -1,4 +1,3 @@
-
 import streamlit as st
 import requests
 import json
@@ -692,7 +691,47 @@ if btn:
                 detalhes.append(f"{qtd_art}x Ornamento: {info['price']:,} ({info['city']})")
             else:
                 # Tenta buscar em outras cidades
-sasa
+                preco_art = get_historical_price(art_id, "Caerleon,FortSterling,Thetford,Lymhurst,Bridgewatch,Martlock") if art_id else 0
+                if preco_art > 0:
+                    qtd_art = d[6] * quantidade
+                    custo += preco_art * qtd_art
+                    detalhes.append(f"{qtd_art}x Ornamento: {preco_art:,.0f} (Média Market)")
+                else:
+                    valid_craft = False
+
+        if not valid_craft:
+            continue
+
+        custo_final = int(custo)
+        venda_total = int(preco_venda_bm * quantidade)
+        lucro = int((venda_total * 0.935) - custo_final)
+
+        resultados.append((nome, lucro, venda_total, custo_final, detalhes, "Market Atual/24h"))
+
+    my_bar.empty()
+
+    # Ordenar pelo maior lucro
+    resultados.sort(key=lambda x: x[1], reverse=True)
+
+    if not resultados:
+        st.warning("⚠️ A API não retornou preços recentes para os itens desta categoria no Black Market.")
+    else:
+        st.subheader(f"📊 {len(resultados)} Itens Encontrados - {categoria.upper()} T{tier}.{encanto}")
+
+        for nome, lucro, venda, custo, detalhes, h_venda in resultados:
+            perc_lucro = (lucro / custo) * 100 if custo > 0 else 0
+            cidade_foco = identificar_cidade_bonus(nome)
+            cor_destaque = "#2ecc71" if lucro > 0 else "#e74c3c"
+
+            st.markdown(f"""
+            <div class="item-card-custom" style="border-left: 8px solid {cor_destaque};">
+                <div style="font-weight: bold; font-size: 1.2rem; margin-bottom: 10px; color: {cor_destaque};">
+                    ⚔️ {nome} [T{tier}.{encanto}] x{quantidade}
+                </div>
+                <div style="font-size: 1.05rem; margin-bottom: 8px;">
+                    <span style="color: {cor_destaque}; font-weight: bold; font-size: 1.2rem;">
+                        💰 Lucro Estimado: {lucro:,} ({perc_lucro:.2f}%)
+                    </span>
                     <br><b>Investimento:</b> {custo:,} |
                     <b>Venda Estimada (BM):</b> {venda:,}
                 </div>
