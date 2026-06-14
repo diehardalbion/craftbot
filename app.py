@@ -4,47 +4,445 @@ import json
 from datetime import datetime, timezone
 
 # ================= CONFIGURAÇÃO DA PÁGINA =================
-st.set_page_config("Radar Craft Albion", layout="wide", page_icon="⚔️")
+st.set_page_config(
+    page_title="Radar Craft Albion",
+    layout="wide",
+    page_icon="⚔️",
+    initial_sidebar_state="expanded"
+)
 
-# ================= CUSTOM CSS (VISUAL) =================
+# ================= CUSTOM CSS (VISUAL PREMIUM) =================
 st.markdown("""
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Cinzel:wght@400;500;600;700;800;900&display=swap');
+
+    * { transition: all 0.2s ease; }
+
     header {visibility: hidden;}
+
     .main .block-container {
-        padding-top: 0rem;
-        padding-bottom: 0rem;
+        padding-top: 0.5rem;
+        padding-bottom: 2rem;
+        max-width: 1400px;
     }
+
     .stApp {
-        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)), 
-                    url("https://i.imgur.com/kVAiMjD.png");
-        background-size: cover;
+        background: linear-gradient(135deg, #0a0e17 0%, #0f1419 50%, #0a0e17 100%);
         background-attachment: fixed;
     }
+
+    .stApp::before {
+        content: "";
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: 
+            radial-gradient(ellipse at 20% 20%, rgba(46, 204, 113, 0.03) 0%, transparent 50%),
+            radial-gradient(ellipse at 80% 80%, rgba(52, 152, 219, 0.03) 0%, transparent 50%),
+            radial-gradient(ellipse at 50% 50%, rgba(155, 89, 182, 0.02) 0%, transparent 70%);
+        pointer-events: none;
+        z-index: 0;
+    }
+
     [data-testid="stSidebar"] {
-        background-color: rgba(15, 17, 23, 0.95) !important;
-        border-right: 1px solid #3e4149;
+        background: linear-gradient(180deg, #0d1117 0%, #111827 100%) !important;
+        border-right: 1px solid rgba(46, 204, 113, 0.15);
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
     }
-    h1, h2, h3, label, .stMarkdown {
-        color: #ffffff !important;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+    h1 {
+        font-family: 'Cinzel', serif !important;
+        font-weight: 800 !important;
+        letter-spacing: 2px !important;
+        text-transform: uppercase;
     }
+
+    h2, h3, h4 {
+        font-family: 'Inter', sans-serif !important;
+        font-weight: 700 !important;
+    }
+
+    label, .stMarkdown, p, div {
+        font-family: 'Inter', sans-serif !important;
+    }
+
+    .main-title {
+        background: linear-gradient(135deg, #2ecc71 0%, #27ae60 50%, #1abc9c 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-shadow: none !important;
+        font-size: 2.8rem !important;
+        letter-spacing: 4px !important;
+        text-align: center;
+        margin-bottom: 0.5rem !important;
+    }
+
+    .subtitle {
+        text-align: center;
+        color: rgba(255,255,255,0.5) !important;
+        font-size: 0.95rem;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        margin-bottom: 2rem;
+    }
+
+    .fancy-divider {
+        height: 2px;
+        background: linear-gradient(90deg, transparent, #2ecc71, #3498db, #9b59b6, #2ecc71, transparent);
+        margin: 1.5rem 0;
+        border-radius: 1px;
+        opacity: 0.6;
+    }
+
     .item-card-custom { 
-        background-color: rgba(255, 255, 255, 0.05) !important;
-        backdrop-filter: blur(12px);
-        border-radius: 12px; 
-        padding: 20px; 
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: 16px; 
+        padding: 24px; 
         margin-bottom: 20px; 
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05);
         color: white !important;
+        position: relative;
+        overflow: hidden;
     }
+
+    .item-card-custom::before {
+        content: "";
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    }
+
+    .item-card-custom:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+
+    .badge-tier {
+        background: linear-gradient(135deg, rgba(46, 204, 113, 0.2), rgba(39, 174, 96, 0.1));
+        border: 1px solid rgba(46, 204, 113, 0.3);
+        color: #2ecc71;
+    }
+
+    .badge-enchant {
+        background: linear-gradient(135deg, rgba(155, 89, 182, 0.2), rgba(142, 68, 173, 0.1));
+        border: 1px solid rgba(155, 89, 182, 0.3);
+        color: #bb8fce;
+    }
+
+    .badge-city {
+        background: linear-gradient(135deg, rgba(52, 152, 219, 0.2), rgba(41, 128, 185, 0.1));
+        border: 1px solid rgba(52, 152, 219, 0.3);
+        color: #5dade2;
+    }
+
+    .badge-qty {
+        background: linear-gradient(135deg, rgba(241, 196, 15, 0.2), rgba(243, 156, 18, 0.1));
+        border: 1px solid rgba(241, 196, 15, 0.3);
+        color: #f4d03f;
+    }
+
+    .profit-positive {
+        background: linear-gradient(135deg, #2ecc71, #27ae60);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-weight: 800;
+        font-size: 1.5rem;
+    }
+
+    .profit-negative {
+        background: linear-gradient(135deg, #e74c3c, #c0392b);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-weight: 800;
+        font-size: 1.5rem;
+    }
+
+    .details-box {
+        background: linear-gradient(145deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.2) 100%);
+        padding: 16px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        font-size: 0.88rem;
+        line-height: 1.8;
+    }
+
     .stButton>button {
         width: 100%;
-        background-color: #2ecc71 !important;
+        background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%) !important;
         color: white !important;
-        font-weight: bold;
+        font-weight: 700 !important;
+        font-family: 'Inter', sans-serif !important;
+        border: none !important;
+        padding: 0.8rem !important;
+        border-radius: 12px !important;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        font-size: 0.9rem !important;
+        box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3) !important;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stButton>button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(46, 204, 113, 0.4) !important;
+    }
+
+    .login-card {
+        background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+        backdrop-filter: blur(20px);
+        border-radius: 20px;
+        padding: 40px;
+        border: 1px solid rgba(255,255,255,0.08);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+
+    .login-title {
+        font-family: 'Cinzel', serif !important;
+        font-size: 2rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #2ecc71, #1abc9c);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-align: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .login-subtitle {
+        text-align: center;
+        color: rgba(255,255,255,0.4);
+        font-size: 0.85rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-bottom: 2rem;
+    }
+
+    .price-card {
+        background: linear-gradient(145deg, rgba(46, 204, 113, 0.08) 0%, rgba(39, 174, 96, 0.03) 100%);
+        border: 1px solid rgba(46, 204, 113, 0.15);
+        border-radius: 16px;
+        padding: 24px;
+        text-align: center;
+    }
+
+    .price-amount {
+        font-family: 'Cinzel', serif;
+        font-size: 2.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #2ecc71, #1abc9c);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .price-label {
+        color: rgba(255,255,255,0.5);
+        font-size: 0.85rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-top: 8px;
+    }
+
+    .whatsapp-btn {
+        display: inline-block;
+        width: 100%;
+        background: linear-gradient(135deg, #25d366, #128c7e);
+        color: white;
+        padding: 14px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 0.9rem;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
         border: none;
-        padding: 0.5rem;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+
+    .whatsapp-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+    }
+
+    .stats-bar {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+    }
+
+    .stat-pill {
+        background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 12px;
+        padding: 12px 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .stat-value {
+        font-weight: 700;
+        color: #ecf0f1;
+        font-size: 0.95rem;
+    }
+
+    .stat-label {
+        font-size: 0.7rem;
+        color: rgba(255,255,255,0.4);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .stTextInput input {
+        background: rgba(0,0,0,0.3) !important;
+        border: 1px solid rgba(255,255,255,0.1) !important;
+        border-radius: 10px !important;
+        color: white !important;
+        padding: 12px 16px !important;
+        font-family: 'Inter', sans-serif !important;
+    }
+
+    .stTextInput input:focus {
+        border-color: #2ecc71 !important;
+        box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.1) !important;
+    }
+
+    .stProgress > div > div {
+        background: linear-gradient(90deg, #2ecc71, #1abc9c, #3498db) !important;
+        border-radius: 4px !important;
+    }
+
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+    ::-webkit-scrollbar-thumb { background: rgba(46, 204, 113, 0.3); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(46, 204, 113, 0.5); }
+
+    .footer {
+        text-align: center;
+        padding: 2rem 0 1rem;
+        color: rgba(255,255,255,0.3);
+        font-size: 0.8rem;
+        letter-spacing: 1px;
+        border-top: 1px solid rgba(255,255,255,0.05);
+        margin-top: 2rem;
+    }
+
+    .footer-brand {
+        font-family: 'Cinzel', serif;
+        color: rgba(46, 204, 113, 0.6);
+        font-weight: 600;
+    }
+
+    @keyframes pulse-glow {
+        0%, 100% { opacity: 0.5; }
+        50% { opacity: 1; }
+    }
+
+    .glow-dot {
+        width: 8px;
+        height: 8px;
+        background: #2ecc71;
+        border-radius: 50%;
+        display: inline-block;
+        animation: pulse-glow 2s infinite;
+        box-shadow: 0 0 8px rgba(46, 204, 113, 0.6);
+    }
+
+    .financial-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 16px;
+        margin: 16px 0;
+    }
+
+    .financial-item {
+        background: rgba(0,0,0,0.2);
+        border-radius: 10px;
+        padding: 12px 16px;
+        border: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .financial-label {
+        font-size: 0.7rem;
+        color: rgba(255,255,255,0.4);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 4px;
+    }
+
+    .financial-value {
+        font-family: 'Inter', monospace;
+        font-weight: 600;
+        font-size: 1rem;
+    }
+
+    .financial-value.positive { color: #2ecc71; }
+    .financial-value.negative { color: #e74c3c; }
+    .financial-value.neutral { color: #ecf0f1; }
+
+    .results-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .results-count {
+        background: linear-gradient(135deg, rgba(46, 204, 113, 0.15), rgba(39, 174, 96, 0.05));
+        border: 1px solid rgba(46, 204, 113, 0.2);
+        border-radius: 10px;
+        padding: 8px 16px;
+        font-size: 0.85rem;
+        color: #2ecc71;
+        font-weight: 600;
+    }
+
+    .sidebar-section {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .sidebar-section:last-child {
+        border-bottom: none;
+    }
+
+    .sidebar-title {
+        font-family: 'Cinzel', serif;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #2ecc71;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -71,32 +469,82 @@ if "autenticado" not in st.session_state:
     st.session_state.autenticado = False
 
 if not st.session_state.autenticado:
-    st.title("🛡️ Radar Craft - Acesso Restrito")
-    col1, col2 = st.columns([1, 1])
-    with col1:
-        st.markdown("### Já possui acesso?")
-        key_input = st.text_input("Insira sua Chave:", type="password")
-        if st.button("LIBERAR ACESSO"):
-            sucesso, mensagem = verificar_chave(key_input)
-            if sucesso:
-                st.session_state.autenticado = True
-                st.session_state.cliente = mensagem
-                st.rerun()
-            else:
-                st.error(mensagem)
-    with col2:
-        st.markdown("### Adquirir Nova Chave")
-        st.markdown("""
-        <div style="background: rgba(46, 204, 113, 0.1); padding: 20px; border-radius: 10px; border: 1px solid #2ecc71; text-align: center;">
-            <h2 style="margin:0; color: #2ecc71;">R$ 20,00</h2>
-            <p style="color: white;">Acesso Mensal (30 dias)</p>
-            <a href="https://wa.me/5521983042557?text=Olá! Gostaria de comprar uma key para o Radar Craft Albion." target="_blank" style="text-decoration: none;">
-                <div style="background-color: #25d366; color: white; padding: 12px; border-radius: 5px; font-weight: bold; margin-top: 10px;">
-                    COMPRAR VIA WHATSAPP
-                </div>
-            </a>
+    col_spacer1, col_login, col_spacer2 = st.columns([1, 2, 1])
+
+    with col_login:
+        # Usando st.html() para renderizar HTML diretamente sem problemas de markdown
+        st.html("""
+        <div style="text-align: center; margin: 2rem 0 1rem;">
+            <div style="font-size: 4rem; margin-bottom: 0.5rem;">⚔️</div>
         </div>
-        """, unsafe_allow_html=True)
+        <div class="login-title">Radar Craft</div>
+        <div class="login-subtitle">Albion Online — Análise de Mercado</div>
+        <div class="fancy-divider"></div>
+        """)
+
+        col1, col2 = st.columns([1, 1])
+
+        with col1:
+            st.html("""
+            <div class="login-card">
+                <div style="text-align: center; margin-bottom: 1.5rem;">
+                    <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🔐</div>
+                    <div style="font-family: 'Cinzel', serif; font-size: 1.1rem; font-weight: 700; color: #ecf0f1;">Acesso Exclusivo</div>
+                    <div style="font-size: 0.8rem; color: rgba(255,255,255,0.4); margin-top: 4px;">Insira sua chave de acesso</div>
+                </div>
+            </div>
+            """)
+
+            key_input = st.text_input("Chave de Acesso:", type="password", label_visibility="collapsed", placeholder="RADAR-XXXX-XXXX-XXXX")
+
+            if st.button("🔓 Liberar Acesso", use_container_width=True):
+                sucesso, mensagem = verificar_chave(key_input)
+                if sucesso:
+                    st.session_state.autenticado = True
+                    st.session_state.cliente = mensagem
+                    st.rerun()
+                else:
+                    st.error(f"❌ {mensagem}")
+
+            st.html("</div>")
+
+        with col2:
+            st.html("""
+            <div class="login-card">
+                <div style="text-align: center; margin-bottom: 1.5rem;">
+                    <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">💎</div>
+                    <div style="font-family: 'Cinzel', serif; font-size: 1.1rem; font-weight: 700; color: #ecf0f1;">Adquirir Acesso</div>
+                    <div style="font-size: 0.8rem; color: rgba(255,255,255,0.4); margin-top: 4px;">Desbloqueie todo o potencial</div>
+                </div>
+
+                <div class="price-card">
+                    <div class="price-amount">R$ 20,00</div>
+                    <div class="price-label">Acesso Mensal (30 dias)</div>
+                </div>
+
+                <div style="margin-top: 1rem;">
+                    <div style="font-size: 0.8rem; color: rgba(255,255,255,0.4); margin-bottom: 8px; text-align: center;">
+                        ✓ Análise em tempo real<br>
+                        ✓ Black Market integrado<br>
+                        ✓ Lucros calculados automaticamente<br>
+                        ✓ Suporte prioritário
+                    </div>
+                </div>
+
+                <a href="https://wa.me/5521983042557?text=Olá! Gostaria de comprar uma key para o Radar Craft Albion." target="_blank" style="text-decoration: none;">
+                    <div class="whatsapp-btn">
+                        📱 COMPRAR VIA WHATSAPP
+                    </div>
+                </a>
+            </div>
+            """)
+
+        st.html("""
+        <div class="footer">
+            <span class="footer-brand">Radar Craft</span> — Desenvolvido para análise de mercado via Albion Online Data Project
+        </div>
+        """)
+
     st.stop()
 
 # ================= CONFIG DE DADOS =================
@@ -437,7 +885,6 @@ ITENS_DB = {
     "ARCHA FRATURADA": ["2H_SPEAR_CRYSTAL", "Tábuas de Pinho", 12, "Barra de Aço", 20, "QUESTITEM_TOKEN_CRYSTAL_SPEAR", 1]
 }
 
-# ================= FILTROS =================
 FILTROS = {
     # CAPAS
     "todas_capas": lambda k, v: "CAPE" in v[0],
@@ -543,15 +990,38 @@ def identificar_cidade_bonus(nome_item):
 
 # ================= INTERFACE SIDEBAR =================
 with st.sidebar:
-    st.markdown("### ⚙️ Configurações")
+    st.html("""
+    <div style="text-align:center; margin-bottom:1rem;">
+        <div style="font-size:2rem; margin-bottom:0.3rem;">⚔️</div>
+        <div style="font-family:Cinzel,serif; font-weight:800; font-size:1.1rem; color:#2ecc71; letter-spacing:2px;">RADAR CRAFT</div>
+        <div style="font-size:0.7rem; color:rgba(255,255,255,0.4); letter-spacing:1px; margin-top:2px;">ALBION ONLINE</div>
+    </div>
+    """)
+
+    st.html('<div class="fancy-divider" style="margin:0.8rem 0;"></div>')
+
+    st.html("<div class='sidebar-title'>⚙️ Configurações</div>")
+
     categoria = st.selectbox("Categoria", list(FILTROS.keys()))
     tier = st.number_input("Tier", 4, 8, 4)
     encanto = st.number_input("Encanto", 0, 4, 0)
     quantidade = st.number_input("Quantidade", 1, 999, 1)
-    st.markdown("---")
+
+    st.html('<div class="fancy-divider" style="margin:1rem 0;"></div>')
+
     btn = st.button("🚀 ESCANEAR MERCADO")
 
-st.title("⚔️ Radar Craft — Black Market")
+    st.html(f"""
+    <div style="margin-top:2rem; text-align:center; font-size:0.75rem; color:rgba(255,255,255,0.3);">
+        👤 Logado como: <b>{st.session_state.get('cliente', 'Cliente')}</b><br>
+        <span style="font-size:0.65rem;">v2.0 Premium</span>
+    </div>
+    """)
+
+# ================= HEADER PRINCIPAL =================
+st.html("<h1 class='main-title'>⚔️ Radar Craft</h1>")
+st.html("<div class='subtitle'>Análise de Mercado — Black Market</div>")
+st.html('<div class="fancy-divider"></div>')
 
 # ================= EXECUÇÃO =================
 if btn:
@@ -564,26 +1034,22 @@ if btn:
 
     # Coleta de IDs para a API
     ids_para_buscar = set()
-    
+
     for nome, d in itens.items():
-        # Item final
         item_id = id_item(tier, d[0], encanto)
         if item_id:
             ids_para_buscar.add(item_id)
-        
-        # Recurso 1 (Capa base ou recurso normal)
+
         if d[1]:
             for rid in ids_recurso_variantes(tier, d[1], encanto):
                 if rid:
                     ids_para_buscar.add(rid)
-        
-        # Recurso 2 (Coração ou recurso normal)
+
         if d[3]:
             for rid in ids_recurso_variantes(tier, d[3], encanto):
                 if rid:
                     ids_para_buscar.add(rid)
-        
-        # Artefato/Ornamento
+
         if d[5]:
             art_id = id_item(tier, d[5], 0)
             if art_id:
@@ -630,7 +1096,6 @@ if btn:
         # ================= RECURSO 1 =================
         if d[1]:
             if d[1] == "CAPE":
-                # Capa base do tier correspondente
                 capa_id = f"T{tier}_CAPE"
                 if capa_id in precos_cache:
                     info = precos_cache[capa_id]
@@ -639,7 +1104,6 @@ if btn:
                 else:
                     valid_craft = False
             elif d[1] in RECURSO_MAP:
-                # Recurso normal
                 for rid in ids_recurso_variantes(tier, d[1], encanto):
                     if rid in precos_cache:
                         info = precos_cache[rid]
@@ -656,7 +1120,6 @@ if btn:
         # ================= RECURSO 2 =================
         if d[3]:
             if d[3].startswith("CORACAO_"):
-                # Coração de facção
                 coracao_id = get_coracao_id(d[3])
                 if coracao_id and coracao_id in precos_cache:
                     info = precos_cache[coracao_id]
@@ -667,7 +1130,6 @@ if btn:
                 else:
                     valid_craft = False
             elif d[3] in RECURSO_MAP:
-                # Recurso normal
                 for rid in ids_recurso_variantes(tier, d[3], encanto):
                     if rid in precos_cache:
                         info = precos_cache[rid]
@@ -690,7 +1152,6 @@ if btn:
                 custo += info["price"] * qtd_art
                 detalhes.append(f"{qtd_art}x Ornamento: {info['price']:,} ({info['city']})")
             else:
-                # Tenta buscar em outras cidades
                 preco_art = get_historical_price(art_id, "Caerleon,FortSterling,Thetford,Lymhurst,Bridgewatch,Martlock") if art_id else 0
                 if preco_art > 0:
                     qtd_art = d[6] * quantidade
@@ -716,36 +1177,81 @@ if btn:
     if not resultados:
         st.warning("⚠️ A API não retornou preços recentes para os itens desta categoria no Black Market.")
     else:
-        st.subheader(f"📊 {len(resultados)} Itens Encontrados - {categoria.upper()} T{tier}.{encanto}")
+        # Header dos resultados
+        st.html(f"""
+        <div class="results-header">
+            <div>
+                <span style="font-family:'Cinzel',serif; font-size:1.2rem; font-weight:700; color:#ecf0f1;">
+                    📊 Resultados
+                </span>
+            </div>
+            <div class="results-count">
+                {len(resultados)} Itens Encontrados | {categoria.upper()} T{tier}.{encanto}
+            </div>
+        </div>
+        """)
 
         for nome, lucro, venda, custo, detalhes, h_venda in resultados:
             perc_lucro = (lucro / custo) * 100 if custo > 0 else 0
             cidade_foco = identificar_cidade_bonus(nome)
-            cor_destaque = "#2ecc71" if lucro > 0 else "#e74c3c"
 
-            st.markdown(f"""
-            <div class="item-card-custom" style="border-left: 8px solid {cor_destaque};">
-                <div style="font-weight: bold; font-size: 1.2rem; margin-bottom: 10px; color: {cor_destaque};">
-                    ⚔️ {nome} [T{tier}.{encanto}] x{quantidade}
+            profit_class = "profit-positive" if lucro > 0 else "profit-negative"
+            profit_sign = "+" if lucro > 0 else ""
+            border_color = "#2ecc71" if lucro > 0 else "#e74c3c"
+
+            detalhes_html = " ".join([f'<span style="background:rgba(255,255,255,0.05); padding:4px 10px; border-radius:6px; border:1px solid rgba(255,255,255,0.08); font-size:0.8rem;">{d}</span>' for d in detalhes])
+
+            st.html(f"""
+            <div class="item-card-custom" style="border-left: 4px solid {border_color};">
+                <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px; flex-wrap:wrap;">
+                    <div style="font-family:'Cinzel',serif; font-size:1.2rem; font-weight:700; color:{border_color}; letter-spacing:1px;">
+                        ⚔️ {nome}
+                    </div>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                        <span class="badge badge-tier">T{tier}</span>
+                        <span class="badge badge-enchant">@{encanto}</span>
+                        <span class="badge badge-qty">x{quantidade}</span>
+                        <span class="badge badge-city">{cidade_foco}</span>
+                    </div>
                 </div>
-                <div style="font-size: 1.05rem; margin-bottom: 8px;">
-                    <span style="color: {cor_destaque}; font-weight: bold; font-size: 1.2rem;">
-                        💰 Lucro Estimado: {lucro:,} ({perc_lucro:.2f}%)
-                    </span>
-                    <br><b>Investimento:</b> {custo:,} |
-                    <b>Venda Estimada (BM):</b> {venda:,}
+
+                <div class="financial-row">
+                    <div class="financial-item">
+                        <div class="financial-label">💰 Lucro Estimado</div>
+                        <div class="financial-value {profit_class}">{profit_sign}{lucro:,}</div>
+                        <div style="font-size:0.75rem; color:rgba(255,255,255,0.4); margin-top:2px;">{perc_lucro:.2f}% ROI</div>
+                    </div>
+                    <div class="financial-item">
+                        <div class="financial-label">📥 Investimento</div>
+                        <div class="financial-value neutral">{custo:,}</div>
+                    </div>
+                    <div class="financial-item">
+                        <div class="financial-label">📤 Venda Estimada</div>
+                        <div class="financial-value neutral">{venda:,}</div>
+                    </div>
+                    <div class="financial-item">
+                        <div class="financial-label">📍 Foco Craft</div>
+                        <div class="financial-value neutral">{cidade_foco}</div>
+                    </div>
                 </div>
-                <div style="font-size: 0.95rem; color: #cbd5e1; margin-bottom: 10px;">
-                    📍 <b>Foco Craft:</b> {cidade_foco} |
-                    🕒 <b>Baseado em:</b> {h_venda}
+
+                <div class="details-box">
+                    <div style="font-size:0.8rem; font-weight:600; color:rgba(255,255,255,0.6); margin-bottom:8px; text-transform:uppercase; letter-spacing:1px;">
+                        📦 Detalhamento de Compras
+                    </div>
+                    <div style="display:flex; flex-wrap:wrap; gap:8px;">
+                        {detalhes_html}
+                    </div>
                 </div>
-                <div style="background: rgba(0,0,0,0.4); padding: 12px; border-radius: 8px;
-                            border: 1px solid rgba(255,255,255,0.1); font-size: 0.9rem;">
-                    📦 <b>Detalhamento de Compras:</b> <br>
-                    {" | ".join(detalhes)}
+
+                <div style="margin-top:12px; font-size:0.75rem; color:rgba(255,255,255,0.3); text-align:right;">
+                    🕒 Baseado em: {h_venda}
                 </div>
             </div>
-            """, unsafe_allow_html=True)
+            """)
 
-st.markdown("---")
-st.caption("Radar Craft Albion - Desenvolvido para análise de mercado via Albion Online Data Project")
+st.html("""
+<div class="footer">
+    <span class="footer-brand">Radar Craft</span> — Desenvolvido para análise de mercado via Albion Online Data Project
+</div>
+""")
