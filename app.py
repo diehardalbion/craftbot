@@ -531,7 +531,7 @@ if not st.session_state.autenticado:
                     </div>
                 </div>
 
-                <a href="https://wa.me/5521983042557?text=Olá! Gostaria de comprar uma key para o Radar Craft Albion." target="_blank" style="text-decoration: none;">
+                <a href="https://wa.me/5521993609613?text=Olá! Gostaria de comprar uma key para o Radar Craft Albion." target="_blank" style="text-decoration: none;">
                     <div class="whatsapp-btn">
                         📱 COMPRAR VIA WHATSAPP
                     </div>
