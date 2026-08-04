@@ -452,7 +452,11 @@ st.markdown("""
 # ================= DISPOSITIVO (COOKIE PERSISTENTE) =================
 # Cada navegador recebe um ID aleatório salvo em cookie. Esse ID é usado
 # para "travar" a chave no primeiro dispositivo que fizer login com ela.
-cookie_manager = stx.CookieManager(key="radar_cookie_manager")
+@st.cache_resource
+def get_cookie_manager():
+    return stx.CookieManager(key="radar_cookie_manager")
+
+cookie_manager = get_cookie_manager()
 
 # Na primeira renderização o componente ainda não devolveu os cookies —
 # isso é normal no streamlit-cookies-manager, então tratamos com calma.
@@ -567,7 +571,7 @@ if not st.session_state.autenticado:
                 </div>
 
                 <div class="price-card">
-                    <div class="price-amount">R$ 20,00</div>
+                    <div class="price-amount">R$ 30,00</div>
                     <div class="price-label">Acesso Mensal (30 dias)</div>
                 </div>
 
@@ -1053,8 +1057,13 @@ with st.sidebar:
 
     categoria = st.selectbox("Categoria", list(FILTROS.keys()))
     tier = st.number_input("Tier", 4, 8, 4)
-    encanto = st.number_input("Encanto", 0, 4, 0)
     quantidade = st.number_input("Quantidade", 1, 999, 1)
+
+    st.html("""
+    <div style="font-size:0.75rem; color:rgba(255,255,255,0.4); margin-top:-0.5rem; margin-bottom:0.5rem;">
+        ℹ️ A busca traz automaticamente todos os encantamentos (@0 a @4).
+    </div>
+    """)
 
     st.html('<div class="fancy-divider" style="margin:1rem 0;"></div>')
 
@@ -1073,6 +1082,8 @@ st.html("<div class='subtitle'>Análise de Mercado — Black Market</div>")
 st.html('<div class="fancy-divider"></div>')
 
 # ================= EXECUÇÃO =================
+ENCANTOS = [0, 1, 2, 3, 4]
+
 if btn:
     filtro = FILTROS[categoria]
     itens = {k: v for k, v in ITENS_DB.items() if filtro(k, v)}
@@ -1081,23 +1092,24 @@ if btn:
         st.error("Nenhum item encontrado nesta categoria.")
         st.stop()
 
-    # Coleta de IDs para a API
+    # Coleta de IDs para a API (todos os encantamentos de uma vez)
     ids_para_buscar = set()
 
     for nome, d in itens.items():
-        item_id = id_item(tier, d[0], encanto)
-        if item_id:
-            ids_para_buscar.add(item_id)
+        for encanto in ENCANTOS:
+            item_id = id_item(tier, d[0], encanto)
+            if item_id:
+                ids_para_buscar.add(item_id)
 
-        if d[1]:
-            for rid in ids_recurso_variantes(tier, d[1], encanto):
-                if rid:
-                    ids_para_buscar.add(rid)
+            if d[1]:
+                for rid in ids_recurso_variantes(tier, d[1], encanto):
+                    if rid:
+                        ids_para_buscar.add(rid)
 
-        if d[3]:
-            for rid in ids_recurso_variantes(tier, d[3], encanto):
-                if rid:
-                    ids_para_buscar.add(rid)
+            if d[3]:
+                for rid in ids_recurso_variantes(tier, d[3], encanto):
+                    if rid:
+                        ids_para_buscar.add(rid)
 
         if d[5]:
             art_id = id_item(tier, d[5], 0)
@@ -1127,106 +1139,116 @@ if btn:
     progress_text = "Analisando Mercado e Calculando Lucros..."
     my_bar = st.progress(0, text=progress_text)
 
-    total_itens = len(itens)
+    total_passos = len(itens) * len(ENCANTOS)
+    passo_atual = 0
 
-    for i, (nome, d) in enumerate(itens.items()):
-        item_id = id_item(tier, d[0], encanto)
-        preco_venda_bm = get_historical_price(item_id)
+    for nome, d in itens.items():
+        for encanto in ENCANTOS:
+            passo_atual += 1
+            my_bar.progress(passo_atual / total_passos, text=f"Analisando: {nome} @{encanto}")
 
-        my_bar.progress((i + 1) / total_itens, text=f"Analisando: {nome}")
+            item_id = id_item(tier, d[0], encanto)
+            preco_venda_bm = get_historical_price(item_id)
 
-        if preco_venda_bm <= 0:
-            continue
+            if preco_venda_bm <= 0:
+                continue
 
-        custo = 0
-        detalhes = []
-        valid_craft = True
+            custo = 0
+            detalhes = []
+            valid_craft = True
 
-        # ================= RECURSO 1 =================
-        if d[1]:
-            if d[1] == "CAPE":
-                capa_id = f"T{tier}_CAPE"
-                if capa_id in precos_cache:
-                    info = precos_cache[capa_id]
-                    custo += info["price"] * d[2] * quantidade
-                    detalhes.append(f"{d[2] * quantidade}x Capa T{tier}: {info['price']:,} ({info['city']})")
-                else:
-                    valid_craft = False
-            elif d[1] in RECURSO_MAP:
-                for rid in ids_recurso_variantes(tier, d[1], encanto):
-                    if rid in precos_cache:
-                        info = precos_cache[rid]
-                        nome_recurso = NOMES_RECURSOS_TIER.get(d[1], {}).get(tier, d[1])
+            # ================= RECURSO 1 =================
+            if d[1]:
+                if d[1] == "CAPE":
+                    capa_id = f"T{tier}_CAPE"
+                    if capa_id in precos_cache:
+                        info = precos_cache[capa_id]
                         custo += info["price"] * d[2] * quantidade
-                        detalhes.append(f"{d[2] * quantidade}x {nome_recurso}: {info['price']:,} ({info['city']})")
-                        break
-                else:
-                    valid_craft = False
+                        detalhes.append(f"{d[2] * quantidade}x Capa T{tier}: {info['price']:,} ({info['city']})")
+                    else:
+                        valid_craft = False
+                elif d[1] in RECURSO_MAP:
+                    for rid in ids_recurso_variantes(tier, d[1], encanto):
+                        if rid in precos_cache:
+                            info = precos_cache[rid]
+                            nome_recurso = NOMES_RECURSOS_TIER.get(d[1], {}).get(tier, d[1])
+                            custo += info["price"] * d[2] * quantidade
+                            detalhes.append(f"{d[2] * quantidade}x {nome_recurso}: {info['price']:,} ({info['city']})")
+                            break
+                    else:
+                        valid_craft = False
 
-        if not valid_craft:
-            continue
+            if not valid_craft:
+                continue
 
-        # ================= RECURSO 2 =================
-        if d[3]:
-            if d[3].startswith("CORACAO_"):
-                coracao_id = get_coracao_id(d[3])
-                if coracao_id and coracao_id in precos_cache:
-                    info = precos_cache[coracao_id]
-                    qty_coracoes = get_coracoes_qty(tier)
-                    custo += info["price"] * qty_coracoes * quantidade
-                    facao = d[3].replace("CORACAO_", "")
-                    detalhes.append(f"{qty_coracoes * quantidade}x Coração {facao}: {info['price']:,} ({info['city']})")
-                else:
-                    valid_craft = False
-            elif d[3] in RECURSO_MAP:
-                for rid in ids_recurso_variantes(tier, d[3], encanto):
-                    if rid in precos_cache:
-                        info = precos_cache[rid]
-                        nome_recurso = NOMES_RECURSOS_TIER.get(d[3], {}).get(tier, d[3])
-                        custo += info["price"] * d[4] * quantidade
-                        detalhes.append(f"{d[4] * quantidade}x {nome_recurso}: {info['price']:,} ({info['city']})")
-                        break
-                else:
-                    valid_craft = False
+            # ================= RECURSO 2 =================
+            if d[3]:
+                if d[3].startswith("CORACAO_"):
+                    coracao_id = get_coracao_id(d[3])
+                    if coracao_id and coracao_id in precos_cache:
+                        info = precos_cache[coracao_id]
+                        qty_coracoes = get_coracoes_qty(tier)
+                        custo += info["price"] * qty_coracoes * quantidade
+                        facao = d[3].replace("CORACAO_", "")
+                        detalhes.append(f"{qty_coracoes * quantidade}x Coração {facao}: {info['price']:,} ({info['city']})")
+                    else:
+                        valid_craft = False
+                elif d[3] in RECURSO_MAP:
+                    for rid in ids_recurso_variantes(tier, d[3], encanto):
+                        if rid in precos_cache:
+                            info = precos_cache[rid]
+                            nome_recurso = NOMES_RECURSOS_TIER.get(d[3], {}).get(tier, d[3])
+                            custo += info["price"] * d[4] * quantidade
+                            detalhes.append(f"{d[4] * quantidade}x {nome_recurso}: {info['price']:,} ({info['city']})")
+                            break
+                    else:
+                        valid_craft = False
 
-        if not valid_craft:
-            continue
+            if not valid_craft:
+                continue
 
-        # ================= ARTEFATO/ORNAMENTO =================
-        if d[5]:
-            art_id = id_item(tier, d[5], 0)
-            if art_id and art_id in precos_cache:
-                info = precos_cache[art_id]
-                qtd_art = d[6] * quantidade
-                custo += info["price"] * qtd_art
-                detalhes.append(f"{qtd_art}x Ornamento: {info['price']:,} ({info['city']})")
-            else:
-                preco_art = get_historical_price(art_id, "Caerleon,FortSterling,Thetford,Lymhurst,Bridgewatch,Martlock") if art_id else 0
-                if preco_art > 0:
+            # ================= ARTEFATO/ORNAMENTO =================
+            if d[5]:
+                art_id = id_item(tier, d[5], 0)
+                if art_id and art_id in precos_cache:
+                    info = precos_cache[art_id]
                     qtd_art = d[6] * quantidade
-                    custo += preco_art * qtd_art
-                    detalhes.append(f"{qtd_art}x Ornamento: {preco_art:,.0f} (Média Market)")
+                    custo += info["price"] * qtd_art
+                    detalhes.append(f"{qtd_art}x Ornamento: {info['price']:,} ({info['city']})")
                 else:
-                    valid_craft = False
+                    preco_art = get_historical_price(art_id, "Caerleon,FortSterling,Thetford,Lymhurst,Bridgewatch,Martlock") if art_id else 0
+                    if preco_art > 0:
+                        qtd_art = d[6] * quantidade
+                        custo += preco_art * qtd_art
+                        detalhes.append(f"{qtd_art}x Ornamento: {preco_art:,.0f} (Média Market)")
+                    else:
+                        valid_craft = False
 
-        if not valid_craft:
-            continue
+            if not valid_craft:
+                continue
 
-        custo_final = int(custo)
-        venda_total = int(preco_venda_bm * quantidade)
-        lucro = int((venda_total * 0.935) - custo_final)
+            custo_final = int(custo)
+            venda_total = int(preco_venda_bm * quantidade)
+            lucro = int((venda_total * 0.935) - custo_final)
 
-        resultados.append((nome, lucro, venda_total, custo_final, detalhes, "Market Atual/24h"))
+            resultados.append((nome, encanto, lucro, venda_total, custo_final, detalhes, "Market Atual/24h"))
 
     my_bar.empty()
-
-    # Ordenar pelo maior lucro
-    resultados.sort(key=lambda x: x[1], reverse=True)
 
     if not resultados:
         st.warning("⚠️ A API não retornou preços recentes para os itens desta categoria no Black Market.")
     else:
-        # Header dos resultados
+        # Agrupa os resultados por encantamento e ordena cada grupo pelo maior lucro
+        grupos_por_encanto = {e: [] for e in ENCANTOS}
+        for r in resultados:
+            grupos_por_encanto[r[1]].append(r)
+
+        for e in ENCANTOS:
+            grupos_por_encanto[e].sort(key=lambda x: x[2], reverse=True)
+
+        total_encontrados = len(resultados)
+
+        # Header geral dos resultados
         st.html(f"""
         <div class="results-header">
             <div>
@@ -1235,69 +1257,82 @@ if btn:
                 </span>
             </div>
             <div class="results-count">
-                {len(resultados)} Itens Encontrados | {categoria.upper()} T{tier}.{encanto}
+                {total_encontrados} Itens Encontrados | {categoria.upper()} T{tier} · Todos os Encantamentos
             </div>
         </div>
         """)
 
-        for nome, lucro, venda, custo, detalhes, h_venda in resultados:
-            perc_lucro = (lucro / custo) * 100 if custo > 0 else 0
-            cidade_foco = identificar_cidade_bonus(nome)
-
-            profit_class = "profit-positive" if lucro > 0 else "profit-negative"
-            profit_sign = "+" if lucro > 0 else ""
-            border_color = "#2ecc71" if lucro > 0 else "#e74c3c"
-
-            detalhes_html = " ".join([f'<span style="background:rgba(255,255,255,0.05); padding:4px 10px; border-radius:6px; border:1px solid rgba(255,255,255,0.08); font-size:0.8rem;">{d}</span>' for d in detalhes])
+        for e in ENCANTOS:
+            grupo = grupos_por_encanto[e]
+            if not grupo:
+                continue
 
             st.html(f"""
-            <div class="item-card-custom" style="border-left: 4px solid {border_color};">
-                <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px; flex-wrap:wrap;">
-                    <div style="font-family:'Cinzel',serif; font-size:1.2rem; font-weight:700; color:{border_color}; letter-spacing:1px;">
-                        ⚔️ {nome}
-                    </div>
-                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                        <span class="badge badge-tier">T{tier}</span>
-                        <span class="badge badge-enchant">@{encanto}</span>
-                        <span class="badge badge-qty">x{quantidade}</span>
-                        <span class="badge badge-city">{cidade_foco}</span>
-                    </div>
-                </div>
-
-                <div class="financial-row">
-                    <div class="financial-item">
-                        <div class="financial-label">💰 Lucro Estimado</div>
-                        <div class="financial-value {profit_class}">{profit_sign}{lucro:,}</div>
-                        <div style="font-size:0.75rem; color:rgba(255,255,255,0.4); margin-top:2px;">{perc_lucro:.2f}% ROI</div>
-                    </div>
-                    <div class="financial-item">
-                        <div class="financial-label">📥 Investimento</div>
-                        <div class="financial-value neutral">{custo:,}</div>
-                    </div>
-                    <div class="financial-item">
-                        <div class="financial-label">📤 Venda Estimada</div>
-                        <div class="financial-value neutral">{venda:,}</div>
-                    </div>
-                    <div class="financial-item">
-                        <div class="financial-label">📍 Foco Craft</div>
-                        <div class="financial-value neutral">{cidade_foco}</div>
-                    </div>
-                </div>
-
-                <div class="details-box">
-                    <div style="font-size:0.8rem; font-weight:600; color:rgba(255,255,255,0.6); margin-bottom:8px; text-transform:uppercase; letter-spacing:1px;">
-                        📦 Detalhamento de Compras
-                    </div>
-                    <div style="display:flex; flex-wrap:wrap; gap:8px;">
-                        {detalhes_html}
-                    </div>
-                </div>
-
-                <div style="margin-top:12px; font-size:0.75rem; color:rgba(255,255,255,0.3); text-align:right;">
-                    🕒 Baseado em: {h_venda}
-                </div>
+            <div style="display:flex; align-items:center; gap:12px; margin:1.5rem 0 1rem;">
+                <span class="badge badge-enchant" style="font-size:0.85rem; padding:6px 16px;">Encantamento @{e}</span>
+                <div style="flex:1; height:1px; background:linear-gradient(90deg, rgba(155,89,182,0.4), transparent);"></div>
+                <span style="font-size:0.75rem; color:rgba(255,255,255,0.4);">{len(grupo)} item(ns)</span>
             </div>
             """)
+
+            for nome, encanto, lucro, venda, custo, detalhes, h_venda in grupo:
+                perc_lucro = (lucro / custo) * 100 if custo > 0 else 0
+                cidade_foco = identificar_cidade_bonus(nome)
+
+                profit_class = "profit-positive" if lucro > 0 else "profit-negative"
+                profit_sign = "+" if lucro > 0 else ""
+                border_color = "#2ecc71" if lucro > 0 else "#e74c3c"
+
+                detalhes_html = " ".join([f'<span style="background:rgba(255,255,255,0.05); padding:4px 10px; border-radius:6px; border:1px solid rgba(255,255,255,0.08); font-size:0.8rem;">{d}</span>' for d in detalhes])
+
+                st.html(f"""
+                <div class="item-card-custom" style="border-left: 4px solid {border_color};">
+                    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px; flex-wrap:wrap;">
+                        <div style="font-family:'Cinzel',serif; font-size:1.2rem; font-weight:700; color:{border_color}; letter-spacing:1px;">
+                            ⚔️ {nome}
+                        </div>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                            <span class="badge badge-tier">T{tier}</span>
+                            <span class="badge badge-enchant">@{encanto}</span>
+                            <span class="badge badge-qty">x{quantidade}</span>
+                            <span class="badge badge-city">{cidade_foco}</span>
+                        </div>
+                    </div>
+
+                    <div class="financial-row">
+                        <div class="financial-item">
+                            <div class="financial-label">💰 Lucro Estimado</div>
+                            <div class="financial-value {profit_class}">{profit_sign}{lucro:,}</div>
+                            <div style="font-size:0.75rem; color:rgba(255,255,255,0.4); margin-top:2px;">{perc_lucro:.2f}% ROI</div>
+                        </div>
+                        <div class="financial-item">
+                            <div class="financial-label">📥 Investimento</div>
+                            <div class="financial-value neutral">{custo:,}</div>
+                        </div>
+                        <div class="financial-item">
+                            <div class="financial-label">📤 Venda Estimada</div>
+                            <div class="financial-value neutral">{venda:,}</div>
+                        </div>
+                        <div class="financial-item">
+                            <div class="financial-label">📍 Foco Craft</div>
+                            <div class="financial-value neutral">{cidade_foco}</div>
+                        </div>
+                    </div>
+
+                    <div class="details-box">
+                        <div style="font-size:0.8rem; font-weight:600; color:rgba(255,255,255,0.6); margin-bottom:8px; text-transform:uppercase; letter-spacing:1px;">
+                            📦 Detalhamento de Compras
+                        </div>
+                        <div style="display:flex; flex-wrap:wrap; gap:8px;">
+                            {detalhes_html}
+                        </div>
+                    </div>
+
+                    <div style="margin-top:12px; font-size:0.75rem; color:rgba(255,255,255,0.3); text-align:right;">
+                        🕒 Baseado em: {h_venda}
+                    </div>
+                </div>
+                """)
 
 st.html("""
 <div class="footer">
