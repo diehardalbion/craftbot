@@ -1416,7 +1416,7 @@ if btn:
             coluna_body = header_html + "\n".join(cards_html) if cards_html else header_html
 
             # Separador vertical entre colunas (exceto última)
-            separador = "border-right: 1px solid rgba(255,255,255,0.12); padding-right: 18px; margin-right: 18px;" if e < 4 else ""
+            separador = "border-right: 3px solid rgba(255,255,255,0.25); padding-right: 18px; margin-right: 18px;" if e < 4 else ""
 
             coluna_wrapper = f"""
             <div style="display: flex; flex-direction: column; {separador}">
