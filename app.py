@@ -567,7 +567,7 @@ if not st.session_state.autenticado:
                 </div>
 
                 <div class="price-card">
-                    <div class="price-amount">R$ 30,00</div>
+                    <div class="price-amount">R$ 20,00</div>
                     <div class="price-label">Acesso Mensal (30 dias)</div>
                 </div>
 
