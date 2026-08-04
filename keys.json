@@ -2,51 +2,607 @@
   "RADAR-A7Q9-K2MZ-FX4L": {
     "ativa": true,
     "cliente": "Cliente 1",
-    "expira": "null"
+    "expira": "null",
+    "device_id": null
   },
-  "RADAR-P9X4-ZM2Q-LK7A": {
+  "RADAR-DQHV-XF4M-ASL8": {
     "ativa": true,
     "cliente": "Cliente 2",
-    "expira": "2026-09-03"
+    "expira": "2026-09-03",
+    "device_id": null
   },
-  "RADAR-6FQK-X9A2-MZP7": {
+  "RADAR-FGAK-M23Q-LT9F": {
     "ativa": true,
     "cliente": "Cliente 3",
-    "expira": "2026-03-03"
+    "expira": "2026-09-03",
+    "device_id": null
   },
-  "RADAR-M2Z7-PAQX-9K4F": {
+  "RADAR-6KQ7-C4AM-V9VA": {
     "ativa": true,
     "cliente": "Cliente 4",
-    "expira": "2026-03-03"
+    "expira": "2026-09-03",
+    "device_id": null
   },
-  "RADAR-XF7Q-94MK-AZP2": {
+  "RADAR-CWKH-S4MM-EP86": {
     "ativa": true,
     "cliente": "Cliente 5",
-    "expira": "2026-03-03"
+    "expira": "2026-09-03",
+    "device_id": null
   },
-  "RADAR-QA9Z-MF27-KXP4": {
+  "RADAR-MPH2-34SH-6NPQ": {
     "ativa": true,
     "cliente": "Cliente 6",
-    "expira": "2026-03-23"
+    "expira": "2026-09-03",
+    "device_id": null
   },
-  "RADAR-Z7P4-XM2A-Q9KF": {
+  "RADAR-4QGD-S7LC-VUPS": {
     "ativa": true,
     "cliente": "Cliente 7",
-    "expira": "2026-03-03"
+    "expira": "2026-09-03",
+    "device_id": null
   },
-  "RADAR-4MZK-QA97-X2FP": {
+  "RADAR-V5PU-56CV-JNZM": {
     "ativa": true,
     "cliente": "Cliente 8",
-    "expira": "2026-03-03"
+    "expira": "2026-09-03",
+    "device_id": null
   },
-  "RADAR-K9P2-Z7XQ-MA4F": {
+  "RADAR-WHBR-3ANA-GKGT": {
     "ativa": true,
     "cliente": "Cliente 9",
-    "expira": "2026-03-03"
+    "expira": "2026-09-03",
+    "device_id": null
   },
-  "RADAR-XQF4-2MZ9-K7AP": {
+  "RADAR-E4BA-RTY9-DM9Y": {
     "ativa": true,
     "cliente": "Cliente 10",
-    "expira": "2026-04-03"
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-Y2BV-4A2D-B5SP": {
+    "ativa": true,
+    "cliente": "Cliente 11",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-PKFS-BUBR-FJ3F": {
+    "ativa": true,
+    "cliente": "Cliente 12",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-ZK65-YMN4-AL8J": {
+    "ativa": true,
+    "cliente": "Cliente 13",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-BR6A-ERCZ-HDKG": {
+    "ativa": true,
+    "cliente": "Cliente 14",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-SG4Y-WB4P-DKC3": {
+    "ativa": true,
+    "cliente": "Cliente 15",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-PWTK-H4AY-Q9FB": {
+    "ativa": true,
+    "cliente": "Cliente 16",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-2MHG-RV54-3CAL": {
+    "ativa": true,
+    "cliente": "Cliente 17",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-RKV6-477P-AVH6": {
+    "ativa": true,
+    "cliente": "Cliente 18",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-8VKE-88DK-V28E": {
+    "ativa": true,
+    "cliente": "Cliente 19",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-L9D2-FR6Z-EUZT": {
+    "ativa": true,
+    "cliente": "Cliente 20",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-GV25-B3QE-HKV8": {
+    "ativa": true,
+    "cliente": "Cliente 21",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-5C3B-MQSZ-NV62": {
+    "ativa": true,
+    "cliente": "Cliente 22",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-8BP4-6T4W-8XVC": {
+    "ativa": true,
+    "cliente": "Cliente 23",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-R2X8-QHKW-S8RW": {
+    "ativa": true,
+    "cliente": "Cliente 24",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-F76A-KPN6-FSWQ": {
+    "ativa": true,
+    "cliente": "Cliente 25",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-J55K-H3QE-9TJ6": {
+    "ativa": true,
+    "cliente": "Cliente 26",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-HMA2-X9EM-6HFM": {
+    "ativa": true,
+    "cliente": "Cliente 27",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-7YXA-FAKL-AGY3": {
+    "ativa": true,
+    "cliente": "Cliente 28",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-2YAJ-TAAT-MFSV": {
+    "ativa": true,
+    "cliente": "Cliente 29",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-943Z-93K7-LW7X": {
+    "ativa": true,
+    "cliente": "Cliente 30",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-FSSZ-4R26-M72A": {
+    "ativa": true,
+    "cliente": "Cliente 31",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-9TNB-9QKB-ABHX": {
+    "ativa": true,
+    "cliente": "Cliente 32",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-GQZ6-JGAK-6JSD": {
+    "ativa": true,
+    "cliente": "Cliente 33",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-8N99-Y7XM-NW64": {
+    "ativa": true,
+    "cliente": "Cliente 34",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-78AX-W4BD-E2RY": {
+    "ativa": true,
+    "cliente": "Cliente 35",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-G2BB-8M3G-Z5KE": {
+    "ativa": true,
+    "cliente": "Cliente 36",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-UWHF-XASX-3XQD": {
+    "ativa": true,
+    "cliente": "Cliente 37",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-6M57-7DGS-5RGV": {
+    "ativa": true,
+    "cliente": "Cliente 38",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-T9ET-HQMK-2BBR": {
+    "ativa": true,
+    "cliente": "Cliente 39",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-EFVM-HRQ4-7KPS": {
+    "ativa": true,
+    "cliente": "Cliente 40",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-MDN7-HLPQ-WVEF": {
+    "ativa": true,
+    "cliente": "Cliente 41",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-GHS9-EK5C-TSYV": {
+    "ativa": true,
+    "cliente": "Cliente 42",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-3YAQ-WM84-JQQL": {
+    "ativa": true,
+    "cliente": "Cliente 43",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-A37V-KBSV-VP68": {
+    "ativa": true,
+    "cliente": "Cliente 44",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-WAB5-PYAU-8GSU": {
+    "ativa": true,
+    "cliente": "Cliente 45",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-UZA8-NWWT-FEDK": {
+    "ativa": true,
+    "cliente": "Cliente 46",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-H5ST-YD8B-L4M6": {
+    "ativa": true,
+    "cliente": "Cliente 47",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-BAX4-PGZF-MPNG": {
+    "ativa": true,
+    "cliente": "Cliente 48",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-7JF3-8JGD-K2ZR": {
+    "ativa": true,
+    "cliente": "Cliente 49",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-E8VC-XD6F-BQ75": {
+    "ativa": true,
+    "cliente": "Cliente 50",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-ZP8J-5KTE-E6FY": {
+    "ativa": true,
+    "cliente": "Cliente 51",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-RJF8-T7GX-SS5P": {
+    "ativa": true,
+    "cliente": "Cliente 52",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-S9FU-DDV9-XUBK": {
+    "ativa": true,
+    "cliente": "Cliente 53",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-VKU2-ZH8Q-75RQ": {
+    "ativa": true,
+    "cliente": "Cliente 54",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-SFAZ-DMW2-KUBM": {
+    "ativa": true,
+    "cliente": "Cliente 55",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-J8YX-X9EA-NF8S": {
+    "ativa": true,
+    "cliente": "Cliente 56",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-D78N-2PB6-QYY6": {
+    "ativa": true,
+    "cliente": "Cliente 57",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-ZB85-4V6A-42MK": {
+    "ativa": true,
+    "cliente": "Cliente 58",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-G7U8-ND79-Q9GG": {
+    "ativa": true,
+    "cliente": "Cliente 59",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-58T7-DWC5-PHZ7": {
+    "ativa": true,
+    "cliente": "Cliente 60",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-CGD7-4GGE-2EGR": {
+    "ativa": true,
+    "cliente": "Cliente 61",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-FH6Y-4YHE-RXYY": {
+    "ativa": true,
+    "cliente": "Cliente 62",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-VHUD-RTXE-M9WT": {
+    "ativa": true,
+    "cliente": "Cliente 63",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-YXF3-8B3G-3RZH": {
+    "ativa": true,
+    "cliente": "Cliente 64",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-X3G3-UNBX-LCXF": {
+    "ativa": true,
+    "cliente": "Cliente 65",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-8SXX-LWHN-EJ4B": {
+    "ativa": true,
+    "cliente": "Cliente 66",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-DK2Y-M4BW-JAJS": {
+    "ativa": true,
+    "cliente": "Cliente 67",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-CHEA-KZNC-BH8B": {
+    "ativa": true,
+    "cliente": "Cliente 68",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-VFES-WLRR-5J59": {
+    "ativa": true,
+    "cliente": "Cliente 69",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-DGDL-LLWH-YEBU": {
+    "ativa": true,
+    "cliente": "Cliente 70",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-FHV2-NPAF-CGR3": {
+    "ativa": true,
+    "cliente": "Cliente 71",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-E2XM-HF5Z-GQVV": {
+    "ativa": true,
+    "cliente": "Cliente 72",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-RJ4Y-68SN-GUM6": {
+    "ativa": true,
+    "cliente": "Cliente 73",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-9GDW-DXB8-LQGY": {
+    "ativa": true,
+    "cliente": "Cliente 74",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-98DX-E9LC-EVEL": {
+    "ativa": true,
+    "cliente": "Cliente 75",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-8Y8F-6HNA-QA9Z": {
+    "ativa": true,
+    "cliente": "Cliente 76",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-JZ9B-HXMD-6BNQ": {
+    "ativa": true,
+    "cliente": "Cliente 77",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-6HGA-UPQT-LEEF": {
+    "ativa": true,
+    "cliente": "Cliente 78",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-3BG3-9AET-YDZD": {
+    "ativa": true,
+    "cliente": "Cliente 79",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-PT8V-UVLJ-24JA": {
+    "ativa": true,
+    "cliente": "Cliente 80",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-SPR5-VUM4-3K42": {
+    "ativa": true,
+    "cliente": "Cliente 81",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-K4PX-7YK4-NX9J": {
+    "ativa": true,
+    "cliente": "Cliente 82",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-S4DQ-NRGX-CVLR": {
+    "ativa": true,
+    "cliente": "Cliente 83",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-7ATR-R9FQ-U67T": {
+    "ativa": true,
+    "cliente": "Cliente 84",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-8CWP-JNJ2-EWQL": {
+    "ativa": true,
+    "cliente": "Cliente 85",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-SMQX-R6TS-62UD": {
+    "ativa": true,
+    "cliente": "Cliente 86",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-FNXV-Q8U4-AEHB": {
+    "ativa": true,
+    "cliente": "Cliente 87",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-NM7W-ENVQ-Y8J2": {
+    "ativa": true,
+    "cliente": "Cliente 88",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-A8KT-8EDP-LNWA": {
+    "ativa": true,
+    "cliente": "Cliente 89",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-9W87-RL8B-DG77": {
+    "ativa": true,
+    "cliente": "Cliente 90",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-SV3H-264D-HJS3": {
+    "ativa": true,
+    "cliente": "Cliente 91",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-BMAB-6APN-EPAQ": {
+    "ativa": true,
+    "cliente": "Cliente 92",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-S2K5-NNXY-3GRM": {
+    "ativa": true,
+    "cliente": "Cliente 93",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-XG8M-M6RH-PSHZ": {
+    "ativa": true,
+    "cliente": "Cliente 94",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-EHDE-5YPJ-CHBZ": {
+    "ativa": true,
+    "cliente": "Cliente 95",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-TBNK-G53H-GAKH": {
+    "ativa": true,
+    "cliente": "Cliente 96",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-AJ6X-Y4F8-W7GH": {
+    "ativa": true,
+    "cliente": "Cliente 97",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-KKKT-4SA7-EBYK": {
+    "ativa": true,
+    "cliente": "Cliente 98",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-DF7S-SJ9X-J32B": {
+    "ativa": true,
+    "cliente": "Cliente 99",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-G4M6-NQND-D83C": {
+    "ativa": true,
+    "cliente": "Cliente 100",
+    "expira": "2026-09-03",
+    "device_id": null
+  },
+  "RADAR-9JXA-BSTM-3YAB": {
+    "ativa": true,
+    "cliente": "Cliente 101",
+    "expira": "2026-09-03",
+    "device_id": null
   }
 }
