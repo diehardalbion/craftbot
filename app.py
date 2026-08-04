@@ -1,13 +1,11 @@
 import streamlit as st
 import requests
 import json
-import uuid
 from datetime import datetime, timezone
-import extra_streamlit_components as stx
 
 # ================= CONFIGURAÇÃO DA PÁGINA =================
 st.set_page_config(
-    page_title="Radar Craft Albion",
+    page_title="Bot Craft Albion",
     layout="wide",
     page_icon="⚔️",
     initial_sidebar_state="expanded"
@@ -449,72 +447,21 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ================= DISPOSITIVO (COOKIE PERSISTENTE) =================
-# Cada navegador recebe um ID aleatório salvo em cookie. Esse ID é usado
-# para "travar" a chave no primeiro dispositivo que fizer login com ela.
-@st.cache_resource
-def get_cookie_manager():
-    return stx.CookieManager(key="radar_cookie_manager")
-
-cookie_manager = get_cookie_manager()
-
-# Na primeira renderização o componente ainda não devolveu os cookies —
-# isso é normal no streamlit-cookies-manager, então tratamos com calma.
-todos_cookies = cookie_manager.get_all(key="radar_get_all_cookies")
-
-def obter_device_id():
-    if todos_cookies is None:
-        return None
-    dev = todos_cookies.get("radar_device_id")
-    if dev:
-        return dev
-    novo_id = str(uuid.uuid4())
-    cookie_manager.set(
-        "radar_device_id",
-        novo_id,
-        expires_at=datetime(2035, 1, 1),
-        key="radar_set_device_id"
-    )
-    return novo_id
-
-device_id = obter_device_id()
-
 # ================= SISTEMA DE LOGIN / KEYS =================
-def verificar_chave(chave_usuario, device_id):
+def verificar_chave(chave_usuario):
     try:
         with open("keys.json", "r") as f:
             keys_db = json.load(f)
-
-        if chave_usuario not in keys_db:
-            return False, "Chave inválida."
-
-        dados = keys_db[chave_usuario]
-
-        if not dados["ativa"]:
-            return False, "Esta chave foi desativada."
-
-        if dados["expira"] != "null":
-            data_expira = datetime.strptime(dados["expira"], "%Y-%m-%d").date()
-            if datetime.now().date() > data_expira:
-                return False, "Esta chave expirou."
-
-        if device_id is None:
-            # cookie ainda não carregou nesta renderização — pede pra tentar de novo
-            return False, "Carregando sessão, clique em Liberar Acesso novamente."
-
-        device_vinculado = dados.get("device_id")
-
-        if device_vinculado is None:
-            # Primeiro uso desta chave: vincula ao dispositivo atual
-            dados["device_id"] = device_id
-            dados["primeiro_acesso"] = datetime.now(timezone.utc).isoformat()
-            keys_db[chave_usuario] = dados
-            with open("keys.json", "w") as f:
-                json.dump(keys_db, f, indent=2, ensure_ascii=False)
-        elif device_vinculado != device_id:
-            return False, "Esta chave já está em uso em outro dispositivo/navegador."
-
-        return True, dados["cliente"]
+        if chave_usuario in keys_db:
+            dados = keys_db[chave_usuario]
+            if not dados["ativa"]:
+                return False, "Esta chave foi desativada."
+            if dados["expira"] != "null":
+                data_expira = datetime.strptime(dados["expira"], "%Y-%m-%d").date()
+                if datetime.now().date() > data_expira:
+                    return False, "Esta chave expirou."
+            return True, dados["cliente"]
+        return False, "Chave inválida."
     except Exception as e:
         return False, f"Erro ao acessar keys.json: {e}"
 
@@ -530,7 +477,7 @@ if not st.session_state.autenticado:
         <div style="text-align: center; margin: 2rem 0 1rem;">
             <div style="font-size: 4rem; margin-bottom: 0.5rem;">⚔️</div>
         </div>
-        <div class="login-title">Radar Craft</div>
+        <div class="login-title">Bot Craft</div>
         <div class="login-subtitle">Albion Online — Análise de Mercado</div>
         <div class="fancy-divider"></div>
         """)
@@ -551,7 +498,7 @@ if not st.session_state.autenticado:
             key_input = st.text_input("Chave de Acesso:", type="password", label_visibility="collapsed", placeholder="RADAR-XXXX-XXXX-XXXX")
 
             if st.button("🔓 Liberar Acesso", use_container_width=True):
-                sucesso, mensagem = verificar_chave(key_input, device_id)
+                sucesso, mensagem = verificar_chave(key_input)
                 if sucesso:
                     st.session_state.autenticado = True
                     st.session_state.cliente = mensagem
@@ -584,7 +531,7 @@ if not st.session_state.autenticado:
                     </div>
                 </div>
 
-                <a href="https://wa.me/5521993609613?text=Olá! Gostaria de comprar uma key para o Radar Craft Albion." target="_blank" style="text-decoration: none;">
+                <a href="https://wa.me/5521993609613?text=Olá! Gostaria de comprar uma key para o Bot Craft Albion." target="_blank" style="text-decoration: none;">
                     <div class="whatsapp-btn">
                         📱 COMPRAR VIA WHATSAPP
                     </div>
@@ -594,7 +541,7 @@ if not st.session_state.autenticado:
 
         st.html("""
         <div class="footer">
-            <span class="footer-brand">Radar Craft</span> — Desenvolvido para análise de mercado via Albion Online Data Project
+            <span class="footer-brand">Bot Craft</span> — Desenvolvido para análise de mercado via Albion Online Data Project
         </div>
         """)
 
@@ -1046,7 +993,7 @@ with st.sidebar:
     st.html("""
     <div style="text-align:center; margin-bottom:1rem;">
         <div style="font-size:2rem; margin-bottom:0.3rem;">⚔️</div>
-        <div style="font-family:Cinzel,serif; font-weight:800; font-size:1.1rem; color:#2ecc71; letter-spacing:2px;">RADAR CRAFT</div>
+        <div style="font-family:Cinzel,serif; font-weight:800; font-size:1.1rem; color:#2ecc71; letter-spacing:2px;">BOT CRAFT</div>
         <div style="font-size:0.7rem; color:rgba(255,255,255,0.4); letter-spacing:1px; margin-top:2px;">ALBION ONLINE</div>
     </div>
     """)
@@ -1072,7 +1019,7 @@ with st.sidebar:
     """)
 
 # ================= HEADER PRINCIPAL =================
-st.html("<h1 class='main-title'>⚔️ Radar Craft</h1>")
+st.html("<h1 class='main-title'>⚔️ Bot Craft</h1>")
 st.html("<div class='subtitle'>Análise de Mercado — Black Market</div>")
 st.html('<div class="fancy-divider"></div>')
 
@@ -1305,6 +1252,6 @@ if btn:
 
 st.html("""
 <div class="footer">
-    <span class="footer-brand">Radar Craft</span> — Desenvolvido para análise de mercado via Albion Online Data Project
+    <span class="footer-brand">Bot Craft</span> — Desenvolvido para análise de mercado via Albion Online Data Project
 </div>
 """)
