@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 
 # ================= CONFIGURAÇÃO DA PÁGINA =================
 st.set_page_config(
-    page_title="Radar Craft Albion",
+    page_title="Bot Craft Albion",
     layout="wide",
     page_icon="⚔️",
     initial_sidebar_state="expanded"
@@ -477,7 +477,7 @@ if not st.session_state.autenticado:
         <div style="text-align: center; margin: 2rem 0 1rem;">
             <div style="font-size: 4rem; margin-bottom: 0.5rem;">⚔️</div>
         </div>
-        <div class="login-title">Radar Craft</div>
+        <div class="login-title">Bot Craft</div>
         <div class="login-subtitle">Albion Online — Análise de Mercado</div>
         <div class="fancy-divider"></div>
         """)
@@ -531,7 +531,7 @@ if not st.session_state.autenticado:
                     </div>
                 </div>
 
-                <a href="https://wa.me/5521993609613?text=Olá! Gostaria de comprar uma key para o Radar Craft Albion." target="_blank" style="text-decoration: none;">
+                <a href="https://wa.me/5521993609613?text=Olá! Gostaria de comprar uma key para o Bot Craft Albion." target="_blank" style="text-decoration: none;">
                     <div class="whatsapp-btn">
                         📱 COMPRAR VIA WHATSAPP
                     </div>
@@ -541,7 +541,7 @@ if not st.session_state.autenticado:
 
         st.html("""
         <div class="footer">
-            <span class="footer-brand">Radar Craft</span> — Desenvolvido para análise de mercado via Albion Online Data Project
+            <span class="footer-brand">Bot Craft</span> — Desenvolvido para análise de mercado via Albion Online Data Project
         </div>
         """)
 
@@ -993,7 +993,7 @@ with st.sidebar:
     st.html("""
     <div style="text-align:center; margin-bottom:1rem;">
         <div style="font-size:2rem; margin-bottom:0.3rem;">⚔️</div>
-        <div style="font-family:Cinzel,serif; font-weight:800; font-size:1.1rem; color:#2ecc71; letter-spacing:2px;">RADAR CRAFT</div>
+        <div style="font-family:Cinzel,serif; font-weight:800; font-size:1.1rem; color:#2ecc71; letter-spacing:2px;">BOT CRAFT</div>
         <div style="font-size:0.7rem; color:rgba(255,255,255,0.4); letter-spacing:1px; margin-top:2px;">ALBION ONLINE</div>
     </div>
     """)
@@ -1019,7 +1019,7 @@ with st.sidebar:
     """)
 
 # ================= HEADER PRINCIPAL =================
-st.html("<h1 class='main-title'>⚔️ Radar Craft</h1>")
+st.html("<h1 class='main-title'>⚔️ Bot Craft</h1>")
 st.html("<div class='subtitle'>Análise de Mercado — Black Market</div>")
 st.html('<div class="fancy-divider"></div>')
 
@@ -1252,6 +1252,6 @@ if btn:
 
 st.html("""
 <div class="footer">
-    <span class="footer-brand">Radar Craft</span> — Desenvolvido para análise de mercado via Albion Online Data Project
+    <span class="footer-brand">Bot Craft</span> — Desenvolvido para análise de mercado via Albion Online Data Project
 </div>
 """)
