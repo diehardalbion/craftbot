@@ -1313,7 +1313,7 @@ if btn:
 
         total_encontrados = len(resultados)
 
-        # Header geral dos resultados
+        # ================= HEADER GERAL =================
         st.html(f"""
         <div class="results-header">
             <div>
@@ -1327,77 +1327,90 @@ if btn:
         </div>
         """)
 
-        for e in ENCANTOS:
-            grupo = grupos_por_encanto[e]
-            if not grupo:
-                continue
+        # ================= GRID 5 COLUNAS (1 POR ENCANTAMENTO) =================
+        cols = st.columns(5)
 
-            st.html(f"""
-            <div style="display:flex; align-items:center; gap:12px; margin:1.5rem 0 1rem;">
-                <span class="badge badge-enchant" style="font-size:0.85rem; padding:6px 16px;">Encantamento @{e}</span>
-                <div style="flex:1; height:1px; background:linear-gradient(90deg, rgba(155,89,182,0.4), transparent);"></div>
-                <span style="font-size:0.75rem; color:rgba(255,255,255,0.4);">{len(grupo)} item(ns)</span>
-            </div>
-            """)
+        for idx_col, e in enumerate(ENCANTOS):
+            with cols[idx_col]:
+                grupo = grupos_por_encanto[e]
 
-            for nome, encanto, lucro, venda, custo, detalhes, h_venda in grupo:
-                perc_lucro = (lucro / custo) * 100 if custo > 0 else 0
-                cidade_foco = identificar_cidade_bonus(nome)
-
-                profit_class = "profit-positive" if lucro > 0 else "profit-negative"
-                profit_sign = "+" if lucro > 0 else ""
-                border_color = "#2ecc71" if lucro > 0 else "#e74c3c"
-
-                detalhes_html = " ".join([f'<span style="background:rgba(255,255,255,0.05); padding:4px 10px; border-radius:6px; border:1px solid rgba(255,255,255,0.08); font-size:0.8rem;">{d}</span>' for d in detalhes])
-
-                st.html(f"""
-                <div class="item-card-custom" style="border-left: 4px solid {border_color};">
-                    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px; flex-wrap:wrap;">
-                        <div style="font-family:'Cinzel',serif; font-size:1.2rem; font-weight:700; color:{border_color}; letter-spacing:1px;">
-                            ⚔️ {nome}
-                        </div>
-                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                            <span class="badge badge-tier">T{tier}</span>
-                            <span class="badge badge-enchant">@{encanto}</span>
-                            <span class="badge badge-qty">x{quantidade}</span>
-                            <span class="badge badge-city">{cidade_foco}</span>
+                # Header da coluna do encantamento
+                if grupo:
+                    st.html(f"""
+                    <div style="text-align:center; margin-bottom:1rem; padding:0.5rem 0; border-bottom:1px solid rgba(255,255,255,0.08);">
+                        <span class="badge badge-enchant" style="font-size:0.8rem; padding:5px 14px;">Encantamento @{e}</span>
+                        <div style="font-size:0.7rem; color:rgba(255,255,255,0.35); margin-top:6px;">{len(grupo)} item(ns)</div>
+                    </div>
+                    """)
+                else:
+                    st.html(f"""
+                    <div style="text-align:center; margin-bottom:1rem; padding:0.5rem 0; border-bottom:1px solid rgba(255,255,255,0.08);">
+                        <span class="badge badge-enchant" style="font-size:0.8rem; padding:5px 14px;">Encantamento @{e}</span>
+                        <div style="font-size:0.75rem; color:rgba(255,255,255,0.25); margin-top:1rem; padding:1rem 0;">
+                            Nenhum item<br>encontrado
                         </div>
                     </div>
+                    """)
+                    continue
 
-                    <div class="financial-row">
-                        <div class="financial-item">
-                            <div class="financial-label">💰 Lucro Estimado</div>
-                            <div class="financial-value {profit_class}">{profit_sign}{lucro:,}</div>
-                            <div style="font-size:0.75rem; color:rgba(255,255,255,0.4); margin-top:2px;">{perc_lucro:.2f}% ROI</div>
+                # Cards empilhados dentro da coluna
+                for nome, encanto, lucro, venda, custo, detalhes, h_venda in grupo:
+                    perc_lucro = (lucro / custo) * 100 if custo > 0 else 0
+                    cidade_foco = identificar_cidade_bonus(nome)
+
+                    profit_class = "profit-positive" if lucro > 0 else "profit-negative"
+                    profit_sign = "+" if lucro > 0 else ""
+                    border_color = "#2ecc71" if lucro > 0 else "#e74c3c"
+
+                    detalhes_html = " ".join([f'<span style="background:rgba(255,255,255,0.05); padding:4px 10px; border-radius:6px; border:1px solid rgba(255,255,255,0.08); font-size:0.75rem;">{d}</span>' for d in detalhes])
+
+                    st.html(f"""
+                    <div class="item-card-custom" style="border-left: 3px solid {border_color}; padding: 16px; margin-bottom: 14px;">
+                        <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
+                            <div style="font-family:'Cinzel',serif; font-size:0.95rem; font-weight:700; color:{border_color}; letter-spacing:0.5px; line-height:1.2;">
+                                ⚔️ {nome}
+                            </div>
+                            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                                <span class="badge badge-tier" style="font-size:0.65rem; padding:3px 8px;">T{tier}</span>
+                                <span class="badge badge-enchant" style="font-size:0.65rem; padding:3px 8px;">@{encanto}</span>
+                                <span class="badge badge-qty" style="font-size:0.65rem; padding:3px 8px;">x{quantidade}</span>
+                            </div>
                         </div>
-                        <div class="financial-item">
-                            <div class="financial-label">📥 Investimento</div>
-                            <div class="financial-value neutral">{custo:,}</div>
+
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin:12px 0;">
+                            <div class="financial-item" style="padding:10px;">
+                                <div class="financial-label" style="font-size:0.65rem;">💰 Lucro</div>
+                                <div class="financial-value {profit_class}" style="font-size:0.9rem;">{profit_sign}{lucro:,}</div>
+                                <div style="font-size:0.7rem; color:rgba(255,255,255,0.35);">{perc_lucro:.1f}% ROI</div>
+                            </div>
+                            <div class="financial-item" style="padding:10px;">
+                                <div class="financial-label" style="font-size:0.65rem;">📥 Custo</div>
+                                <div class="financial-value neutral" style="font-size:0.9rem;">{custo:,}</div>
+                            </div>
+                            <div class="financial-item" style="padding:10px;">
+                                <div class="financial-label" style="font-size:0.65rem;">📤 Venda</div>
+                                <div class="financial-value neutral" style="font-size:0.9rem;">{venda:,}</div>
+                            </div>
+                            <div class="financial-item" style="padding:10px;">
+                                <div class="financial-label" style="font-size:0.65rem;">📍 Craft</div>
+                                <div class="financial-value neutral" style="font-size:0.9rem;">{cidade_foco}</div>
+                            </div>
                         </div>
-                        <div class="financial-item">
-                            <div class="financial-label">📤 Venda Estimada</div>
-                            <div class="financial-value neutral">{venda:,}</div>
+
+                        <div class="details-box" style="padding:12px;">
+                            <div style="font-size:0.75rem; font-weight:600; color:rgba(255,255,255,0.5); margin-bottom:6px; text-transform:uppercase; letter-spacing:1px;">
+                                📦 Compras
+                            </div>
+                            <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                                {detalhes_html}
+                            </div>
                         </div>
-                        <div class="financial-item">
-                            <div class="financial-label">📍 Foco Craft</div>
-                            <div class="financial-value neutral">{cidade_foco}</div>
+
+                        <div style="margin-top:8px; font-size:0.7rem; color:rgba(255,255,255,0.25); text-align:right;">
+                            🕒 {h_venda}
                         </div>
                     </div>
-
-                    <div class="details-box">
-                        <div style="font-size:0.8rem; font-weight:600; color:rgba(255,255,255,0.6); margin-bottom:8px; text-transform:uppercase; letter-spacing:1px;">
-                            📦 Detalhamento de Compras
-                        </div>
-                        <div style="display:flex; flex-wrap:wrap; gap:8px;">
-                            {detalhes_html}
-                        </div>
-                    </div>
-
-                    <div style="margin-top:12px; font-size:0.75rem; color:rgba(255,255,255,0.3); text-align:right;">
-                        🕒 Baseado em: {h_venda}
-                    </div>
-                </div>
-                """)
+                    """)
 
 st.html("""
 <div class="footer">
